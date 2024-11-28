@@ -3,8 +3,7 @@ using UnityEngine;
 public class GridCursor : MonoBehaviour
 {
     #region Private Fields
-    [SerializeField] private Vector2Int m_GridSize = new Vector2Int(8, 8);
-    [SerializeField] private float m_GridCellSize = 1f;
+    [SerializeField] private GridSettings m_GridSettings;
     [SerializeField] private float m_MoveCooldown = 0.15f;
     
     private Vector2Int m_CurrentGridPosition;
@@ -18,8 +17,8 @@ public class GridCursor : MonoBehaviour
     #region Unity Lifecycle
     private void Start()
     {
-        // Start at center of grid
-        m_CurrentGridPosition = new Vector2Int(m_GridSize.x / 2, m_GridSize.y / 2);
+        // Center cursor in grid
+        m_CurrentGridPosition = new Vector2Int(m_GridSettings.GridSize.x / 2, m_GridSettings.GridSize.y / 2);
         UpdatePosition();
     }
 
@@ -59,8 +58,8 @@ public class GridCursor : MonoBehaviour
         Vector2Int newPosition = m_CurrentGridPosition + _direction;
 
         // Check if new position is within grid bounds
-        if (newPosition.x >= 0 && newPosition.x < m_GridSize.x &&
-            newPosition.y >= 0 && newPosition.y < m_GridSize.y)
+        if (newPosition.x >= 0 && newPosition.x < m_GridSettings.GridSize.x &&
+            newPosition.y >= 0 && newPosition.y < m_GridSettings.GridSize.y)
         {
             m_CurrentGridPosition = newPosition;
             m_LastMoveTime = Time.time;
@@ -70,10 +69,10 @@ public class GridCursor : MonoBehaviour
 
     private void UpdatePosition()
     {
-        // Convert grid position to world position
+        // Convert grid position to world position, centered in cell
         Vector3 worldPosition = new Vector3(
-            m_CurrentGridPosition.x * m_GridCellSize,
-            m_CurrentGridPosition.y * m_GridCellSize,
+            (m_CurrentGridPosition.x + 0.5f) * m_GridSettings.CellSize, // Added 0.5f to center in cell
+            (m_CurrentGridPosition.y + 0.5f) * m_GridSettings.CellSize, // Added 0.5f to center in cell
             0
         );
         
