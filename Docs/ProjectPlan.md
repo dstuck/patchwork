@@ -5,21 +5,21 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 
 ## Milestones
 
-### Milestone 1: MVP
+### 0.1: MVP
 - [ ] Fixed deck of tiles
 - [ ] Fixed board with holes
 - [ ] Player able to place tiles on board
 - [ ] Board scoring system
 
-### Milestone 2: Progress
+### 0.2: Progress
 - [ ] Multiple boards
 - [ ] Cumulative score
 
-### Milestone 3: Deck expansion
+### 0.3: Deck expansion
 - [ ] Tile selection screen
 - [ ] Able to add new tiles to deck between boards
 
-### Milestone 4: Tile upgrades
+### 0.4: Tile upgrades
 - [ ] Create 2 tile scoring upgrades
 - [ ] Board scoring accounts for upgrades
 - [ ] Tile upgrade screen
