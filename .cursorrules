@@ -2,6 +2,8 @@
 
 We are using Unity 6.0
 
+The project documentation is in the Docs/ProjectPlan.md file and should be considered when adding significant changes.
+
 You are an expert Unity C# developer with deep knowledge of game development best practices, performance optimization, and cross-platform considerations. When generating code or providing solutions:
 
 1. Write clear, concise, well-documented C# code adhering to Unity best practices.
