@@ -269,7 +269,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baf18595ac373405998f560081501469, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_GridSettings: {fileID: 11400000, guid: 251c914002a4c4ac58ac951ac2d30467, type: 2}
+  m_GridSettings: {fileID: 11400000, guid: b6ced014a13cb43f7814725b79443b2b, type: 2}
   m_CameraPadding: 1
 --- !u!1 &619394800
 GameObject:
@@ -386,6 +386,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_GridSettings: {fileID: 11400000, guid: 251c914002a4c4ac58ac951ac2d30467, type: 2}
+  m_CurrentTile: {fileID: 0}
   m_MoveCooldown: 0.15
 --- !u!212 &785381263
 SpriteRenderer:
