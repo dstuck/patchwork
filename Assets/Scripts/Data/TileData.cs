@@ -38,6 +38,56 @@ namespace Patchwork.Data
             }
             return worldPositions;
         }
+
+        public Vector2Int[] GetRotatedSquares(int _rotation)
+        {
+            // Normalize rotation to 0, 90, 180, or 270
+            int normalizedRotation = ((_rotation % 360) + 360) % 360;
+            int quarterTurns = normalizedRotation / 90;
+            
+            Vector2Int[] rotatedSquares = new Vector2Int[m_Squares.Length];
+            
+            for (int i = 0; i < m_Squares.Length; i++)
+            {
+                Vector2Int point = m_Squares[i];
+                
+                // Apply rotation based on number of 90-degree turns
+                switch (quarterTurns)
+                {
+                    case 1: // 90 degrees clockwise
+                        rotatedSquares[i] = new Vector2Int(point.y, -point.x);
+                        break;
+                    case 2: // 180 degrees
+                        rotatedSquares[i] = new Vector2Int(-point.x, -point.y);
+                        break;
+                    case 3: // 270 degrees clockwise
+                        rotatedSquares[i] = new Vector2Int(-point.y, point.x);
+                        break;
+                    default: // 0 degrees
+                        rotatedSquares[i] = point;
+                        break;
+                }
+            }
+            
+            return rotatedSquares;
+        }
+        #endregion
+
+        #region Private Methods
+        private Vector2Int RotatePoint(Vector2Int _point, int _degrees)
+        {
+            // Convert degrees to radians
+            float radians = _degrees * Mathf.Deg2Rad;
+            
+            // Rotate point using 2D rotation matrix
+            float cos = Mathf.Cos(radians);
+            float sin = Mathf.Sin(radians);
+            
+            return new Vector2Int(
+                Mathf.RoundToInt(_point.x * cos - _point.y * sin),
+                Mathf.RoundToInt(_point.x * sin + _point.y * cos)
+            );
+        }
         #endregion
 
         #if UNITY_EDITOR

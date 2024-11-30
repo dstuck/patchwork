@@ -9,9 +9,12 @@ namespace Patchwork.Gameplay
         [SerializeField] private GridSettings m_GridSettings;
         [SerializeField] private TileData m_CurrentTile;
         [SerializeField] private float m_MoveCooldown = 0.15f;
+        [SerializeField] private float m_RotateCooldown = 0.15f;
         
         private Vector2Int m_CurrentGridPosition;
         private float m_LastMoveTime;
+        private float m_LastRotateTime;
+        private int m_CurrentRotation; // 0, 90, 180, or 270 degrees
         private TileRenderer m_TileRenderer;
         #endregion
 
@@ -30,12 +33,13 @@ namespace Patchwork.Gameplay
 
         private void Update()
         {
-            HandleInput();
+            HandleMovement();
+            HandleRotation();
         }
         #endregion
 
         #region Private Methods
-        private void HandleInput()
+        private void HandleMovement()
         {
             // Check if enough time has passed since last move
             if (Time.time - m_LastMoveTime < m_MoveCooldown) return;
@@ -82,6 +86,38 @@ namespace Patchwork.Gameplay
             );
             
             transform.position = worldPosition;
+        }
+
+        private void HandleRotation()
+        {
+            if (Time.time - m_LastRotateTime < m_RotateCooldown) return;
+
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                Debug.Log($"Rotating clockwise from {m_CurrentRotation}");
+                RotateTile(true);
+                m_LastRotateTime = Time.time;
+            }
+            else if (Input.GetKeyDown(KeyCode.Q))
+            {
+                Debug.Log($"Rotating counter-clockwise from {m_CurrentRotation}");
+                RotateTile(false);
+                m_LastRotateTime = Time.time;
+            }
+        }
+
+        private void RotateTile(bool _clockwise)
+        {
+            m_CurrentRotation += _clockwise ? 90 : -90;
+            
+            // Keep rotation between 0 and 359
+            if (m_CurrentRotation >= 360) m_CurrentRotation -= 360;
+            if (m_CurrentRotation < 0) m_CurrentRotation += 360;
+            
+            if (m_TileRenderer != null)
+            {
+                m_TileRenderer.UpdateRotation(m_CurrentRotation);
+            }
         }
         #endregion
     } 

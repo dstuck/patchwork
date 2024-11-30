@@ -9,6 +9,7 @@ namespace Patchwork.Gameplay
         [SerializeField] private TileData m_TileData;
         [SerializeField] private GridSettings m_GridSettings;
         private SpriteRenderer[] m_SquareRenderers;
+        private int m_CurrentRotation;
         #endregion
 
         private void Awake()
@@ -29,6 +30,7 @@ namespace Patchwork.Gameplay
         public void Initialize(TileData _tileData, Color _color)
         {
             m_TileData = _tileData;
+            m_CurrentRotation = 0;
             CreateVisuals(_color);
         }
 
@@ -41,12 +43,25 @@ namespace Patchwork.Gameplay
                 renderer.color = _color;
             }
         }
+
+        public void UpdateRotation(int _rotation)
+        {
+            m_CurrentRotation = _rotation;
+            
+            // Store current color before recreating visuals
+            Color currentColor = Color.white;
+            if (m_SquareRenderers != null && m_SquareRenderers.Length > 0)
+            {
+                currentColor = m_SquareRenderers[0].color;
+            }
+            
+            CreateVisuals(currentColor);
+        }
         #endregion
 
         #region Private Methods
         private void CreateVisuals(Color _color)
         {
-            // Clean up any existing visuals
             foreach (Transform child in transform)
             {
                 Destroy(child.gameObject);
@@ -54,16 +69,7 @@ namespace Patchwork.Gameplay
 
             if (m_TileData == null) return;
 
-            // Get the sprite reference
-            Sprite squareSprite = GameResources.Instance.TileSquareSprite;
-            if (squareSprite == null)
-            {
-                Debug.LogError("Tile square sprite not set in GameResources!");
-                return;
-            }
-
-            // Create new visuals for each square
-            Vector2Int[] squares = m_TileData.Squares;
+            Vector2Int[] squares = m_TileData.GetRotatedSquares(m_CurrentRotation);
             m_SquareRenderers = new SpriteRenderer[squares.Length];
 
             for (int i = 0; i < squares.Length; i++)
@@ -75,10 +81,9 @@ namespace Patchwork.Gameplay
                     squares[i].y * m_GridSettings.CellSize,
                     0
                 );
-                square.transform.localScale = Vector3.one;
 
                 SpriteRenderer renderer = square.AddComponent<SpriteRenderer>();
-                renderer.sprite = squareSprite;
+                renderer.sprite = GameResources.Instance.TileSquareSprite;
                 renderer.color = _color;
                 m_SquareRenderers[i] = renderer;
             }

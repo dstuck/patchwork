@@ -386,8 +386,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_GridSettings: {fileID: 11400000, guid: 251c914002a4c4ac58ac951ac2d30467, type: 2}
-  m_CurrentTile: {fileID: 0}
+  m_CurrentTile: {fileID: 11400000, guid: 4c592c2f5bea843348dd86e6b1014f1d, type: 2}
   m_MoveCooldown: 0.15
+  m_RotateCooldown: 0.15
 --- !u!212 &785381263
 SpriteRenderer:
   m_ObjectHideFlags: 0
