@@ -94,13 +94,11 @@ namespace Patchwork.Gameplay
 
             if (Input.GetKeyDown(KeyCode.E))
             {
-                Debug.Log($"Rotating clockwise from {m_CurrentRotation}");
                 RotateTile(true);
                 m_LastRotateTime = Time.time;
             }
             else if (Input.GetKeyDown(KeyCode.Q))
             {
-                Debug.Log($"Rotating counter-clockwise from {m_CurrentRotation}");
                 RotateTile(false);
                 m_LastRotateTime = Time.time;
             }
