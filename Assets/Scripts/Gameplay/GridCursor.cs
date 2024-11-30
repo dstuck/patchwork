@@ -7,27 +7,31 @@ namespace Patchwork.Gameplay
     {
         #region Private Fields
         [SerializeField] private GridSettings m_GridSettings;
-        [SerializeField] private TileData m_CurrentTile;
+        [SerializeField] private TileHand m_TileHand;
         [SerializeField] private float m_MoveCooldown = 0.15f;
         [SerializeField] private float m_RotateCooldown = 0.15f;
         
         private Vector2Int m_CurrentGridPosition;
         private float m_LastMoveTime;
         private float m_LastRotateTime;
-        private int m_CurrentRotation; // 0, 90, 180, or 270 degrees
+        private int m_CurrentRotation;
         private TileRenderer m_TileRenderer;
-        #endregion
-
-        #region Properties
-        public Vector2Int CurrentGridPosition => m_CurrentGridPosition;
         #endregion
 
         #region Unity Lifecycle
         private void Start()
         {
+            if (m_TileHand == null)
+            {
+                Debug.LogError("TileHand reference not set in GridCursor!");
+                return;
+            }
+
             m_CurrentGridPosition = new Vector2Int(m_GridSettings.GridSize.x / 2, m_GridSettings.GridSize.y / 2);
             m_TileRenderer = gameObject.AddComponent<TileRenderer>();
-            m_TileRenderer.Initialize(m_CurrentTile, new Color(1f, 1f, 1f, 0.5f));
+            
+            // Initialize with the first tile
+            UpdateCurrentTile();
             UpdatePosition();
         }
 
@@ -35,10 +39,53 @@ namespace Patchwork.Gameplay
         {
             HandleMovement();
             HandleRotation();
+            HandleTileSelection();
         }
         #endregion
 
         #region Private Methods
+        private void HandleTileSelection()
+        {
+            // Number keys 1-9 for direct selection
+            for (int i = 0; i < 9; i++)
+            {
+                if (Input.GetKeyDown(KeyCode.Alpha1 + i))
+                {
+                    if (m_TileHand.SelectTile(i))
+                    {
+                        UpdateCurrentTile();
+                    }
+                }
+            }
+
+            // Tab to cycle through tiles
+            if (Input.GetKeyDown(KeyCode.Tab))
+            {
+                m_TileHand.CycleToNextTile();
+                UpdateCurrentTile();
+            }
+
+            // Cycle tiles with J/K
+            if (Input.GetKeyDown(KeyCode.J))
+            {
+                m_TileHand.CycleToPreviousTile();
+                UpdateCurrentTile();
+            }
+            else if (Input.GetKeyDown(KeyCode.K))
+            {
+                m_TileHand.CycleToNextTile();
+                UpdateCurrentTile();
+            }
+        }
+
+        private void UpdateCurrentTile()
+        {
+            if (m_TileRenderer != null && m_TileHand.CurrentTile != null)
+            {
+                m_TileRenderer.Initialize(m_TileHand.CurrentTile, new Color(1f, 1f, 1f, 0.5f));
+            }
+        }
+
         private void HandleMovement()
         {
             // Check if enough time has passed since last move
