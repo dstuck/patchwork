@@ -31,11 +31,22 @@ namespace Patchwork.Gameplay
         }
 
         #region Public Methods
-        public void Initialize(TileData _tileData, Color _color)
+        public void Initialize(TileData _tileData, Color _color, float _initialRotation = 0f)
         {
             m_TileData = _tileData;
-            m_CurrentRotation = 0;
-            CreateVisuals(_color);
+            
+            // Clear existing squares
+            foreach (Transform child in transform)
+            {
+                Destroy(child.gameObject);
+            }
+
+            if (_tileData != null)
+            {
+                CreateVisuals(_color);
+                // Apply initial rotation immediately
+                transform.rotation = Quaternion.Euler(0, 0, _initialRotation);
+            }
         }
 
         public void UpdateRotation(int _targetRotation)

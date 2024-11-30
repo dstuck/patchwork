@@ -40,6 +40,7 @@ namespace Patchwork.Gameplay
             HandleMovement();
             HandleRotation();
             HandleTileSelection();
+            HandleTilePlacement();
         }
         #endregion
 
@@ -163,6 +164,44 @@ namespace Patchwork.Gameplay
             {
                 m_TileRenderer.UpdateRotation(m_CurrentRotation);
             }
+        }
+
+        private void HandleTilePlacement()
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                if (m_TileHand.CurrentTile != null)
+                {
+                    PlaceTile();
+                    m_TileHand.RemoveCurrentTile();
+                    
+                    // Clear the cursor's tile renderer if no more tiles
+                    if (m_TileHand.CurrentTile == null)
+                    {
+                        if (m_TileRenderer != null)
+                        {
+                            m_TileRenderer.Initialize(null, Color.clear);
+                        }
+                    }
+                    else
+                    {
+                        UpdateCurrentTile();
+                    }
+                }
+            }
+        }
+
+        private void PlaceTile()
+        {
+            GameObject placedTile = new GameObject("PlacedTile");
+            placedTile.transform.position = transform.position;
+            
+            // Set initial rotation before adding TileRenderer
+            placedTile.transform.rotation = Quaternion.Euler(0, 0, m_CurrentRotation);
+            
+            // Create TileRenderer with correct rotation from the start
+            TileRenderer renderer = placedTile.AddComponent<TileRenderer>();
+            renderer.Initialize(m_TileHand.CurrentTile, Color.white, m_CurrentRotation);  // Pass in initial rotation
         }
         #endregion
     } 

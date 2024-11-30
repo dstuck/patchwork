@@ -85,10 +85,18 @@ namespace Patchwork.UI
 
         private void UpdateSelection()
         {
-            Debug.Log("TileHandUI: Updating selection");
-            if (m_TilePreviews == null)
+            if (m_TilePreviews == null) return;
+
+            // If hand is empty, disable all previews
+            if (m_TileHand.CurrentTile == null)
             {
-                Debug.LogError("TileHandUI: m_TilePreviews is null!");
+                foreach (var preview in m_TilePreviews)
+                {
+                    if (preview != null)
+                    {
+                        preview.gameObject.SetActive(false);
+                    }
+                }
                 return;
             }
 
@@ -97,8 +105,8 @@ namespace Patchwork.UI
                 if (m_TilePreviews[i] != null)
                 {
                     bool isSelected = m_TileHand.GetTileAt(i) == m_TileHand.CurrentTile;
-                    Debug.Log($"Tile {i} selected: {isSelected}");
                     m_TilePreviews[i].SetSelected(isSelected);
+                    m_TilePreviews[i].gameObject.SetActive(i < m_TileHand.GetTileCount());
                 }
             }
         }

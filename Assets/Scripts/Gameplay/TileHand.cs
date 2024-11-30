@@ -78,6 +78,25 @@ namespace Patchwork.Gameplay
             
             return m_AvailableTiles[_index];
         }
+
+        public void RemoveCurrentTile()
+        {
+            if (m_AvailableTiles.Count == 0) return;
+
+            m_AvailableTiles.RemoveAt(m_CurrentTileIndex);
+
+            if (m_AvailableTiles.Count > 0)
+            {
+                m_CurrentTileIndex %= m_AvailableTiles.Count;
+                m_CurrentTile = m_AvailableTiles[m_CurrentTileIndex];
+            }
+            else
+            {
+                m_CurrentTile = null;
+            }
+
+            OnTileChanged?.Invoke();
+        }
         #endregion
     }
 } 
