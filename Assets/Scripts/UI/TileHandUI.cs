@@ -34,7 +34,6 @@ namespace Patchwork.UI
         {
             if (m_TileHand != null)
             {
-                Debug.Log("TileHandUI: Subscribing to OnTileChanged");
                 m_TileHand.OnTileChanged += UpdateSelection;
             }
             else
@@ -85,7 +84,11 @@ namespace Patchwork.UI
 
         private void UpdateSelection()
         {
-            if (m_TilePreviews == null) return;
+            // Recreate previews if the count doesn't match
+            if (m_TilePreviews == null || m_TilePreviews.Length != m_TileHand.GetTileCount())
+            {
+                CreateTilePreviews();
+            }
 
             // If hand is empty, disable all previews
             if (m_TileHand.CurrentTile == null)
@@ -106,7 +109,7 @@ namespace Patchwork.UI
                 {
                     bool isSelected = m_TileHand.GetTileAt(i) == m_TileHand.CurrentTile;
                     m_TilePreviews[i].SetSelected(isSelected);
-                    m_TilePreviews[i].gameObject.SetActive(i < m_TileHand.GetTileCount());
+                    m_TilePreviews[i].gameObject.SetActive(true);
                 }
             }
         }

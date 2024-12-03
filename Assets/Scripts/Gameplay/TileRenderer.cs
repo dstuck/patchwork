@@ -34,6 +34,7 @@ namespace Patchwork.Gameplay
         public void Initialize(TileData _tileData, Color _color, float _initialRotation = 0f)
         {
             m_TileData = _tileData;
+            m_CurrentRotation = (int)_initialRotation;
             
             // Clear existing squares
             foreach (Transform child in transform)
@@ -44,8 +45,6 @@ namespace Patchwork.Gameplay
             if (_tileData != null)
             {
                 CreateVisuals(_color);
-                // Apply initial rotation immediately
-                transform.rotation = Quaternion.Euler(0, 0, _initialRotation);
             }
         }
 
@@ -53,23 +52,19 @@ namespace Patchwork.Gameplay
         {
             if (m_IsRotating) return;
             
-            // Store the rotation values
             int startRotation = m_CurrentRotation;
             m_CurrentRotation = _targetRotation;
             
-            // Determine visual rotation direction
             float startAngle = m_TileRoot.transform.eulerAngles.z;
             float endAngle = startAngle;
             
             if (_targetRotation > startRotation && _targetRotation - startRotation <= 180 ||
                 _targetRotation < startRotation && startRotation - _targetRotation > 180)
             {
-                // Rotate clockwise
                 endAngle -= 90;
             }
             else
             {
-                // Rotate counter-clockwise
                 endAngle += 90;
             }
 
@@ -95,8 +90,8 @@ namespace Patchwork.Gameplay
                 yield return null;
             }
 
-            // Snap to final grid-based positions
-            m_TileRoot.transform.rotation = Quaternion.identity;
+            // Set final rotation and recreate visuals
+            m_TileRoot.transform.rotation = Quaternion.Euler(0, 0, _targetRotation);
             CreateVisuals(m_SquareRenderers[0].color);
             
             m_IsRotating = false;

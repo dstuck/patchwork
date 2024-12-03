@@ -83,7 +83,8 @@ namespace Patchwork.Gameplay
         {
             if (m_TileRenderer != null && m_TileHand.CurrentTile != null)
             {
-                m_TileRenderer.Initialize(m_TileHand.CurrentTile, new Color(1f, 1f, 1f, 0.5f));
+                m_CurrentRotation = 0;
+                m_TileRenderer.Initialize(m_TileHand.CurrentTile, new Color(1f, 1f, 1f, 0.5f), m_CurrentRotation);
             }
         }
 
@@ -138,6 +139,9 @@ namespace Patchwork.Gameplay
 
         private void HandleRotation()
         {
+            // Don't handle rotation if we have no current tile
+            if (m_TileHand.CurrentTile == null) return;
+            
             if (Time.time - m_LastRotateTime < m_RotateCooldown) return;
 
             if (Input.GetKeyDown(KeyCode.E))
@@ -154,6 +158,9 @@ namespace Patchwork.Gameplay
 
         private void RotateTile(bool _clockwise)
         {
+            // Additional safety check
+            if (m_TileHand.CurrentTile == null || m_TileRenderer == null) return;
+
             m_CurrentRotation += _clockwise ? 90 : -90;
             
             // Keep rotation between 0 and 359
@@ -174,6 +181,9 @@ namespace Patchwork.Gameplay
                 {
                     PlaceTile();
                     m_TileHand.RemoveCurrentTile();
+                    
+                    // Reset rotation when switching to next tile
+                    m_CurrentRotation = 0;
                     
                     // Clear the cursor's tile renderer if no more tiles
                     if (m_TileHand.CurrentTile == null)
@@ -196,12 +206,8 @@ namespace Patchwork.Gameplay
             GameObject placedTile = new GameObject("PlacedTile");
             placedTile.transform.position = transform.position;
             
-            // Set initial rotation before adding TileRenderer
-            placedTile.transform.rotation = Quaternion.Euler(0, 0, m_CurrentRotation);
-            
-            // Create TileRenderer with correct rotation from the start
-            TileRenderer renderer = placedTile.AddComponent<TileRenderer>();
-            renderer.Initialize(m_TileHand.CurrentTile, Color.white, m_CurrentRotation);  // Pass in initial rotation
+            PlacedTile tile = placedTile.AddComponent<PlacedTile>();
+            tile.Initialize(m_TileHand.CurrentTile, m_CurrentGridPosition, m_CurrentRotation);
         }
         #endregion
     } 

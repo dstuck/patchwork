@@ -1,6 +1,7 @@
 using UnityEngine;
 using Patchwork.Data;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Patchwork.Gameplay
 {
@@ -83,16 +84,23 @@ namespace Patchwork.Gameplay
         {
             if (m_AvailableTiles.Count == 0) return;
 
+            Debug.Log($"Removing tile at index {m_CurrentTileIndex}: {m_CurrentTile.name}");
+            Debug.Log($"Available tiles before removal: {string.Join(", ", m_AvailableTiles.Select(t => t.name))}");
+            
             m_AvailableTiles.RemoveAt(m_CurrentTileIndex);
+
+            Debug.Log($"Available tiles after removal: {string.Join(", ", m_AvailableTiles.Select(t => t.name))}");
 
             if (m_AvailableTiles.Count > 0)
             {
                 m_CurrentTileIndex %= m_AvailableTiles.Count;
                 m_CurrentTile = m_AvailableTiles[m_CurrentTileIndex];
+                Debug.Log($"New current tile: {m_CurrentTile.name} at index {m_CurrentTileIndex}");
             }
             else
             {
                 m_CurrentTile = null;
+                Debug.Log("No more tiles available");
             }
 
             OnTileChanged?.Invoke();

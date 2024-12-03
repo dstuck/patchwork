@@ -12,12 +12,12 @@ namespace Patchwork.Gameplay
         #endregion
 
         #region Public Methods
-        public void Initialize(TileData _tileData, Vector2Int _gridPosition)
+        public void Initialize(TileData _tileData, Vector2Int _gridPosition, int _rotation)
         {
             m_TileData = _tileData;
             m_GridPosition = _gridPosition;
             m_TileRenderer = gameObject.AddComponent<TileRenderer>();
-            m_TileRenderer.Initialize(m_TileData, m_TileData.TileColor);
+            m_TileRenderer.Initialize(m_TileData, m_TileData.TileColor, _rotation);
         }
         #endregion
     } 
