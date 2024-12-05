@@ -15,12 +15,12 @@ namespace Patchwork.Gameplay
         [SerializeField] private Color m_GridLineColor = new Color(0.5f, 0.5f, 0.5f, 0.3f);
         
         private Dictionary<Vector2Int, GameObject> m_Holes = new Dictionary<Vector2Int, GameObject>();
+        private List<PlacedTile> m_PlacedTiles = new List<PlacedTile>();
         #endregion
 
         #region Unity Lifecycle
         private void Start()
         {
-            Debug.Log($"Board: Grid size is {m_GridSettings.GridSize}");
             InitializeBoard();
         }
 
@@ -169,6 +169,26 @@ namespace Patchwork.Gameplay
             {
                 hole.SetActive(true);
             }
+        }
+
+        public bool IsHoleAt(Vector2Int position)
+        {
+            return m_Holes.TryGetValue(position, out GameObject hole) && hole.activeSelf;
+        }
+
+        public void AddPlacedTile(PlacedTile tile)
+        {
+            m_PlacedTiles.Add(tile);
+        }
+
+        public int CalculateTotalScore()
+        {
+            int totalScore = 0;
+            foreach (PlacedTile tile in m_PlacedTiles)
+            {
+                totalScore += tile.CalculateScore(this, m_PlacedTiles);
+            }
+            return totalScore;
         }
         #endregion
     }

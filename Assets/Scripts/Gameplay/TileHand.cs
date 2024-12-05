@@ -41,7 +41,6 @@ namespace Patchwork.Gameplay
             
             m_CurrentTileIndex = (m_CurrentTileIndex + 1) % m_AvailableTiles.Count;
             m_CurrentTile = m_AvailableTiles[m_CurrentTileIndex];
-            Debug.Log($"Cycled to next tile: {m_CurrentTile.name} at index {m_CurrentTileIndex}");
             OnTileChanged?.Invoke();  // Notify listeners
         }
 
@@ -54,7 +53,6 @@ namespace Patchwork.Gameplay
                 m_CurrentTileIndex = m_AvailableTiles.Count - 1;
             
             m_CurrentTile = m_AvailableTiles[m_CurrentTileIndex];
-            Debug.Log($"Cycled to previous tile: {m_CurrentTile.name} at index {m_CurrentTileIndex}");
             OnTileChanged?.Invoke();  // Notify listeners
         }
 
@@ -84,23 +82,16 @@ namespace Patchwork.Gameplay
         {
             if (m_AvailableTiles.Count == 0) return;
 
-            Debug.Log($"Removing tile at index {m_CurrentTileIndex}: {m_CurrentTile.name}");
-            Debug.Log($"Available tiles before removal: {string.Join(", ", m_AvailableTiles.Select(t => t.name))}");
-            
             m_AvailableTiles.RemoveAt(m_CurrentTileIndex);
-
-            Debug.Log($"Available tiles after removal: {string.Join(", ", m_AvailableTiles.Select(t => t.name))}");
 
             if (m_AvailableTiles.Count > 0)
             {
                 m_CurrentTileIndex %= m_AvailableTiles.Count;
                 m_CurrentTile = m_AvailableTiles[m_CurrentTileIndex];
-                Debug.Log($"New current tile: {m_CurrentTile.name} at index {m_CurrentTileIndex}");
             }
             else
             {
                 m_CurrentTile = null;
-                Debug.Log("No more tiles available");
             }
 
             OnTileChanged?.Invoke();

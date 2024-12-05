@@ -10,6 +10,7 @@ namespace Patchwork.Gameplay
         [SerializeField] private TileHand m_TileHand;
         [SerializeField] private float m_MoveCooldown = 0.15f;
         [SerializeField] private float m_RotateCooldown = 0.15f;
+        [SerializeField] private Board m_Board;
         
         private Vector2Int m_CurrentGridPosition;
         private float m_LastMoveTime;
@@ -27,6 +28,12 @@ namespace Patchwork.Gameplay
                 return;
             }
 
+            if (m_Board == null)
+            {
+                Debug.LogError("Board reference not set in GridCursor!");
+                return;
+            }
+
             m_CurrentGridPosition = new Vector2Int(m_GridSettings.GridSize.x / 2, m_GridSettings.GridSize.y / 2);
             m_TileRenderer = gameObject.AddComponent<TileRenderer>();
             
@@ -41,6 +48,7 @@ namespace Patchwork.Gameplay
             HandleRotation();
             HandleTileSelection();
             HandleTilePlacement();
+            HandleScoreCalculation();
         }
         #endregion
 
@@ -67,16 +75,16 @@ namespace Patchwork.Gameplay
             }
 
             // Cycle tiles with J/K
-            if (Input.GetKeyDown(KeyCode.J))
+            if (Input.GetKeyDown(KeyCode.RightShift))
             {
                 m_TileHand.CycleToPreviousTile();
                 UpdateCurrentTile();
             }
-            else if (Input.GetKeyDown(KeyCode.K))
-            {
-                m_TileHand.CycleToNextTile();
-                UpdateCurrentTile();
-            }
+            // else if (Input.GetKeyDown(KeyCode.K))
+            // {
+            //     m_TileHand.CycleToNextTile();
+            //     UpdateCurrentTile();
+            // }
         }
 
         private void UpdateCurrentTile()
@@ -208,6 +216,17 @@ namespace Patchwork.Gameplay
             
             PlacedTile tile = placedTile.AddComponent<PlacedTile>();
             tile.Initialize(m_TileHand.CurrentTile, m_CurrentGridPosition, m_CurrentRotation);
+            
+            m_Board.AddPlacedTile(tile);
+        }
+
+        private void HandleScoreCalculation()
+        {
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+            {
+                int totalScore = m_Board.CalculateTotalScore();
+                Debug.Log($"Total Board Score: {totalScore}");
+            }
         }
         #endregion
     } 
