@@ -15,17 +15,34 @@ namespace Patchwork.Gameplay
         [SerializeField] private List<TileData> m_AvailableTiles = new List<TileData>();
         [SerializeField] private TileData m_CurrentTile;
         private int m_CurrentTileIndex;
+        [SerializeField] private Deck m_Deck;
+        [SerializeField] private int m_HandSize = 3;
         #endregion
 
         #region Unity Lifecycle
         private void Start()
         {
-            // Initialize with first tile
+            if (m_Deck == null)
+            {
+                Debug.LogError("TileHand: Deck reference is missing!");
+                return;
+            }
+
+            // Draw initial hand
+            for (int i = 0; i < m_HandSize; i++)
+            {
+                TileData drawnTile = m_Deck.DrawTile();
+                if (drawnTile != null)
+                {
+                    m_AvailableTiles.Add(drawnTile);
+                }
+            }
+
             if (m_AvailableTiles.Count > 0)
             {
                 m_CurrentTileIndex = 0;
                 m_CurrentTile = m_AvailableTiles[0];
-                OnTileChanged?.Invoke();  // Notify about initial selection
+                OnTileChanged?.Invoke();
             }
         }
         #endregion

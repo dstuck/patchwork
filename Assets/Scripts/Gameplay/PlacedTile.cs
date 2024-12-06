@@ -64,8 +64,8 @@ namespace Patchwork.Gameplay
                 bool overTile = IsOverlappingOtherTile(square, otherTiles);
 
                 if (overHole && !overTile) m_CurrentScore += 10;
-                else if (!overHole && overTile) m_CurrentScore -= 2;
-                else if (!overHole && !overTile) m_CurrentScore -= 5;
+                else if (overHole && overTile) m_CurrentScore += 2;
+                else if (!overHole) m_CurrentScore -= 5;
             }
 
             // Only show text when we have a score

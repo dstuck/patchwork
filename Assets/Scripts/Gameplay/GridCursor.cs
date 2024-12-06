@@ -74,15 +74,15 @@ namespace Patchwork.Gameplay
                 UpdateCurrentTile();
             }
 
-            // Cycle tiles with J/K
+            // Cycle tiles with Shift
             if (Input.GetKeyDown(KeyCode.RightShift))
             {
-                m_TileHand.CycleToPreviousTile();
+                m_TileHand.CycleToNextTile();
                 UpdateCurrentTile();
             }
-            // else if (Input.GetKeyDown(KeyCode.K))
+            // else if (Input.GetKeyDown(KeyCode.J))
             // {
-            //     m_TileHand.CycleToNextTile();
+            //     m_TileHand.CycleToPreviousTile();
             //     UpdateCurrentTile();
             // }
         }
