@@ -80,5 +80,15 @@ namespace Patchwork.Gameplay
             return m_DrawPile.Count + m_DiscardPile.Count;
         }
         #endregion
+
+        #region Public Methods
+        public IEnumerable<TileData> GetAllTiles()
+        {
+            List<TileData> allTiles = new List<TileData>();
+            allTiles.AddRange(m_DrawPile);
+            allTiles.AddRange(m_DiscardPile);
+            return allTiles;
+        }
+        #endregion
     }
 } 
