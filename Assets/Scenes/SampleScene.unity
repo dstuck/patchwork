@@ -1113,6 +1113,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Deck: {fileID: 528798290}
   m_DeckButton: {fileID: 1766281665}
+  m_CloseButton: {fileID: 1244980346}
   m_TileCountText: {fileID: 1048753361}
   m_DeckPopup: {fileID: 1924725544}
   m_PopupTileContainer: {fileID: 2067921352}
