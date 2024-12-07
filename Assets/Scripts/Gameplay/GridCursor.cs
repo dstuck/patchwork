@@ -40,6 +40,19 @@ namespace Patchwork.Gameplay
             // Initialize with the first tile
             UpdateCurrentTile();
             UpdatePosition();
+
+            if (m_TileHand != null)
+            {
+                m_TileHand.OnLastTilePlaced += HandleLastTilePlaced;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (m_TileHand != null)
+            {
+                m_TileHand.OnLastTilePlaced -= HandleLastTilePlaced;
+            }
         }
 
         private void Update()
@@ -227,6 +240,12 @@ namespace Patchwork.Gameplay
                 int totalScore = m_Board.CalculateTotalScore();
                 Debug.Log($"Total Board Score: {totalScore}");
             }
+        }
+
+        private void HandleLastTilePlaced()
+        {
+            int finalScore = m_Board.CalculateTotalScore();
+            Debug.Log($"Game Over! Final Score: {finalScore}");
         }
         #endregion
     } 

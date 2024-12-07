@@ -9,6 +9,7 @@ namespace Patchwork.Gameplay
     {
         #region Events
         public System.Action OnTileChanged;  // Event for tile selection changes
+        public System.Action OnLastTilePlaced;  // Event for when hand is empty
         #endregion
 
         #region Private Fields
@@ -105,13 +106,14 @@ namespace Patchwork.Gameplay
             {
                 m_CurrentTileIndex %= m_AvailableTiles.Count;
                 m_CurrentTile = m_AvailableTiles[m_CurrentTileIndex];
+                OnTileChanged?.Invoke();
             }
             else
             {
                 m_CurrentTile = null;
+                OnTileChanged?.Invoke();
+                OnLastTilePlaced?.Invoke();  // Notify that the hand is empty
             }
-
-            OnTileChanged?.Invoke();
         }
         #endregion
     }

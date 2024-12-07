@@ -6,10 +6,10 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 ## Milestones
 
 ### 0.1: MVP
-- [ ] Fixed deck of tiles
-- [ ] Fixed board with holes
-- [ ] Player able to place tiles on board
-- [ ] Board scoring system
+- [x] Fixed deck of tiles
+- [x] Fixed board with holes
+- [x] Player able to place tiles on board
+- [x] Board scoring system
 
 ### 0.2: Progress
 - [ ] Multiple boards
