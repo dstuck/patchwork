@@ -19,4 +19,4 @@ MonoBehaviour:
   - {x: 1, y: 0}
   - {x: 1, y: 1}
   m_TileColor: {r: 1, g: 1, b: 1, a: 1}
-  m_TileName: New Tile
+  m_TileName: U

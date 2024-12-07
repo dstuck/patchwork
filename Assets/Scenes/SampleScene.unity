@@ -306,6 +306,14 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6c7dd38f9834a469a9c3e04c679aeb1e, type: 2}
   - {fileID: 11400000, guid: 4c592c2f5bea843348dd86e6b1014f1d, type: 2}
   - {fileID: 11400000, guid: 6c1a1095458a44337813564f887720d0, type: 2}
+  - {fileID: 11400000, guid: 7298500595eb6466ba400c2ab667de45, type: 2}
+  - {fileID: 11400000, guid: 31b68b3904e0845b6a65c372602f3b28, type: 2}
+  - {fileID: 11400000, guid: edac90ffd5cf54a22a02a4ed0395a238, type: 2}
+  - {fileID: 11400000, guid: 193a0243fe403408f96a69a8ed8e6bf0, type: 2}
+  - {fileID: 11400000, guid: 378887c58dc514255a0217a289af7060, type: 2}
+  - {fileID: 11400000, guid: 12b67168c1ffb4e9ca03b6365fe44011, type: 2}
+  - {fileID: 11400000, guid: 0adadfe2c85894c4fb8d51eb39cbe281, type: 2}
+  - {fileID: 11400000, guid: 8b431cc2143d44579a74b13f8eaf24fb, type: 2}
 --- !u!4 &528798291
 Transform:
   m_ObjectHideFlags: 0
@@ -710,7 +718,7 @@ MonoBehaviour:
   m_AvailableTiles: []
   m_CurrentTile: {fileID: 0}
   m_Deck: {fileID: 528798290}
-  m_HandSize: 3
+  m_HandSize: 4
 --- !u!4 &1468285572
 Transform:
   m_ObjectHideFlags: 0
