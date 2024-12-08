@@ -3,7 +3,7 @@ name: Pull Request
 on: pull_request
 
 jobs:
-  build:
+  test:
     name: Build my project
     runs-on: ubuntu-latest
     steps:
@@ -32,6 +32,23 @@ jobs:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           coverageOptions: false
           testMode: EditMode
+  test:
+    name: Build my project
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      # Cache
+      - uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-
 
       # Build
       - name: Build project
