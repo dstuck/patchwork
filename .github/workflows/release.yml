@@ -56,7 +56,7 @@ jobs:
       - name: Deploy HTML build to itch.io
         uses: yeslayla/butler-publish-itchio-action@1.0.3
         env:
-          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
+          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_API_KEY }}
           CHANNEL: webgl
           ITCH_GAME: patchwork
           ITCH_USER: drawacard
