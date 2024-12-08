@@ -54,7 +54,7 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -R
       - name: Deploy HTML build to itch.io
-        uses: yeslayla/butler-publish-itchio-actionv1.0.3
+        uses: yeslayla/butler-publish-itchio-action@v1.0.3
         env:
           BUTLER_CREDENTIALS: ${{ secrets.BUTLER_API_KEY }}
           CHANNEL: webgl
