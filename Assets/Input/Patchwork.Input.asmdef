@@ -1,10 +1,8 @@
 {
-    "name": "Patchwork",
-    "rootNamespace": "Patchwork",
+    "name": "Patchwork.Input",
+    "rootNamespace": "",
     "references": [
-        "GUID:6055be8ebefd69e48b49212b09b47b2f",
-        "GUID:75469ad4d38634e559750d17036d5f7c",
-        "GUID:71a0a2c9e177240f99f6856f8427161b"
+        "GUID:75469ad4d38634e559750d17036d5f7c"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

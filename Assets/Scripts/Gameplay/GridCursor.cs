@@ -1,5 +1,7 @@
 using UnityEngine;
 using Patchwork.Data;
+using UnityEngine.InputSystem;
+using Patchwork.Input;
 
 namespace Patchwork.Gameplay
 {
@@ -17,9 +19,31 @@ namespace Patchwork.Gameplay
         private float m_LastRotateTime;
         private int m_CurrentRotation;
         private TileRenderer m_TileRenderer;
+        private GameControls m_Controls;
         #endregion
 
         #region Unity Lifecycle
+        private void Awake()
+        {
+            m_Controls = new GameControls();
+            
+            m_Controls.Movement.Move.performed += OnMove;
+            m_Controls.Movement.Rotate.performed += OnRotate;
+            m_Controls.Movement.Place.performed += OnPlace;
+            m_Controls.Movement.SelectTile.performed += OnSelectTile;
+            m_Controls.Movement.CycleTile.performed += OnCycleTile;
+        }
+
+        private void OnEnable()
+        {
+            m_Controls.Enable();
+        }
+
+        private void OnDisable()
+        {
+            m_Controls.Disable();
+        }
+
         private void Start()
         {
             if (m_TileHand == null)
@@ -34,17 +58,33 @@ namespace Patchwork.Gameplay
                 return;
             }
 
+            // Wait for TileHand to be ready
+            if (m_TileHand.CurrentTile == null)
+            {
+                // Subscribe to the OnTileChanged event
+                m_TileHand.OnTileChanged += InitializeFirstTile;
+            }
+            else
+            {
+                InitializeComponents();
+            }
+
+            m_TileHand.OnLastTilePlaced += HandleLastTilePlaced;
+        }
+
+        private void InitializeFirstTile()
+        {
+            m_TileHand.OnTileChanged -= InitializeFirstTile;
+            InitializeComponents();
+        }
+
+        private void InitializeComponents()
+        {
             m_CurrentGridPosition = new Vector2Int(m_GridSettings.GridSize.x / 2, m_GridSettings.GridSize.y / 2);
             m_TileRenderer = gameObject.AddComponent<TileRenderer>();
             
-            // Initialize with the first tile
             UpdateCurrentTile();
             UpdatePosition();
-
-            if (m_TileHand != null)
-            {
-                m_TileHand.OnLastTilePlaced += HandleLastTilePlaced;
-            }
         }
 
         private void OnDestroy()
@@ -54,50 +94,66 @@ namespace Patchwork.Gameplay
                 m_TileHand.OnLastTilePlaced -= HandleLastTilePlaced;
             }
         }
-
-        private void Update()
-        {
-            HandleMovement();
-            HandleRotation();
-            HandleTileSelection();
-            HandleTilePlacement();
-            HandleScoreCalculation();
-        }
         #endregion
 
         #region Private Methods
-        private void HandleTileSelection()
+        private void OnMove(InputAction.CallbackContext context)
         {
-            // Number keys 1-9 for direct selection
-            for (int i = 0; i < 9; i++)
+            if (Time.time - m_LastMoveTime < m_MoveCooldown) return;
+            
+            Vector2 input = context.ReadValue<Vector2>();
+            Vector2Int moveDirection = new Vector2Int(Mathf.RoundToInt(input.x), Mathf.RoundToInt(input.y));
+            
+            if (moveDirection != Vector2Int.zero)
             {
-                if (Input.GetKeyDown(KeyCode.Alpha1 + i))
+                TryMove(moveDirection);
+            }
+        }
+
+        private void OnRotate(InputAction.CallbackContext context)
+        {
+            if (Time.time - m_LastRotateTime < m_RotateCooldown) return;
+            if (m_TileHand.CurrentTile == null) return;
+
+            float direction = context.ReadValue<float>();
+            RotateTile(direction > 0);
+            m_LastRotateTime = Time.time;
+        }
+
+        private void OnPlace(InputAction.CallbackContext context)
+        {
+            if (m_TileHand.CurrentTile != null)
+            {
+                PlaceTile();
+                m_TileHand.RemoveCurrentTile();
+                
+                if (m_TileHand.CurrentTile == null)
                 {
-                    if (m_TileHand.SelectTile(i))
+                    if (m_TileRenderer != null)
                     {
-                        UpdateCurrentTile();
+                        m_TileRenderer.Initialize(null, Color.clear);
                     }
                 }
+                else
+                {
+                    UpdateCurrentTile();
+                }
             }
+        }
 
-            // Tab to cycle through tiles
-            if (Input.GetKeyDown(KeyCode.Tab))
+        private void OnSelectTile(InputAction.CallbackContext context)
+        {
+            int index = Mathf.RoundToInt(context.ReadValue<float>());
+            if (m_TileHand.SelectTile(index))
             {
-                m_TileHand.CycleToNextTile();
                 UpdateCurrentTile();
             }
+        }
 
-            // Cycle tiles with Shift
-            if (Input.GetKeyDown(KeyCode.RightShift))
-            {
-                m_TileHand.CycleToNextTile();
-                UpdateCurrentTile();
-            }
-            // else if (Input.GetKeyDown(KeyCode.J))
-            // {
-            //     m_TileHand.CycleToPreviousTile();
-            //     UpdateCurrentTile();
-            // }
+        private void OnCycleTile(InputAction.CallbackContext context)
+        {
+            m_TileHand.CycleToNextTile();
+            UpdateCurrentTile();
         }
 
         private void UpdateCurrentTile()
@@ -106,30 +162,6 @@ namespace Patchwork.Gameplay
             {
                 m_CurrentRotation = 0;
                 m_TileRenderer.Initialize(m_TileHand.CurrentTile, new Color(1f, 1f, 1f, 0.5f), m_CurrentRotation);
-            }
-        }
-
-        private void HandleMovement()
-        {
-            // Check if enough time has passed since last move
-            if (Time.time - m_LastMoveTime < m_MoveCooldown) return;
-
-            Vector2Int moveDirection = Vector2Int.zero;
-
-            // Get input
-            if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
-                moveDirection.x = -1;
-            else if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D))
-                moveDirection.x = 1;
-            
-            if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W))
-                moveDirection.y = 1;
-            else if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S))
-                moveDirection.y = -1;
-
-            if (moveDirection != Vector2Int.zero)
-            {
-                TryMove(moveDirection);
             }
         }
 
@@ -158,25 +190,6 @@ namespace Patchwork.Gameplay
             transform.position = worldPosition;
         }
 
-        private void HandleRotation()
-        {
-            // Don't handle rotation if we have no current tile
-            if (m_TileHand.CurrentTile == null) return;
-            
-            if (Time.time - m_LastRotateTime < m_RotateCooldown) return;
-
-            if (Input.GetKeyDown(KeyCode.E))
-            {
-                RotateTile(true);
-                m_LastRotateTime = Time.time;
-            }
-            else if (Input.GetKeyDown(KeyCode.Q))
-            {
-                RotateTile(false);
-                m_LastRotateTime = Time.time;
-            }
-        }
-
         private void RotateTile(bool _clockwise)
         {
             // Additional safety check
@@ -194,34 +207,6 @@ namespace Patchwork.Gameplay
             }
         }
 
-        private void HandleTilePlacement()
-        {
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                if (m_TileHand.CurrentTile != null)
-                {
-                    PlaceTile();
-                    m_TileHand.RemoveCurrentTile();
-                    
-                    // Reset rotation when switching to next tile
-                    m_CurrentRotation = 0;
-                    
-                    // Clear the cursor's tile renderer if no more tiles
-                    if (m_TileHand.CurrentTile == null)
-                    {
-                        if (m_TileRenderer != null)
-                        {
-                            m_TileRenderer.Initialize(null, Color.clear);
-                        }
-                    }
-                    else
-                    {
-                        UpdateCurrentTile();
-                    }
-                }
-            }
-        }
-
         private void PlaceTile()
         {
             GameObject placedTile = new GameObject("PlacedTile");
@@ -233,19 +218,16 @@ namespace Patchwork.Gameplay
             m_Board.AddPlacedTile(tile);
         }
 
-        private void HandleScoreCalculation()
-        {
-            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-            {
-                int totalScore = m_Board.CalculateTotalScore();
-                Debug.Log($"Total Board Score: {totalScore}");
-            }
-        }
-
         private void HandleLastTilePlaced()
         {
             int finalScore = m_Board.CalculateTotalScore();
             Debug.Log($"Game Over! Final Score: {finalScore}");
+            
+            // Clear the cursor's tile renderer
+            if (m_TileRenderer != null)
+            {
+                m_TileRenderer.Initialize(null, Color.clear);
+            }
         }
         #endregion
     } 
