@@ -32,7 +32,8 @@ jobs:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           coverageOptions: false
           testMode: EditMode
-  test:
+
+  build:
     name: Build my project
     runs-on: ubuntu-latest
     steps:
