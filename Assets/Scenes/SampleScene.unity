@@ -1165,7 +1165,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_GridSettings: {fileID: 11400000, guid: b6ced014a13cb43f7814725b79443b2b, type: 2}
   m_HoleColor: {r: 0.3301887, g: 0.30994126, b: 0.30994126, a: 1}
-  m_PatternIndex: 0
+  m_PatternIndex: 3
   m_ShowGridLines: 1
   m_GridLineColor: {r: 0.5, g: 0.5, b: 0.5, a: 0.3}
 --- !u!1 &1924725544

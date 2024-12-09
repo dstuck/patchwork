@@ -93,9 +93,76 @@ namespace Patchwork.Gameplay
                         // Fifth column
                         new Vector2Int(4,0), new Vector2Int(4,1), new Vector2Int(4,2), new Vector2Int(4,3), new Vector2Int(4,4)
                     };
-            }
 
-            return new Vector2Int[0];
+                case 3: // Random Walk (28 squares)
+                    return GenerateRandomWalkPattern(30);
+
+                default:
+                    return new Vector2Int[0];
+            }
+        }
+
+        private Vector2Int[] GenerateRandomWalkPattern(int _count)
+        {
+            HashSet<Vector2Int> selectedSquares = new HashSet<Vector2Int>();
+            Vector2Int currentPos = new Vector2Int(
+                m_GridSettings.GridSize.x / 2,
+                m_GridSettings.GridSize.y / 2
+            );
+            
+            // Add starting position
+            selectedSquares.Add(currentPos);
+            
+            while (selectedSquares.Count < _count)
+            {
+                Vector2Int nextPos = GetNextPosition(currentPos);
+                
+                // Ensure we stay within grid bounds
+                if (nextPos.x >= 0 && nextPos.x < m_GridSettings.GridSize.x &&
+                    nextPos.y >= 0 && nextPos.y < m_GridSettings.GridSize.y)
+                {
+                    selectedSquares.Add(nextPos);
+                    currentPos = nextPos;
+                }
+            }
+            
+            return new List<Vector2Int>(selectedSquares).ToArray();
+        }
+
+        private Vector2Int GetNextPosition(Vector2Int currentPos)
+        {
+            // Define possible directions (up, right, down, left)
+            Vector2Int[] directions = new Vector2Int[]
+            {
+                Vector2Int.up,
+                Vector2Int.right,
+                Vector2Int.down,
+                Vector2Int.left
+            };
+            
+            // Calculate center of grid
+            Vector2Int center = new Vector2Int(
+                m_GridSettings.GridSize.x / 2,
+                m_GridSettings.GridSize.y / 2
+            );
+            
+            // 10% chance to bias towards center
+            if (Random.value < 0.15f)
+            {
+                // Move towards center
+                Vector2Int towardsCenter = new Vector2Int(
+                    (center.x - currentPos.x) > 0 ? 1 : -1,
+                    (center.y - currentPos.y) > 0 ? 1 : -1
+                );
+                
+                return currentPos + new Vector2Int(
+                    Mathf.Abs(center.x - currentPos.x) > 0 ? towardsCenter.x : 0,
+                    Mathf.Abs(center.y - currentPos.y) > 0 ? towardsCenter.y : 0
+                );
+            }
+            
+            // Random direction
+            return currentPos + directions[Random.Range(0, directions.Length)];
         }
 
         private void InitializeBoard()
