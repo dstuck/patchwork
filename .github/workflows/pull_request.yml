@@ -16,14 +16,9 @@ jobs:
       # Cache
       - uses: actions/cache@v3
         with:
-          path: |
-            Library
-            Temp
-            Logs
-            UserSettings
-          key: Library-WebGL-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
-            Library-WebGL-
             Library-
 
       # Test
@@ -51,14 +46,9 @@ jobs:
       # Cache
       - uses: actions/cache@v3
         with:
-          path: |
-            Library
-            Temp
-            Logs
-            UserSettings
-          key: Library-WebGL-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
-            Library-WebGL-
             Library-
 
       # Build
@@ -71,9 +61,6 @@ jobs:
         with:
           targetPlatform: WebGL
           allowDirtyBuild: true
-          buildName: Patchwork
-          buildMethod: UnityBuilder.BuildProject
-          customParameters: -developmentBuild -nographics -batchmode
 
       # Output
       - uses: actions/upload-artifact@v4
