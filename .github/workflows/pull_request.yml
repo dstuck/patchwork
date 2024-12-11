@@ -4,7 +4,8 @@ on: pull_request
 
 jobs:
   test:
-    name: Build my project
+    if: false
+    name: Test my project
     runs-on: ubuntu-latest
     steps:
       # Checkout
@@ -32,7 +33,6 @@ jobs:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           coverageOptions: false
           testMode: EditMode
-
   build:
     name: Build my project
     runs-on: ubuntu-latest

@@ -221,12 +221,12 @@ namespace Patchwork.Gameplay
         private void HandleLastTilePlaced()
         {
             int finalScore = m_Board.CalculateTotalScore();
-            Debug.Log($"Game Over! Final Score: {finalScore}");
+            Debug.Log($"Board Complete! Final Score: {finalScore}");
             
-            // Clear the cursor's tile renderer
-            if (m_TileRenderer != null)
+            // Transition to next stage via GameManager
+            if (GameManager.Instance != null)
             {
-                m_TileRenderer.Initialize(null, Color.clear);
+                GameManager.Instance.CompleteStage(finalScore);
             }
         }
         #endregion
