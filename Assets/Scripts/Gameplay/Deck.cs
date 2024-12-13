@@ -90,5 +90,14 @@ namespace Patchwork.Gameplay
             return allTiles;
         }
         #endregion
+
+        #if UNITY_INCLUDE_TESTS
+        public void AddTileToDeck(TileData tile)
+        {
+            m_DeckTiles.Add(tile);
+            m_DrawPile.Add(tile);
+            ShuffleDeck();
+        }
+        #endif
     }
 } 

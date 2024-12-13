@@ -32,6 +32,14 @@ namespace Patchwork.Data
                 Mathf.RoundToInt(_worldPosition.y / m_CellSize)
             );
         }
+
+        #if UNITY_INCLUDE_TESTS
+        public void SetupForTesting(Vector2Int gridSize, float cellSize)
+        {
+            m_GridSize = gridSize;
+            m_CellSize = cellSize;
+        }
+        #endif
         #endregion
     }
 }

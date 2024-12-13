@@ -1,15 +1,13 @@
 {
-    "name": "Tests",
+    "name": "PlayMode",
     "rootNamespace": "",
     "references": [
-        "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner",
         "Patchwork",
-        "Unity.TextMeshPro"
+        "Unity.TextMeshPro",
+        "UnityEditor.TestRunner",
+        "UnityEngine.TestRunner"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,

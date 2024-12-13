@@ -115,6 +115,13 @@ namespace Patchwork.Gameplay
                 OnLastTilePlaced?.Invoke();  // Notify that the hand is empty
             }
         }
+
+        #if UNITY_INCLUDE_TESTS
+        public void SetDeck(Deck deck)
+        {
+            m_Deck = deck;
+        }
+        #endif
         #endregion
     }
 } 

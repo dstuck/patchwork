@@ -229,6 +229,33 @@ namespace Patchwork.Gameplay
                 GameManager.Instance.CompleteStage(finalScore);
             }
         }
+
+        #if UNITY_INCLUDE_TESTS
+        public void SetupForTesting(GridSettings settings, TileHand hand, Board board)
+        {
+            m_GridSettings = settings;
+            m_TileHand = hand;
+            m_Board = board;
+            InitializeComponents();
+        }
+
+        public void SetPositionForTesting(Vector2Int position)
+        {
+            m_CurrentGridPosition = position;
+            UpdatePosition();
+        }
+
+        public void RotateForTesting(bool clockwise)
+        {
+            RotateTile(clockwise);
+        }
+
+        public void PlaceForTesting()
+        {
+            PlaceTile();
+            m_TileHand.RemoveCurrentTile();
+        }
+        #endif
         #endregion
     } 
 }
