@@ -9,7 +9,6 @@ namespace Patchwork.Gameplay
         #region Private Fields
         [SerializeField] private List<TileData> m_DeckTiles = new List<TileData>();
         private List<TileData> m_DrawPile = new List<TileData>();
-        private List<TileData> m_DiscardPile = new List<TileData>();
         #endregion
 
         #region Unity Lifecycle
@@ -22,10 +21,8 @@ namespace Patchwork.Gameplay
         #region Private Methods
         private void InitializeDeck()
         {
+            // Reset draw pile with original deck tiles
             m_DrawPile.Clear();
-            m_DiscardPile.Clear();
-            
-            // Copy all tiles to draw pile
             m_DrawPile.AddRange(m_DeckTiles);
             ShuffleDeck();
         }
@@ -49,17 +46,7 @@ namespace Patchwork.Gameplay
         {
             if (m_DrawPile.Count == 0)
             {
-                if (m_DiscardPile.Count > 0)
-                {
-                    // Shuffle discard pile into draw pile
-                    m_DrawPile.AddRange(m_DiscardPile);
-                    m_DiscardPile.Clear();
-                    ShuffleDeck();
-                }
-                else
-                {
-                    return null; // No cards left
-                }
+                return null;
             }
 
             TileData drawnTile = m_DrawPile[m_DrawPile.Count - 1];
@@ -67,29 +54,20 @@ namespace Patchwork.Gameplay
             return drawnTile;
         }
 
-        public void DiscardTile(TileData tile)
+        public void ResetForNewStage()
         {
-            if (tile != null)
-            {
-                m_DiscardPile.Add(tile);
-            }
+            InitializeDeck();
         }
 
         public int GetRemainingTileCount()
         {
-            return m_DrawPile.Count + m_DiscardPile.Count;
+            return m_DrawPile.Count;
         }
-        #endregion
 
-        #region Public Methods
-        public IEnumerable<TileData> GetAllTiles()
+        public List<TileData> GetTiles()
         {
-            List<TileData> allTiles = new List<TileData>();
-            allTiles.AddRange(m_DrawPile);
-            allTiles.AddRange(m_DiscardPile);
-            return allTiles;
+            return new List<TileData>(m_DrawPile);
         }
-        #endregion
 
         #if UNITY_INCLUDE_TESTS
         public void AddTileToDeck(TileData tile)
@@ -99,5 +77,6 @@ namespace Patchwork.Gameplay
             ShuffleDeck();
         }
         #endif
+        #endregion
     }
 } 

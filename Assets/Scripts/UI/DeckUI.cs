@@ -71,7 +71,7 @@ namespace Patchwork.UI
             }
 
             // Get all tiles from deck
-            var allTiles = m_Deck.GetAllTiles();
+            var allTiles = m_Deck.GetTiles();
             foreach (var tile in allTiles)
             {
                 GameObject previewObj = Instantiate(m_TilePreviewPrefab, m_PopupTileContainer);
