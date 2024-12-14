@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 namespace Patchwork.Gameplay
 {
@@ -125,9 +126,20 @@ namespace Patchwork.Gameplay
             SceneManager.LoadScene(m_GameplaySceneName);
         }
 
-        public void CompleteStage(int _stageScore)
+        public void CompleteStage(int _finalScore)
         {
-            m_CumulativeScore += _stageScore;
+            StartCoroutine(CompleteStageRoutine(_finalScore));
+        }
+
+        private IEnumerator CompleteStageRoutine(int _finalScore)
+        {
+            // Wait for one second before transitioning
+            yield return new WaitForSeconds(1f);
+            
+            // Store the score
+            m_CumulativeScore = _finalScore;
+            
+            // Load the transition scene
             SceneManager.LoadScene(m_TransitionSceneName);
         }
 
