@@ -1,7 +1,9 @@
 using UnityEngine;
 using Patchwork.Data;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.SceneManagement;
 
 namespace Patchwork.Gameplay
 {
@@ -18,32 +20,57 @@ namespace Patchwork.Gameplay
         private int m_CurrentTileIndex;
         [SerializeField] private Deck m_Deck;
         [SerializeField] private int m_HandSize = 3;
+        private bool m_IsInitialized = false;
         #endregion
 
         #region Unity Lifecycle
         private void Start()
         {
-            if (m_Deck == null)
-            {
-                Debug.LogError("TileHand: Deck reference is missing!");
-                return;
-            }
+            // Remove InitializeTileHand call from Start
+        }
 
-            // Draw initial hand
-            for (int i = 0; i < m_HandSize; i++)
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            // Only initialize if this is the gameplay scene
+            if (!m_IsInitialized && scene.name == "GameplayScene")
             {
-                TileData drawnTile = m_Deck.DrawTile();
-                if (drawnTile != null)
+                // Wait one frame to ensure GameManager is ready
+                StartCoroutine(InitializeNextFrame());
+            }
+        }
+
+        private IEnumerator InitializeNextFrame()
+        {
+            yield return null; // Wait one frame
+
+            if (GameManager.Instance != null && GameManager.Instance.Deck != null)
+            {
+                m_Deck = GameManager.Instance.Deck;
+                
+                Debug.Log($"TileHand initialized with deck. Available tiles in deck: {m_Deck.GetRemainingTileCount()}");
+
+                // Draw initial hand
+                for (int i = 0; i < m_HandSize; i++)
                 {
-                    m_AvailableTiles.Add(drawnTile);
+                    TileData drawnTile = m_Deck.DrawTile();
+                    if (drawnTile != null)
+                    {
+                        m_AvailableTiles.Add(drawnTile);
+                    }
                 }
-            }
 
-            if (m_AvailableTiles.Count > 0)
+                if (m_AvailableTiles.Count > 0)
+                {
+                    m_CurrentTileIndex = 0;
+                    m_CurrentTile = m_AvailableTiles[0];
+                    OnTileChanged?.Invoke();
+                }
+                
+                m_IsInitialized = true;
+            }
+            else
             {
-                m_CurrentTileIndex = 0;
-                m_CurrentTile = m_AvailableTiles[0];
-                OnTileChanged?.Invoke();
+                Debug.LogError("TileHand: GameManager or Deck still not available after waiting!");
             }
         }
         #endregion
