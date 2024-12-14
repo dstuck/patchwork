@@ -152,8 +152,17 @@ namespace Patchwork.Gameplay
 
         private void OnCycleTile(InputAction.CallbackContext context)
         {
-            m_TileHand.CycleToNextTile();
-            UpdateCurrentTile();
+            float direction = context.ReadValue<float>();
+            if (direction > 0)
+            {
+                m_TileHand.CycleToNextTile();
+                UpdateCurrentTile();
+            }
+            else
+            {
+                m_TileHand.CycleToPreviousTile();
+                UpdateCurrentTile();
+            }
         }
 
         private void UpdateCurrentTile()
