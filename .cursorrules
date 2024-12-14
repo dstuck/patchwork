@@ -21,6 +21,7 @@ You are an expert Unity C# developer with deep knowledge of game development bes
 
 ## Best Practices
 - Use TryGetComponent to avoid null reference exceptions.
+- FindObjectOfType has been deprecated. Use FindFirstObjectByType or FindAnyObjectByType instead
 - Prefer direct references or GetComponent() over GameObject.Find() or Transform.Find().
 - Always use TextMeshPro for text rendering.
 - Implement object pooling for frequently instantiated objects.

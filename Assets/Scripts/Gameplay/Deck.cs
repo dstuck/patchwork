@@ -69,14 +69,15 @@ namespace Patchwork.Gameplay
             return new List<TileData>(m_DrawPile);
         }
 
-        #if UNITY_INCLUDE_TESTS
-        public void AddTileToDeck(TileData tile)
+        public void AddTileToDeck(TileData _tileData)
         {
-            m_DeckTiles.Add(tile);
-            m_DrawPile.Add(tile);
-            ShuffleDeck();
+            if (_tileData != null && !m_DeckTiles.Contains(_tileData))
+            {
+                m_DeckTiles.Add(_tileData);
+                m_DrawPile.Add(_tileData);
+                ShuffleDeck();
+            }
         }
-        #endif
         #endregion
     }
 } 

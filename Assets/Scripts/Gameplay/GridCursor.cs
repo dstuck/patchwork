@@ -230,7 +230,6 @@ namespace Patchwork.Gameplay
         private void HandleLastTilePlaced()
         {
             int finalScore = m_Board.CalculateTotalScore();
-            Debug.Log($"Board Complete! Final Score: {finalScore}");
             
             // Transition to next stage via GameManager
             if (GameManager.Instance != null)

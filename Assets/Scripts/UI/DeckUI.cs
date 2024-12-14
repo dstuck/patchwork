@@ -23,11 +23,21 @@ namespace Patchwork.UI
         #region Unity Lifecycle
         private void Awake()
         {
-            // Find the Deck in the scene
-            m_Deck = FindObjectOfType<Deck>();
+            // Try to get Deck from GameManager first
+            if (GameManager.Instance != null)
+            {
+                m_Deck = GameManager.Instance.Deck;
+            }
+            
+            // Fallback to finding in scene if needed
             if (m_Deck == null)
             {
-                Debug.LogError("DeckUI: Could not find Deck in scene!");
+                m_Deck = FindFirstObjectByType<Deck>();
+            }
+
+            if (m_Deck == null)
+            {
+                Debug.LogError("DeckUI: Could not find Deck reference!");
                 return;
             }
 
