@@ -11,62 +11,20 @@ namespace Patchwork.Gameplay
         private List<TileData> m_DrawPile = new List<TileData>();
         #endregion
 
-        #region Public Methods
-        public void Initialize()
+        #region Unity Lifecycle
+        private void Start()
         {
             InitializeDeck();
-        }
-
-        public TileData DrawTile()
-        {
-            if (m_DrawPile.Count == 0)
-            {
-                return null;
-            }
-
-            TileData drawnTile = m_DrawPile[m_DrawPile.Count - 1];
-            m_DrawPile.RemoveAt(m_DrawPile.Count - 1);
-            return drawnTile;
-        }
-
-        public void ResetForNewStage()
-        {
-            Debug.Log($"Resetting deck. Base deck size: {m_DeckTiles.Count}");
-            InitializeDeck();
-            Debug.Log($"After reset. Draw pile size: {m_DrawPile.Count}");
-        }
-
-        public int GetRemainingTileCount()
-        {
-            return m_DrawPile.Count;
-        }
-
-        public List<TileData> GetTiles()
-        {
-            Debug.Log($"GetTiles called. Draw pile size: {m_DrawPile.Count}");
-            return new List<TileData>(m_DrawPile);
-        }
-
-        public void AddTileToDeck(TileData _tileData)
-        {
-            if (_tileData != null && !m_DeckTiles.Contains(_tileData))
-            {
-                m_DeckTiles.Add(_tileData);
-                m_DrawPile.Add(_tileData);
-                Debug.Log($"Added tile to deck. Base deck size: {m_DeckTiles.Count}, Draw pile size: {m_DrawPile.Count}");
-                ShuffleDeck();
-            }
         }
         #endregion
 
         #region Private Methods
         private void InitializeDeck()
         {
-            Debug.Log($"Initializing deck. Base deck size: {m_DeckTiles.Count}");
+            // Reset draw pile with original deck tiles
             m_DrawPile.Clear();
             m_DrawPile.AddRange(m_DeckTiles);
             ShuffleDeck();
-            Debug.Log($"After initialize. Draw pile size: {m_DrawPile.Count}");
         }
 
         private void ShuffleDeck()
@@ -81,6 +39,44 @@ namespace Patchwork.Gameplay
                 m_DrawPile[n] = temp;
             }
         }
+        #endregion
+
+        #region Public Methods
+        public TileData DrawTile()
+        {
+            if (m_DrawPile.Count == 0)
+            {
+                return null;
+            }
+
+            TileData drawnTile = m_DrawPile[m_DrawPile.Count - 1];
+            m_DrawPile.RemoveAt(m_DrawPile.Count - 1);
+            return drawnTile;
+        }
+
+        public void ResetForNewStage()
+        {
+            InitializeDeck();
+        }
+
+        public int GetRemainingTileCount()
+        {
+            return m_DrawPile.Count;
+        }
+
+        public List<TileData> GetTiles()
+        {
+            return new List<TileData>(m_DrawPile);
+        }
+
+        #if UNITY_INCLUDE_TESTS
+        public void AddTileToDeck(TileData tile)
+        {
+            m_DeckTiles.Add(tile);
+            m_DrawPile.Add(tile);
+            ShuffleDeck();
+        }
+        #endif
         #endregion
     }
 } 

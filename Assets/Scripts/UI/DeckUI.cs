@@ -1,7 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
-using System.Collections;
 using TMPro;
 using Patchwork.Gameplay;
 
@@ -10,7 +8,7 @@ namespace Patchwork.UI
     public class DeckUI : MonoBehaviour
     {
         #region Private Fields
-        private Deck m_Deck;
+        [SerializeField] private Deck m_Deck;
         [SerializeField] private Button m_DeckButton;
         [SerializeField] private Button m_CloseButton;
         [SerializeField] private TextMeshProUGUI m_TileCountText;
@@ -19,102 +17,37 @@ namespace Patchwork.UI
         [SerializeField] private GameObject m_TilePreviewPrefab;
         [SerializeField] private float m_TileSpacing = 10f;
         private GridLayoutGroup m_GridLayout;
-        private bool m_IsInitialized;
         #endregion
 
         #region Unity Lifecycle
         private void Awake()
         {
-            InitializeUI();
+            m_DeckButton.onClick.AddListener(TogglePopup);
+            m_CloseButton.onClick.AddListener(() => m_DeckPopup.SetActive(false));
+            m_DeckPopup.SetActive(false);
+            
+            m_GridLayout = m_PopupTileContainer.GetComponent<GridLayoutGroup>();
+            if (m_GridLayout != null)
+            {
+                m_GridLayout.spacing = new Vector2(m_TileSpacing, m_TileSpacing);
+            }
         }
 
         private void Start()
         {
-            // Remove InitializeUI call from Start
+            UpdateTileCount();
         }
 
         private void OnEnable()
         {
-            SceneManager.sceneLoaded += OnSceneLoaded;
-            if (m_IsInitialized)
-            {
-                UpdateTileCount();
-            }
-        }
-
-        private void OnDisable()
-        {
-            SceneManager.sceneLoaded -= OnSceneLoaded;
-        }
-
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            // Only initialize if this is the gameplay scene
-            if (!m_IsInitialized && scene.name == "GameplayScene")
-            {
-                // Wait one frame to ensure GameManager is ready
-                StartCoroutine(InitializeNextFrame());
-            }
-        }
-
-        private IEnumerator InitializeNextFrame()
-        {
-            yield return null; // Wait one frame
-
-            if (GameManager.Instance != null && GameManager.Instance.Deck != null)
-            {
-                m_Deck = GameManager.Instance.Deck;
-                
-                m_DeckButton.onClick.AddListener(TogglePopup);
-                m_CloseButton.onClick.AddListener(() => m_DeckPopup.SetActive(false));
-                m_DeckPopup.SetActive(false);
-                
-                m_GridLayout = m_PopupTileContainer.GetComponent<GridLayoutGroup>();
-                if (m_GridLayout != null)
-                {
-                    m_GridLayout.spacing = new Vector2(m_TileSpacing, m_TileSpacing);
-                }
-                
-                m_IsInitialized = true;
-                UpdateTileCount();
-            }
-            else
-            {
-                Debug.LogError("DeckUI: GameManager or Deck still not available after waiting!");
-            }
+            UpdateTileCount();
         }
         #endregion
 
         #region Private Methods
-        private void InitializeUI()
-        {
-            if (GameManager.Instance != null && GameManager.Instance.Deck != null)
-            {
-                m_Deck = GameManager.Instance.Deck;
-                
-                m_DeckButton.onClick.AddListener(TogglePopup);
-                m_CloseButton.onClick.AddListener(() => m_DeckPopup.SetActive(false));
-                m_DeckPopup.SetActive(false);
-                
-                m_GridLayout = m_PopupTileContainer.GetComponent<GridLayoutGroup>();
-                if (m_GridLayout != null)
-                {
-                    m_GridLayout.spacing = new Vector2(m_TileSpacing, m_TileSpacing);
-                }
-                
-                m_IsInitialized = true;
-            }
-            else
-            {
-                Debug.LogWarning("DeckUI: Waiting for GameManager and Deck to be ready...");
-            }
-        }
-
         private void UpdateTileCount()
         {
-            if (!m_IsInitialized) return;
-            
-            if (m_TileCountText != null && m_Deck != null)
+            if (m_TileCountText != null)
             {
                 m_TileCountText.text = m_Deck.GetRemainingTileCount().ToString();
             }
