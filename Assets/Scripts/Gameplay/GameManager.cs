@@ -126,12 +126,20 @@ namespace Patchwork.Gameplay
         public void StartNewGame()
         {
             Initialize();
+            if (m_Deck != null)
+            {
+                m_Deck.ResetForNewStage();
+            }
             SceneManager.LoadScene(m_GameplaySceneName);
         }
 
         public void StartNextStage()
         {
             m_CurrentStage++;
+            if (m_Deck != null)
+            {
+                m_Deck.ResetForNewStage();
+            }
             SceneManager.LoadScene(m_GameplaySceneName);
         }
 

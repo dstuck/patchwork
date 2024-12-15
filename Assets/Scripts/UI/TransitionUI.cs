@@ -18,6 +18,8 @@ namespace Patchwork.UI
         [Header("Animation")]
         [SerializeField] private float m_FadeInDuration = 0.5f;
         [SerializeField] private CanvasGroup m_CanvasGroup;
+
+        private string m_RewardTilePath = "Data/BaseTiles/UTile";  // Path to the reward tile in Resources
         #endregion
 
         #region Unity Lifecycle
@@ -54,9 +56,17 @@ namespace Patchwork.UI
 
         private void OnContinueClicked()
         {
-            // TileData tile = 
-            // GameManager.Instance.Deck.AddTileToDeck(tile);
+            AddRewardTileToDeck();
             StartCoroutine(FadeOutAndContinue());
+        }
+
+        private void AddRewardTileToDeck()
+        {
+            TileData rewardTile = Resources.Load<TileData>(m_RewardTilePath);
+            if (rewardTile != null && GameManager.Instance != null && GameManager.Instance.Deck != null)
+            {
+                GameManager.Instance.Deck.AddTileToDeck(rewardTile);
+            }
         }
 
         private System.Collections.IEnumerator FadeIn()

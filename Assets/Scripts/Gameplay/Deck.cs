@@ -10,13 +10,37 @@ namespace Patchwork.Gameplay
         private List<TileData> m_DeckTiles = new List<TileData>();
         private List<TileData> m_DrawPile = new List<TileData>();
         private const string c_TilesPath = "Data/BaseTiles";  // Path relative to Resources folder
+        private static Deck s_Instance;
+        private bool m_IsInitialized;
+        #endregion
+
+        #region Public Properties
+        public static Deck Instance => s_Instance;
         #endregion
 
         #region Unity Lifecycle
+        private void Awake()
+        {
+            if (s_Instance != null && s_Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            s_Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+
         private void Start()
         {
-            LoadTilesFromResources();
+            Debug.Log($"Deck Start - IsInitialized: {m_IsInitialized}, Current Deck Size: {m_DeckTiles.Count}");
+            if (!m_IsInitialized)
+            {
+                LoadTilesFromResources();
+                m_IsInitialized = true;
+            }
             InitializeDeck();
+            Debug.Log($"Deck After Init - Deck Size: {m_DeckTiles.Count}, Draw Pile Size: {m_DrawPile.Count}");
         }
         #endregion
 
@@ -37,7 +61,7 @@ namespace Patchwork.Gameplay
 
         private void InitializeDeck()
         {
-            // Reset draw pile with original deck tiles
+            // Reset draw pile with current deck tiles
             m_DrawPile.Clear();
             m_DrawPile.AddRange(m_DeckTiles);
             ShuffleDeck();
@@ -72,7 +96,14 @@ namespace Patchwork.Gameplay
 
         public void ResetForNewStage()
         {
-            InitializeDeck();
+            Debug.Log($"Resetting deck for new stage. Current deck size: {m_DeckTiles.Count}");
+            
+            // Make sure draw pile has all available tiles
+            m_DrawPile.Clear();
+            m_DrawPile.AddRange(m_DeckTiles);
+            ShuffleDeck();
+            
+            Debug.Log($"After reset. Draw pile size: {m_DrawPile.Count}, DeckTiles size: {m_DeckTiles.Count}");
         }
 
         public int GetRemainingTileCount()
@@ -87,11 +118,12 @@ namespace Patchwork.Gameplay
 
         public void AddTileToDeck(TileData _tileData)
         {
-            if (_tileData != null && !m_DeckTiles.Contains(_tileData))
+            if (_tileData != null)
             {
                 m_DeckTiles.Add(_tileData);
                 m_DrawPile.Add(_tileData);
                 ShuffleDeck();
+                Debug.Log($"Added tile to deck. New deck size: {m_DeckTiles.Count}");
             }
         }
         #endregion
