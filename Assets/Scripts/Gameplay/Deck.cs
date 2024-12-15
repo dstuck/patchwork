@@ -7,18 +7,34 @@ namespace Patchwork.Gameplay
     public class Deck : MonoBehaviour
     {
         #region Private Fields
-        [SerializeField] private List<TileData> m_DeckTiles = new List<TileData>();
+        private List<TileData> m_DeckTiles = new List<TileData>();
         private List<TileData> m_DrawPile = new List<TileData>();
+        private const string c_TilesPath = "Data/BaseTiles";  // Path relative to Resources folder
         #endregion
 
         #region Unity Lifecycle
         private void Start()
         {
+            LoadTilesFromResources();
             InitializeDeck();
         }
         #endregion
 
         #region Private Methods
+        private void LoadTilesFromResources()
+        {
+            TileData[] tiles = Resources.LoadAll<TileData>(c_TilesPath);
+            if (tiles != null && tiles.Length > 0)
+            {
+                m_DeckTiles.Clear();
+                m_DeckTiles.AddRange(tiles);
+            }
+            else
+            {
+                Debug.LogError($"No tiles found in Resources/{c_TilesPath}");
+            }
+        }
+
         private void InitializeDeck()
         {
             // Reset draw pile with original deck tiles

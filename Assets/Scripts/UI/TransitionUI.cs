@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using Patchwork.Gameplay;
+using Patchwork.Data;
 
 namespace Patchwork.UI
 {
@@ -53,6 +54,8 @@ namespace Patchwork.UI
 
         private void OnContinueClicked()
         {
+            // TileData tile = 
+            // GameManager.Instance.Deck.AddTileToDeck(tile);
             StartCoroutine(FadeOutAndContinue());
         }
 
