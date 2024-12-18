@@ -914,7 +914,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_AvailableTiles: []
   m_CurrentTile: {fileID: 0}
-  m_Deck: {fileID: 528798290}
   m_HandSize: 4
 --- !u!4 &1468285572
 Transform:

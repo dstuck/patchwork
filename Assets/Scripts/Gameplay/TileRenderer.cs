@@ -50,7 +50,14 @@ namespace Patchwork.Gameplay
 
         public void UpdateRotation(int _targetRotation)
         {
-            if (m_IsRotating) return;
+            Debug.Log($"[TileRenderer] Updating rotation from {m_CurrentRotation} to {_targetRotation}");
+            
+            if (m_IsRotating)
+            {
+                // Stop current animation and start new one
+                StopAllCoroutines();
+                m_IsRotating = false;
+            }
             
             int startRotation = m_CurrentRotation;
             m_CurrentRotation = _targetRotation;

@@ -28,7 +28,7 @@ namespace Patchwork.UI
         [SerializeField] private CanvasGroup m_CanvasGroup;
 
         [Header("Input")]
-        private float m_InputCooldown = 0.2f;  // Prevent double-inputs
+        private float m_InputCooldown = 0.15f;  // Prevent double-inputs
         private float m_LastInputTime;
 
         private List<TilePreview> m_RewardPreviews = new List<TilePreview>();

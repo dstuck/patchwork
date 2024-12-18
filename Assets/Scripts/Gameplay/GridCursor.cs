@@ -11,7 +11,7 @@ namespace Patchwork.Gameplay
         [SerializeField] private GridSettings m_GridSettings;
         [SerializeField] private TileHand m_TileHand;
         [SerializeField] private float m_MoveCooldown = 0.15f;
-        [SerializeField] private float m_RotateCooldown = 0.15f;
+        [SerializeField] private float m_RotateCooldown = 0.2f;
         [SerializeField] private Board m_Board;
         
         private Vector2Int m_CurrentGridPosition;
@@ -112,12 +112,18 @@ namespace Patchwork.Gameplay
 
         private void OnRotate(InputAction.CallbackContext context)
         {
-            if (Time.time - m_LastRotateTime < m_RotateCooldown) return;
-            if (m_TileHand.CurrentTile == null) return;
-
-            float direction = context.ReadValue<float>();
-            RotateTile(direction > 0);
-            m_LastRotateTime = Time.time;
+            if (Time.time - m_LastRotateTime < m_RotateCooldown) 
+            {
+                Debug.Log($"[GridCursor] Rotation skipped - cooldown active ({Time.time - m_LastRotateTime:F3}s < {m_RotateCooldown}s)");
+                return;
+            }
+            
+            float rotation = context.ReadValue<float>();
+            if (rotation != 0)
+            {
+                RotateTile(rotation > 0);
+                m_LastRotateTime = Time.time;
+            }
         }
 
         private void OnPlace(InputAction.CallbackContext context)
@@ -169,7 +175,8 @@ namespace Patchwork.Gameplay
         {
             if (m_TileRenderer != null && m_TileHand.CurrentTile != null)
             {
-                m_CurrentRotation = 0;
+                m_CurrentRotation = 0;  // Reset rotation when switching tiles
+                Debug.Log($"[GridCursor] Updating current tile to {m_TileHand.CurrentTile.name}. Reset rotation to {m_CurrentRotation}");
                 m_TileRenderer.Initialize(m_TileHand.CurrentTile, new Color(1f, 1f, 1f, 0.5f), m_CurrentRotation);
             }
         }
@@ -210,6 +217,9 @@ namespace Patchwork.Gameplay
             if (m_CurrentRotation >= 360) m_CurrentRotation -= 360;
             if (m_CurrentRotation < 0) m_CurrentRotation += 360;
             
+            Debug.Log($"[GridCursor] Rotating tile {(_clockwise ? "clockwise" : "counter-clockwise")}. " +
+                      $"New rotation: {m_CurrentRotation}");
+            
             if (m_TileRenderer != null)
             {
                 m_TileRenderer.UpdateRotation(m_CurrentRotation);
@@ -218,6 +228,8 @@ namespace Patchwork.Gameplay
 
         private void PlaceTile()
         {
+            Debug.Log($"[GridCursor] Placing tile at position {m_CurrentGridPosition} with rotation {m_CurrentRotation}");
+            
             GameObject placedTile = new GameObject("PlacedTile");
             placedTile.transform.position = transform.position;
             

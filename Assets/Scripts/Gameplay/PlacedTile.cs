@@ -26,6 +26,7 @@ namespace Patchwork.Gameplay
         #region Public Methods
         public void Initialize(TileData _tileData, Vector2Int _gridPosition, int _rotation)
         {
+            Debug.Log($"[PlacedTile] Initializing at position {_gridPosition} with rotation {_rotation}");
             m_TileData = _tileData;
             m_GridPosition = _gridPosition;
             m_Rotation = _rotation;
