@@ -1,6 +1,7 @@
 using UnityEngine;
 using Patchwork.Data;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Patchwork.Gameplay
 {
@@ -12,6 +13,7 @@ namespace Patchwork.Gameplay
         private const string c_TilesPath = "Data/BaseTiles";  // Path relative to Resources folder
         private static Deck s_Instance;
         private bool m_IsInitialized;
+        [SerializeField] private int m_InitialTileCount = 6;  // Add this field
         #endregion
 
         #region Public Properties
@@ -51,7 +53,16 @@ namespace Patchwork.Gameplay
             if (tiles != null && tiles.Length > 0)
             {
                 m_DeckTiles.Clear();
-                m_DeckTiles.AddRange(tiles);
+                // Take random subset of tiles
+                List<TileData> shuffledTiles = new List<TileData>(tiles);
+                for (int i = shuffledTiles.Count - 1; i > 0; i--)
+                {
+                    int j = Random.Range(0, i + 1);
+                    TileData temp = shuffledTiles[i];
+                    shuffledTiles[i] = shuffledTiles[j];
+                    shuffledTiles[j] = temp;
+                }
+                m_DeckTiles.AddRange(shuffledTiles.Take(m_InitialTileCount));
             }
             else
             {
