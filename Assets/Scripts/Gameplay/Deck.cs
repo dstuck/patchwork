@@ -18,6 +18,7 @@ namespace Patchwork.Gameplay
 
         #region Public Properties
         public static Deck Instance => s_Instance;
+        public bool IsInitialized => m_IsInitialized;
         #endregion
 
         #region Unity Lifecycle
@@ -130,6 +131,22 @@ namespace Patchwork.Gameplay
                 m_DrawPile.Add(_tileData);
                 ShuffleDeck();
             }
+        }
+
+        public void Initialize()
+        {
+            if (m_IsInitialized) return;
+            
+            LoadTilesFromResources();
+            ResetDeck();
+            m_IsInitialized = true;
+        }
+
+        public void ResetDeck()
+        {
+            m_DrawPile.Clear();
+            m_DrawPile.AddRange(m_DeckTiles);
+            ShuffleDeck();
         }
         #endregion
     }

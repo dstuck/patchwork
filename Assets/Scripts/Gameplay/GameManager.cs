@@ -50,14 +50,9 @@ namespace Patchwork.Gameplay
                 Destroy(gameObject);
                 return;
             }
-
             s_Instance = this;
             DontDestroyOnLoad(gameObject);
-            
-            if (!m_IsInitialized)
-            {
-                Initialize();
-            }
+            Initialize();
         }
 
         private void OnEnable()
@@ -74,15 +69,21 @@ namespace Patchwork.Gameplay
         #region Private Methods
         private void Initialize()
         {
-            m_CurrentStage = 1;
-            m_CumulativeScore = 0;
+            if (m_IsInitialized) return;
             
             if (m_Deck == null)
             {
-                Debug.LogError("Deck reference missing in GameManager!");
+                Debug.LogError("[GameManager] Deck reference is missing!");
                 return;
             }
-            
+
+            if (!m_Deck.IsInitialized)
+            {
+                m_Deck.Initialize();
+            }
+
+            m_CurrentStage = 1;
+            m_CumulativeScore = 0;
             m_IsInitialized = true;
         }
 
@@ -125,11 +126,18 @@ namespace Patchwork.Gameplay
         #region Public Methods
         public void StartNewGame()
         {
-            Initialize();
+            m_CumulativeScore = 0;
+            
             if (m_Deck != null)
             {
-                m_Deck.ResetForNewStage();
+                m_Deck.ResetDeck();
             }
+            else
+            {
+                Debug.LogError("[GameManager] Cannot start game - Deck is null");
+                return;
+            }
+
             SceneManager.LoadScene(m_GameplaySceneName);
         }
 

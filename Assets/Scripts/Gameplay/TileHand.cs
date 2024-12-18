@@ -29,14 +29,25 @@ namespace Patchwork.Gameplay
         {
             if (m_Deck == null)
             {
-                m_Deck = GameManager.Instance?.Deck;
+                if (GameManager.Instance == null)
+                {
+                    Debug.LogError("[TileHand] GameManager.Instance is null!");
+                    return;
+                }
+                
+                m_Deck = GameManager.Instance.Deck;
+                if (m_Deck == null)
+                {
+                    Debug.LogError("[TileHand] Failed to get Deck from GameManager");
+                    return;
+                }
             }
+            
             InitializeTileHand();
         }
 
         private void OnEnable()
         {
-            InitializeTileHand();
         }
         #endregion
 
@@ -47,7 +58,6 @@ namespace Patchwork.Gameplay
             {
                 m_AvailableTiles.Clear();
                 
-                // Draw initial hand
                 for (int i = 0; i < m_HandSize; i++)
                 {
                     TileData drawnTile = m_Deck.DrawTile();
