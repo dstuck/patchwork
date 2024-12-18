@@ -47,3 +47,4 @@ MonoBehaviour:
   m_MainMenuSceneName: GameplayScene
   m_GameplaySceneName: GameplayScene
   m_TransitionSceneName: TransitionScene
+  m_Deck: {fileID: 7944800592559451149, guid: 763aba295bfd24b84961aa194bb96e50, type: 3}

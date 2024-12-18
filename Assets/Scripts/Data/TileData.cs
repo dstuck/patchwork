@@ -100,5 +100,15 @@ namespace Patchwork.Data
             }
         }
         #endif
+
+        #if UNITY_INCLUDE_TESTS
+        public static TileData CreateTestTile(Vector2Int[] squares)
+        {
+            var testTile = CreateInstance<TileData>();
+            testTile.m_Squares = squares;
+            testTile.m_TileName = "TestTile";
+            return testTile;
+        }
+        #endif
     } 
 }

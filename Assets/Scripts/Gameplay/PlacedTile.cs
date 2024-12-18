@@ -10,17 +10,26 @@ namespace Patchwork.Gameplay
         #region Private Fields
         [SerializeField] private TileData m_TileData;
         private Vector2Int m_GridPosition;
+        private int m_Rotation;
         private TileRenderer m_TileRenderer;
         private Vector2Int[] m_OccupiedSquares;
         private TextMeshPro m_ScoreText;
         private int m_CurrentScore;
         #endregion
 
+        #region Public Properties
+        public TileData TileData => m_TileData;
+        public Vector2Int GridPosition => m_GridPosition;
+        public int Rotation => m_Rotation;
+        #endregion
+
         #region Public Methods
         public void Initialize(TileData _tileData, Vector2Int _gridPosition, int _rotation)
         {
+            Debug.Log($"[PlacedTile] Initializing at position {_gridPosition} with rotation {_rotation}");
             m_TileData = _tileData;
             m_GridPosition = _gridPosition;
+            m_Rotation = _rotation;
             
             // Calculate world-space occupied squares
             Vector2Int[] localSquares = m_TileData.GetRotatedSquares(_rotation);

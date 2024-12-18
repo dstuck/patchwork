@@ -8,7 +8,7 @@ namespace Patchwork.UI
     public class DeckUI : MonoBehaviour
     {
         #region Private Fields
-        [SerializeField] private Deck m_Deck;
+        private Deck m_Deck;
         [SerializeField] private Button m_DeckButton;
         [SerializeField] private Button m_CloseButton;
         [SerializeField] private TextMeshProUGUI m_TileCountText;
@@ -17,10 +17,34 @@ namespace Patchwork.UI
         [SerializeField] private GameObject m_TilePreviewPrefab;
         [SerializeField] private float m_TileSpacing = 10f;
         private GridLayoutGroup m_GridLayout;
+        private bool m_IsInitialized;
         #endregion
 
         #region Unity Lifecycle
         private void Awake()
+        {
+            // Try to get Deck from GameManager first
+            if (GameManager.Instance != null)
+            {
+                m_Deck = GameManager.Instance.Deck;
+            }
+            
+            // Fallback to finding in scene if needed
+            if (m_Deck == null)
+            {
+                m_Deck = FindFirstObjectByType<Deck>();
+            }
+
+            if (m_Deck == null)
+            {
+                Debug.LogError("DeckUI: Could not find Deck reference!");
+                return;
+            }
+
+            InitializeUI();
+        }
+
+        private void InitializeUI()
         {
             m_DeckButton.onClick.AddListener(TogglePopup);
             m_CloseButton.onClick.AddListener(() => m_DeckPopup.SetActive(false));
@@ -31,16 +55,24 @@ namespace Patchwork.UI
             {
                 m_GridLayout.spacing = new Vector2(m_TileSpacing, m_TileSpacing);
             }
+            
+            m_IsInitialized = true;
         }
 
         private void Start()
         {
-            UpdateTileCount();
+            if (m_IsInitialized)
+            {
+                UpdateTileCount();
+            }
         }
 
         private void OnEnable()
         {
-            UpdateTileCount();
+            if (m_IsInitialized)
+            {
+                UpdateTileCount();
+            }
         }
         #endregion
 
@@ -71,7 +103,7 @@ namespace Patchwork.UI
             }
 
             // Get all tiles from deck
-            var allTiles = m_Deck.GetAllTiles();
+            var allTiles = m_Deck.GetTiles();
             foreach (var tile in allTiles)
             {
                 GameObject previewObj = Instantiate(m_TilePreviewPrefab, m_PopupTileContainer);

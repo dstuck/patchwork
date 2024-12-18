@@ -16,8 +16,8 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 - [x] Cumulative score
 
 ### 0.3: Deck expansion
-- [ ] Tile selection screen
-- [ ] Able to add new tiles to deck between boards
+- [x] Tile selection screen
+- [x] Able to add new tiles to deck between boards
 
 ### 0.4: Tile upgrades
 - [ ] Create 2 tile scoring upgrades

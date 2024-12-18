@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 namespace Patchwork.Gameplay
 {
@@ -10,6 +11,9 @@ namespace Patchwork.Gameplay
         [SerializeField] private string m_MainMenuSceneName = "MainMenu";
         [SerializeField] private string m_GameplaySceneName = "GameplayScene";
         [SerializeField] private string m_TransitionSceneName = "TransitionScene";
+        
+        [Header("References")]
+        [SerializeField] private Deck m_Deck;
         
         private static GameManager s_Instance;
         private bool m_IsInitialized;
@@ -35,6 +39,7 @@ namespace Patchwork.Gameplay
 
         public int CurrentStage => m_CurrentStage;
         public int CumulativeScore => m_CumulativeScore;
+        public Deck Deck => m_Deck;
         #endregion
 
         #region Unity Lifecycle
@@ -71,13 +76,19 @@ namespace Patchwork.Gameplay
         {
             m_CurrentStage = 1;
             m_CumulativeScore = 0;
+            
+            if (m_Deck == null)
+            {
+                Debug.LogError("Deck reference missing in GameManager!");
+                return;
+            }
+            
             m_IsInitialized = true;
         }
 
         private void OnSceneLoaded(Scene _scene, LoadSceneMode _mode)
         {
             // Handle any scene-specific initialization
-            Debug.Log($"Scene loaded: {_scene.name}");
         }
 
         private static void InitializeInstance()
@@ -97,7 +108,6 @@ namespace Patchwork.Gameplay
                     {
                         s_Instance.name = "GameManager";
                         DontDestroyOnLoad(go);
-                        Debug.Log("GameManager instance created from prefab");
                     }
                     else
                     {
@@ -116,18 +126,37 @@ namespace Patchwork.Gameplay
         public void StartNewGame()
         {
             Initialize();
+            if (m_Deck != null)
+            {
+                m_Deck.ResetForNewStage();
+            }
             SceneManager.LoadScene(m_GameplaySceneName);
         }
 
         public void StartNextStage()
         {
             m_CurrentStage++;
+            if (m_Deck != null)
+            {
+                m_Deck.ResetForNewStage();
+            }
             SceneManager.LoadScene(m_GameplaySceneName);
         }
 
-        public void CompleteStage(int _stageScore)
+        public void CompleteStage(int _finalScore)
         {
-            m_CumulativeScore += _stageScore;
+            StartCoroutine(CompleteStageRoutine(_finalScore));
+        }
+
+        private IEnumerator CompleteStageRoutine(int _finalScore)
+        {
+            // Wait for one second before transitioning
+            yield return new WaitForSeconds(1f);
+            
+            // Store the score
+            m_CumulativeScore = _finalScore;
+            
+            // Load the transition scene
             SceneManager.LoadScene(m_TransitionSceneName);
         }
 

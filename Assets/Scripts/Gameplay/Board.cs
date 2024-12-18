@@ -257,6 +257,19 @@ namespace Patchwork.Gameplay
             }
             return totalScore;
         }
+
+        #if UNITY_INCLUDE_TESTS
+        public PlacedTile GetTileAt(Vector2Int position)
+        {
+            return m_PlacedTiles.Find(t => t.GridPosition == position);
+        }
+
+        public void Initialize(GridSettings settings)
+        {
+            m_GridSettings = settings;
+            InitializeBoard();
+        }
+        #endif
         #endregion
     }
 } 
