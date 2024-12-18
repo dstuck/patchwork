@@ -150,14 +150,12 @@ namespace Patchwork.UI
                 return;
             }
 
-            Debug.Log($"Found {allTiles.Length} tiles for rewards");
             
             // Get 3 random tiles
             for (int i = 0; i < 3; i++)
             {
                 int randomIndex = Random.Range(0, allTiles.Length);
                 m_RewardOptions.Add(allTiles[randomIndex]);
-                Debug.Log($"Added reward option: {allTiles[randomIndex].name}");
             }
         }
 
@@ -193,7 +191,6 @@ namespace Patchwork.UI
                 {
                     preview.Initialize(tileData);
                     m_RewardPreviews.Add(preview);
-                    Debug.Log($"Created preview for tile: {tileData.name}");
                 }
             }
 

@@ -35,14 +35,12 @@ namespace Patchwork.Gameplay
 
         private void Start()
         {
-            Debug.Log($"Deck Start - IsInitialized: {m_IsInitialized}, Current Deck Size: {m_DeckTiles.Count}");
             if (!m_IsInitialized)
             {
                 LoadTilesFromResources();
                 m_IsInitialized = true;
             }
             InitializeDeck();
-            Debug.Log($"Deck After Init - Deck Size: {m_DeckTiles.Count}, Draw Pile Size: {m_DrawPile.Count}");
         }
         #endregion
 
@@ -106,15 +104,12 @@ namespace Patchwork.Gameplay
         }
 
         public void ResetForNewStage()
-        {
-            Debug.Log($"Resetting deck for new stage. Current deck size: {m_DeckTiles.Count}");
-            
+        {            
             // Make sure draw pile has all available tiles
             m_DrawPile.Clear();
             m_DrawPile.AddRange(m_DeckTiles);
             ShuffleDeck();
             
-            Debug.Log($"After reset. Draw pile size: {m_DrawPile.Count}, DeckTiles size: {m_DeckTiles.Count}");
         }
 
         public int GetRemainingTileCount()
@@ -134,7 +129,6 @@ namespace Patchwork.Gameplay
                 m_DeckTiles.Add(_tileData);
                 m_DrawPile.Add(_tileData);
                 ShuffleDeck();
-                Debug.Log($"Added tile to deck. New deck size: {m_DeckTiles.Count}");
             }
         }
         #endregion
