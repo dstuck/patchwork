@@ -150,12 +150,24 @@ namespace Patchwork.UI
                 return;
             }
 
-            
-            // Get 3 random tiles
+            // Get two random tiles
             for (int i = 0; i < 3; i++)
             {
                 int randomIndex = Random.Range(0, allTiles.Length);
-                m_RewardOptions.Add(allTiles[randomIndex]);
+                // Create a copy of the tile data to modify
+                TileData rewardTile = Instantiate(allTiles[randomIndex]);
+                
+                // Apply appropriate upgrade based on index
+                if (i == 0)
+                {
+                    rewardTile.AddUpgrade(new PristineBonus());
+                }
+                else if (i == 1)
+                {
+                    rewardTile.AddUpgrade(new SloppyBonus());
+                }
+                
+                m_RewardOptions.Add(rewardTile);
             }
         }
 

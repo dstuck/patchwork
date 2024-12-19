@@ -99,14 +99,3 @@ public class ExampleClass : MonoBehaviour
 }
 Refer to Unity documentation and C# programming guides for best practices in scripting, game architecture, and performance optimization.
 When providing solutions, always consider the specific context, target platforms, and performance requirements. Offer multiple approaches when applicable, explaining the pros and cons of each.
-
-
-## Chat Logging
-All conversations should be logged in the project under Docs/CursorChats/ with the format chat_XXX.md. Each file should contain the full Q&A history of the session formatted as:
-markdown:Docs/CursorChats/chat_XXX.md
-Chat Session - [Topic]
-Q: [User question]
-A: [Assistant response]
-[... continuing Q&A ...]
-
-Each new development session should start a new numbered chat log file. This helps maintain a clear record of development decisions and discussions in the git history.

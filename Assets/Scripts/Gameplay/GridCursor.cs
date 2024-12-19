@@ -230,6 +230,7 @@ namespace Patchwork.Gameplay
             tile.Initialize(m_TileHand.CurrentTile, m_CurrentGridPosition, m_CurrentRotation);
             
             m_Board.AddPlacedTile(tile);
+            m_Board.CalculateTotalScore(); // Temporarily display score
         }
 
         private void HandleLastTilePlaced()

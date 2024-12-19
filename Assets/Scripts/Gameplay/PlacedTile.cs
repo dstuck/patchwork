@@ -71,9 +71,9 @@ namespace Patchwork.Gameplay
                 bool overHole = board.IsHoleAt(square);
                 bool overTile = IsOverlappingOtherTile(square, otherTiles);
 
-                if (overHole && !overTile) m_CurrentScore += 10;
-                else if (overHole && overTile) m_CurrentScore += 2;
-                else if (!overHole) m_CurrentScore -= 5;
+                if (overHole && !overTile) m_CurrentScore += 2;
+                else if (overHole && overTile) m_CurrentScore += 1;
+                else if (!overHole) m_CurrentScore -= 2;
             }
 
             // Only show text when we have a score
@@ -86,6 +86,11 @@ namespace Patchwork.Gameplay
         public bool OccupiesPosition(Vector2Int position)
         {
             return System.Array.Exists(m_OccupiedSquares, square => square == position);
+        }
+
+        public Vector2Int[] GetSquares()
+        {
+            return m_TileData.GetRotatedSquares(m_Rotation);
         }
         #endregion
 
