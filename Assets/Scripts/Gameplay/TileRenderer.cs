@@ -33,6 +33,7 @@ namespace Patchwork.Gameplay
         #region Public Methods
         public void Initialize(TileData _tileData, Color _color, float _initialRotation = 0f)
         {
+            
             m_TileData = _tileData;
             m_CurrentRotation = (int)_initialRotation;
             
@@ -45,6 +46,10 @@ namespace Patchwork.Gameplay
             if (_tileData != null)
             {
                 CreateVisuals(_color);
+            }
+            else
+            {
+                Debug.LogWarning("[TileRenderer] Attempted to initialize with null TileData");
             }
         }
 
@@ -102,8 +107,14 @@ namespace Patchwork.Gameplay
             m_IsRotating = false;
         }
 
-        private void CreateVisuals(Color _color)
+        private void CreateVisuals(Color _alpha)
         {
+            if (m_TileData == null)
+            {
+                Debug.LogError("[TileRenderer] Cannot create visuals - TileData is null");
+                return;
+            }
+            
             // Clean up existing visuals
             if (m_TileRoot != null)
             {
@@ -122,6 +133,9 @@ namespace Patchwork.Gameplay
             Vector2Int[] squares = m_TileData.GetRotatedSquares(m_CurrentRotation);
             m_SquareRenderers = new SpriteRenderer[squares.Length];
 
+            Color tileColor = m_TileData.TileColor;
+            tileColor.a = _alpha.a; // Preserve the alpha from the input color
+
             for (int i = 0; i < squares.Length; i++)
             {
                 GameObject square = new GameObject($"Square_{i}");
@@ -133,8 +147,8 @@ namespace Patchwork.Gameplay
                 );
 
                 SpriteRenderer renderer = square.AddComponent<SpriteRenderer>();
-                renderer.sprite = GameResources.Instance.TileSquareSprite;
-                renderer.color = _color;
+                renderer.sprite = m_TileData.TileSprite;
+                renderer.color = tileColor;
                 m_SquareRenderers[i] = renderer;
             }
         }

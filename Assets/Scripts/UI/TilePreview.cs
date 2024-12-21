@@ -36,6 +36,13 @@ namespace Patchwork.UI
             {
                 GameObject square = Instantiate(m_SquarePrefab, m_TileContainer);
                 RectTransform rectTransform = square.GetComponent<RectTransform>();
+                Image squareImage = square.GetComponent<Image>();
+                
+                if (squareImage != null)
+                {
+                    squareImage.sprite = _tileData.TileSprite;
+                    squareImage.color = _tileData.TileColor;
+                }
                 
                 rectTransform.anchoredPosition = new Vector2(
                     pos.x * (m_SquareSize + m_SquareSpacing),
@@ -51,7 +58,6 @@ namespace Patchwork.UI
             if (m_OutlineImage != null)
             {
                 m_OutlineImage.enabled = _selected;
-                // Ensure we use the semi-transparent color
                 if (_selected)
                 {
                     m_OutlineImage.color = m_SelectedColor;

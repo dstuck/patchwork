@@ -76,6 +76,15 @@ namespace Patchwork.Gameplay
                 else if (!overHole) m_CurrentScore -= 2;
             }
 
+            // Apply upgrades
+            if (m_TileData != null && m_TileData.Upgrades != null)
+            {
+                foreach (var upgrade in m_TileData.Upgrades)
+                {
+                    m_CurrentScore = upgrade.ModifyScore(m_CurrentScore, this, board, otherTiles);
+                }
+            }
+
             // Only show text when we have a score
             m_ScoreText.enabled = true;
             m_ScoreText.text = m_CurrentScore.ToString();
