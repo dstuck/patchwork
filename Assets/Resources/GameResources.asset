@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: GameResources
   m_EditorClassIdentifier: 
   m_TileSquareSprite: {fileID: 7482667652216324306, guid: 9620db5204dbd4dd685febea8b36167f, type: 3}
+  m_UpgradeTooltipPrefab: {fileID: 6793826844607065114, guid: ba81fa9c2006344ec81294052020ae26, type: 3}

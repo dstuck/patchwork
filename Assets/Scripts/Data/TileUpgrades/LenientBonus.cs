@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 namespace Patchwork.Data
 {
-    public class SloppyBonus : ITileUpgrade
+    public class LenientBonus : ITileUpgrade
     {
-        public string DisplayName => "Sloppy Fit";
+        public string DisplayName => "Lenient";
         public string Description => "No penalty for covering non-hole spaces";
         public Color DisplayColor => new Color(0.2f, 0.8f, 1f);  // Light blue
 

@@ -1,5 +1,6 @@
 using UnityEngine;
 using Patchwork.Data;
+using UnityEngine.EventSystems;
 
 namespace Patchwork.Gameplay
 {
@@ -17,6 +18,13 @@ namespace Patchwork.Gameplay
         private void Awake()
         {
             m_Camera = GetComponent<Camera>();
+            
+            // Add Physics2D raycaster if it doesn't exist
+            if (!TryGetComponent<Physics2DRaycaster>(out _))
+            {
+                gameObject.AddComponent<Physics2DRaycaster>();
+            }
+            
             SetupCamera();
         }
         #endregion

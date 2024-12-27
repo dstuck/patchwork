@@ -20,10 +20,11 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 - [x] Able to add new tiles to deck between boards
 
 ### 0.4: Tile upgrades
-- [ ] Create 2 tile scoring upgrades
-- [ ] Board scoring accounts for upgrades
+- [x] Create 2 tile scoring upgrades
+- [x] Board scoring accounts for upgrades
 - [ ] Tile upgrade screen
 - [ ] Select new tile and upgrade one after each round
+- [ ] Tooltip to explain upgrades
 
 ## Design
 Main concepts
@@ -41,3 +42,17 @@ The cursor will display the selected tile and when the player presses the confir
 
 ## Notes
 - Obviously the player's tiles will be upgraded as they progress, but maybe the board itself can be upgraded as well. That could be a path for larger scale "boss" upgrades perhaps.
+
+## Brainstorming
+
+### Challenge Increasee
+It's hard to increase the challenge by making the board more complex or smaller
+
+- Increase scoring requirement
+    - Really relies on tile upgrades maybe too much
+- Add timer
+    - More hectic
+    - More mistakes so more out of things like penalty decreases
+- Add moving levels
+    - Lose opportunity to to place in spots after they disappear
+    - Maybe you draw more tiles as you go to fill in more

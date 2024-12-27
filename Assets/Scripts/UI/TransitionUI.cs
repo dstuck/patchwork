@@ -164,7 +164,7 @@ namespace Patchwork.UI
                 }
                 else if (i == 1)
                 {
-                    rewardTile.AddUpgrade(new SloppyBonus());
+                    rewardTile.AddUpgrade(new LenientBonus());
                 }
                 
                 m_RewardOptions.Add(rewardTile);
@@ -192,10 +192,9 @@ namespace Patchwork.UI
                 GameObject previewObj = Instantiate(m_TilePreviewPrefab, m_RewardTileContainer);
                 RectTransform rectTransform = previewObj.GetComponent<RectTransform>();
                 
-                // Set a fixed size for the preview
                 if (rectTransform != null)
                 {
-                    rectTransform.sizeDelta = new Vector2(100f, 100f); // Adjust these values as needed
+                    rectTransform.sizeDelta = new Vector2(100f, 100f);
                 }
 
                 TilePreview preview = previewObj.GetComponent<TilePreview>();
@@ -203,6 +202,13 @@ namespace Patchwork.UI
                 {
                     preview.Initialize(tileData);
                     m_RewardPreviews.Add(preview);
+
+                    // Add tooltip trigger if tile has upgrades
+                    if (tileData.Upgrades.Count > 0)
+                    {
+                        var tooltipTrigger = previewObj.AddComponent<TooltipTrigger>();
+                        tooltipTrigger.Initialize(tileData.Upgrades[0]);
+                    }
                 }
             }
 
