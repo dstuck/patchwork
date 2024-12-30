@@ -11,14 +11,30 @@ namespace Patchwork.Gameplay
     {
         #region Private Fields
         [SerializeField] private Patchwork.Data.TileData m_TileData;
-        private GridSettings m_GridSettings;
+        [SerializeField] private GridSettings m_GridSettings;
         private Vector2Int m_GridPosition;
         private int m_Rotation;
         private TileRenderer m_TileRenderer;
         private Vector2Int[] m_OccupiedSquares;
         private TextMeshPro m_ScoreText;
         private int m_CurrentScore;
-        private static UpgradeTooltip s_Tooltip;
+        private TooltipTrigger m_TooltipTrigger;
+        #endregion
+
+        #region Unity Lifecycle
+        private void Awake()
+        {
+            // Load GridSettings if not assigned
+            if (m_GridSettings == null)
+            {
+                m_GridSettings = Resources.Load<GridSettings>("GridSettings");
+                if (m_GridSettings == null)
+                {
+                    Debug.LogError("GridSettings not found in Resources folder!");
+                    return;
+                }
+            }
+        }
         #endregion
 
         #region Public Properties
@@ -69,6 +85,13 @@ namespace Patchwork.Gameplay
             
             m_TileRenderer = gameObject.AddComponent<TileRenderer>();
             m_TileRenderer.Initialize(m_TileData, m_TileData.TileColor, _rotation);
+
+            // Add tooltip trigger if tile has upgrades
+            if (m_TileData.Upgrades.Count > 0)
+            {
+                m_TooltipTrigger = gameObject.AddComponent<TooltipTrigger>();
+                m_TooltipTrigger.Initialize(m_TileData.Upgrades[0]);
+            }
 
             // Create score text
             GameObject textObj = new GameObject("ScoreText");
@@ -130,6 +153,24 @@ namespace Patchwork.Gameplay
         {
             return m_TileData.GetRotatedSquares(m_Rotation);
         }
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            if (m_TooltipTrigger != null)
+            {
+                Debug.Log("Mouse entered PlacedTile"); // Debug log
+                m_TooltipTrigger.OnPointerEnter(eventData);
+            }
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            if (m_TooltipTrigger != null)
+            {
+                Debug.Log("Mouse exited PlacedTile"); // Debug log
+                m_TooltipTrigger.OnPointerExit(eventData);
+            }
+        }
         #endregion
 
         #region Private Methods
@@ -145,53 +186,6 @@ namespace Patchwork.Gameplay
             return false;
         }
         #endregion
-
-        private void Awake()
-        {
-            // Load GridSettings if not assigned
-            if (m_GridSettings == null)
-            {
-                m_GridSettings = Resources.Load<GridSettings>("GridSettings");
-                if (m_GridSettings == null)
-                {
-                    Debug.LogError("GridSettings not found in Resources folder!");
-                    return;
-                }
-            }
-
-            if (s_Tooltip == null)
-            {
-                var tooltipPrefab = GameResources.Instance.UpgradeTooltipPrefab;
-                if (tooltipPrefab != null)
-                {
-                    // Use FindFirstObjectByType instead of FindObjectOfType
-                    var canvas = FindFirstObjectByType<Canvas>();
-                    if (canvas != null)
-                    {
-                        var tooltipObj = Instantiate(tooltipPrefab, canvas.transform);
-                        s_Tooltip = tooltipObj.GetComponent<UpgradeTooltip>();
-                    }
-                }
-            }
-        }
-
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-            if (m_TileData != null && m_TileData.Upgrades.Count > 0 && s_Tooltip != null)
-            {
-                var upgrade = m_TileData.Upgrades[0];
-                Vector2 screenPos = Camera.main.WorldToScreenPoint(transform.position);
-                s_Tooltip.Show(upgrade.DisplayName, upgrade.Description, screenPos);
-            }
-        }
-
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            if (s_Tooltip != null)
-            {
-                s_Tooltip.Hide();
-            }
-        }
 
         private void OnDrawGizmos()
         {

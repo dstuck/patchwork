@@ -208,6 +208,14 @@ namespace Patchwork.UI
                     {
                         var tooltipTrigger = previewObj.AddComponent<TooltipTrigger>();
                         tooltipTrigger.Initialize(tileData.Upgrades[0]);
+                        
+                        // Add a Box Collider 2D for UI raycasting if not already present
+                        if (!previewObj.TryGetComponent<BoxCollider2D>(out _))
+                        {
+                            var collider = previewObj.AddComponent<BoxCollider2D>();
+                            collider.isTrigger = true;
+                            collider.size = rectTransform.sizeDelta;
+                        }
                     }
                 }
             }

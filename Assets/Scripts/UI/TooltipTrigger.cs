@@ -6,25 +6,7 @@ namespace Patchwork.UI
 {
     public class TooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
-        private static UpgradeTooltip s_Tooltip;
         private ITileUpgrade m_Upgrade;
-
-        private void Awake()
-        {
-            if (s_Tooltip == null)
-            {
-                var tooltipPrefab = GameResources.Instance.UpgradeTooltipPrefab;
-                if (tooltipPrefab != null)
-                {
-                    var canvas = FindFirstObjectByType<Canvas>();
-                    if (canvas != null)
-                    {
-                        var tooltipObj = Instantiate(tooltipPrefab, canvas.transform);
-                        s_Tooltip = tooltipObj.GetComponent<UpgradeTooltip>();
-                    }
-                }
-            }
-        }
 
         public void Initialize(ITileUpgrade upgrade)
         {
@@ -33,17 +15,18 @@ namespace Patchwork.UI
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (m_Upgrade != null && s_Tooltip != null)
+            if (m_Upgrade != null && TooltipSystem.Instance != null)
             {
-                s_Tooltip.Show(m_Upgrade.DisplayName, m_Upgrade.Description, eventData.position);
+                Vector2 screenPos = eventData.position;
+                TooltipSystem.Instance.Show(m_Upgrade.DisplayName, m_Upgrade.Description, screenPos);
             }
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            if (s_Tooltip != null)
+            if (TooltipSystem.Instance != null)
             {
-                s_Tooltip.Hide();
+                TooltipSystem.Instance.Hide();
             }
         }
     }
