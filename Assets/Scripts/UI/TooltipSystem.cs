@@ -85,18 +85,20 @@ namespace Patchwork.UI
                 m_TooltipPanel.pivot = new Vector2(0.5f, 0);  // Pivot at bottom center
             }
                 
-            Debug.Log($"TooltipSystem initialized. Canvas: {canvas}, CanvasGroup: {m_CanvasGroup}");
+            if (m_TooltipPanel == null || m_TitleText == null || m_DescriptionText == null)
+            {
+                Debug.LogError("TooltipSystem is missing required references!");
+            }
             Hide();
         }
 
         public void Show(string title, string description, Vector2 position)
         {
-            Debug.Log($"Showing tooltip: {title} - {description} at {position}");
             m_TitleText.text = title;
             m_DescriptionText.text = description;
             
             // Adjust position to account for tooltip size and screen bounds
-            position.y += m_TooltipPanel.sizeDelta.y * 0.5f; // Move up by half height
+            position.y += m_TooltipPanel.sizeDelta.y * 0.5f;
             position.x = Mathf.Clamp(position.x, m_TooltipPanel.sizeDelta.x * 0.5f, 
                 Screen.width - m_TooltipPanel.sizeDelta.x * 0.5f);
             position.y = Mathf.Clamp(position.y, m_TooltipPanel.sizeDelta.y, 
@@ -106,14 +108,12 @@ namespace Patchwork.UI
             m_ShouldShow = true;
             m_ShowTimer = Time.time;
             
-            // Force immediate show for testing
             m_CanvasGroup.alpha = 1;
             m_TooltipPanel.position = position;
         }
 
         public void Hide()
         {
-            Debug.Log("Hiding tooltip"); // Debug log
             m_ShouldShow = false;
             m_CanvasGroup.alpha = 0;
             m_CanvasGroup.blocksRaycasts = false;

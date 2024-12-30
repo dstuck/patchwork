@@ -7,7 +7,7 @@ namespace Patchwork.Data
     public class PristineBonus : ITileUpgrade
     {
         public string DisplayName => "Pristine Placement";
-        public string Description => "+5 points if all squares are over holes and not overlapping other tiles";
+        public string Description => "+5 points if perfectly placed";
         public Color DisplayColor => new Color(1f, 0.8f, 0.2f);  // Golden yellow
 
         public int ModifyScore(int _baseScore, PlacedTile _tile, Board _board, List<PlacedTile> _otherTiles)
