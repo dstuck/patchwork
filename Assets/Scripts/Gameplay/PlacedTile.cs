@@ -158,7 +158,6 @@ namespace Patchwork.Gameplay
         {
             if (m_TooltipTrigger != null)
             {
-                Debug.Log("Mouse entered PlacedTile"); // Debug log
                 m_TooltipTrigger.OnPointerEnter(eventData);
             }
         }
@@ -167,7 +166,6 @@ namespace Patchwork.Gameplay
         {
             if (m_TooltipTrigger != null)
             {
-                Debug.Log("Mouse exited PlacedTile"); // Debug log
                 m_TooltipTrigger.OnPointerExit(eventData);
             }
         }
