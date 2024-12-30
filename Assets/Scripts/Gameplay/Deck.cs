@@ -61,7 +61,27 @@ namespace Patchwork.Gameplay
                     shuffledTiles[i] = shuffledTiles[j];
                     shuffledTiles[j] = temp;
                 }
-                m_DeckTiles.AddRange(shuffledTiles.Take(m_InitialTileCount));
+
+                // Take first 6 tiles and apply upgrades to some of them
+                var selectedTiles = shuffledTiles.Take(m_InitialTileCount).ToList();
+                
+                // Create copies of tiles to modify
+                for (int i = 0; i < selectedTiles.Count; i++)
+                {
+                    TileData tileCopy = Instantiate(selectedTiles[i]);
+                    
+                    // Apply upgrades to first 4 tiles
+                    if (i < 2)
+                    {
+                        tileCopy.AddUpgrade(new PristineBonus());
+                    }
+                    else if (i < 4)
+                    {
+                        tileCopy.AddUpgrade(new LenientBonus());
+                    }
+                    
+                    m_DeckTiles.Add(tileCopy);
+                }
             }
             else
             {

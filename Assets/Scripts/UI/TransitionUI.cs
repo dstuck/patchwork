@@ -150,12 +150,24 @@ namespace Patchwork.UI
                 return;
             }
 
-            
-            // Get 3 random tiles
+            // Get two random tiles
             for (int i = 0; i < 3; i++)
             {
                 int randomIndex = Random.Range(0, allTiles.Length);
-                m_RewardOptions.Add(allTiles[randomIndex]);
+                // Create a copy of the tile data to modify
+                TileData rewardTile = Instantiate(allTiles[randomIndex]);
+                
+                // Apply appropriate upgrade based on index
+                if (i == 0)
+                {
+                    rewardTile.AddUpgrade(new PristineBonus());
+                }
+                else if (i == 1)
+                {
+                    rewardTile.AddUpgrade(new LenientBonus());
+                }
+                
+                m_RewardOptions.Add(rewardTile);
             }
         }
 
@@ -180,10 +192,9 @@ namespace Patchwork.UI
                 GameObject previewObj = Instantiate(m_TilePreviewPrefab, m_RewardTileContainer);
                 RectTransform rectTransform = previewObj.GetComponent<RectTransform>();
                 
-                // Set a fixed size for the preview
                 if (rectTransform != null)
                 {
-                    rectTransform.sizeDelta = new Vector2(100f, 100f); // Adjust these values as needed
+                    rectTransform.sizeDelta = new Vector2(100f, 100f);
                 }
 
                 TilePreview preview = previewObj.GetComponent<TilePreview>();
@@ -191,6 +202,21 @@ namespace Patchwork.UI
                 {
                     preview.Initialize(tileData);
                     m_RewardPreviews.Add(preview);
+
+                    // Add tooltip trigger if tile has upgrades
+                    if (tileData.Upgrades.Count > 0)
+                    {
+                        var tooltipTrigger = previewObj.AddComponent<TooltipTrigger>();
+                        tooltipTrigger.Initialize(tileData.Upgrades[0]);
+                        
+                        // Add a Box Collider 2D for UI raycasting if not already present
+                        if (!previewObj.TryGetComponent<BoxCollider2D>(out _))
+                        {
+                            var collider = previewObj.AddComponent<BoxCollider2D>();
+                            collider.isTrigger = true;
+                            collider.size = rectTransform.sizeDelta;
+                        }
+                    }
                 }
             }
 

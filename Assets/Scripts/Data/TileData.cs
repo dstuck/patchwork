@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace Patchwork.Data
 {
@@ -6,22 +7,56 @@ namespace Patchwork.Data
     public class TileData : ScriptableObject
     {
         #region Private Fields
-        [SerializeField] private Vector2Int[] m_Squares = new Vector2Int[0];  // Positions relative to tile origin
+        [SerializeField] private string m_TileName;
+        [SerializeField] private Vector2Int[] m_Squares;
         [SerializeField] private Color m_TileColor = Color.white;
-        [SerializeField] private string m_TileName = "New Tile";
-        
-        // Future properties we might want to add:
-        // [SerializeField] private TileAbility[] m_Abilities;
-        // [SerializeField] private int m_ScoreValue;
-        // [SerializeField] private TileRarity m_Rarity;
-        // [SerializeField] private Sprite m_TileSprite;
+        [SerializeField] private Sprite m_TileSprite;
+        private List<ITileUpgrade> m_Upgrades = new List<ITileUpgrade>();
         #endregion
 
-        #region Properties
-        public Vector2Int[] Squares => m_Squares;
-        public Color TileColor => m_TileColor;
+        #region Public Properties
         public string TileName => m_TileName;
+        public Vector2Int[] Squares => m_Squares;
+        public Color TileColor 
+        {
+            get
+            {
+                return m_Upgrades.Count > 0 ? m_Upgrades[0].DisplayColor : m_TileColor;
+            }
+        }
+        public Sprite TileSprite 
+        { 
+            get 
+            {
+                if (m_TileSprite != null) return m_TileSprite;
+                if (GameResources.Instance == null)
+                {
+                    Debug.LogError($"[TileData] GameResources.Instance is null when getting sprite for {name}");
+                    return null;
+                }
+                if (GameResources.Instance.TileSquareSprite == null)
+                {
+                    Debug.LogError($"[TileData] TileSquareSprite is null in GameResources for {name}");
+                    return null;
+                }
+                return GameResources.Instance.TileSquareSprite;
+            }
+        }
+        public IReadOnlyList<ITileUpgrade> Upgrades => m_Upgrades;
         #endregion
+
+        public void AddUpgrade(ITileUpgrade _upgrade)
+        {
+            if (!m_Upgrades.Contains(_upgrade))
+            {
+                m_Upgrades.Add(_upgrade);
+            }
+        }
+
+        public void RemoveUpgrade(ITileUpgrade _upgrade)
+        {
+            m_Upgrades.Remove(_upgrade);
+        }
 
         #region Public Methods
         public bool OccupiesPosition(Vector2Int _relativePosition)

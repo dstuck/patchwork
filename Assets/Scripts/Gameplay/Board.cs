@@ -16,6 +16,7 @@ namespace Patchwork.Gameplay
         
         private Dictionary<Vector2Int, GameObject> m_Holes = new Dictionary<Vector2Int, GameObject>();
         private List<PlacedTile> m_PlacedTiles = new List<PlacedTile>();
+        public const int NonHolePenalty = -2;  // Made public for upgrade reference
         #endregion
 
         #region Unity Lifecycle
