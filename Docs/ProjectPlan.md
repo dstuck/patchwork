@@ -22,9 +22,14 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 ### 0.4: Tile upgrades
 - [x] Create 2 tile scoring upgrades
 - [x] Board scoring accounts for upgrades
-- [ ] Tile upgrade screen
-- [ ] Select new tile and upgrade one after each round
-- [ ] Tooltip to explain upgrades
+- [x] Tile upgrade screen
+- [x] Select new tile and upgrade one after each round
+- [x] Tooltip to explain upgrades
+
+### 0.5: Difficulty scaling
+- [ ] Implement draw gems
+- [ ] Scale up board size along with draw gems
+- [ ] Add timer with scaling rewards
 
 ## Design
 Main concepts
