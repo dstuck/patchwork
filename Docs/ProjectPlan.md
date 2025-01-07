@@ -61,3 +61,9 @@ It's hard to increase the challenge by making the board more complex or smaller
 - Add moving levels
     - Lose opportunity to to place in spots after they disappear
     - Maybe you draw more tiles as you go to fill in more
+
+## Story
+
+### Ideas
+- You take a low paying job that involves patching up exposed electrical wiring
+    - You find out soon that the company has a big showy AI that it's using to build its devices and your job is to clean up the messes that it makes. You need to go fast under threat of being outsourced, you don't have enough materials to fully patch things up, and you as the QA team are blamed when the public gets mad at the shoddy work and accidents it causes

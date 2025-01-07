@@ -89,7 +89,24 @@ namespace Patchwork.Gameplay
 
         private void OnSceneLoaded(Scene _scene, LoadSceneMode _mode)
         {
-            // Handle any scene-specific initialization
+            if (_scene.name == m_GameplaySceneName)
+            {
+                // Calculate gem count for current stage
+                int gemCount = Mathf.Min((m_CurrentStage - 1) / c_StagesPerGem, c_MaxGemCount);
+                
+                // Find and configure the board
+                Board board = FindFirstObjectByType<Board>();
+                if (board != null)
+                {
+                    board.SetGemCount(gemCount);
+                }
+                
+                // Reset deck
+                if (m_Deck != null)
+                {
+                    m_Deck.ResetForNewStage();
+                }
+            }
         }
 
         private static void InitializeInstance()
@@ -144,10 +161,11 @@ namespace Patchwork.Gameplay
         public void StartNextStage()
         {
             m_CurrentStage++;
-            if (m_Deck != null)
-            {
-                m_Deck.ResetForNewStage();
-            }
+            
+            // Calculate gem count based on stage
+            int gemCount = Mathf.Min((m_CurrentStage - 1) / c_StagesPerGem, c_MaxGemCount);
+            
+            // Load scene first, then set up board
             SceneManager.LoadScene(m_GameplaySceneName);
         }
 
@@ -181,5 +199,8 @@ namespace Patchwork.Gameplay
             Initialize();
         }
         #endif
+
+        private const int c_MaxGemCount = 3;
+        private const int c_StagesPerGem = 2;
     }
 } 

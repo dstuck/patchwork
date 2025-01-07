@@ -10,12 +10,14 @@ namespace Patchwork.Gameplay
     public class PlacedTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         #region Private Fields
-        [SerializeField] private Patchwork.Data.TileData m_TileData;
         [SerializeField] private GridSettings m_GridSettings;
+        private TileData m_TileData;
         private Vector2Int m_GridPosition;
         private int m_Rotation;
-        private TileRenderer m_TileRenderer;
         private Vector2Int[] m_OccupiedSquares;
+        private TileRenderer m_TileRenderer;
+        private TileHand m_TileHand;
+        private Board m_Board;
         private TextMeshPro m_ScoreText;
         private int m_CurrentScore;
         private TooltipTrigger m_TooltipTrigger;
@@ -33,6 +35,20 @@ namespace Patchwork.Gameplay
                     Debug.LogError("GridSettings not found in Resources folder!");
                     return;
                 }
+            }
+
+            // Get TileHand reference
+            m_TileHand = FindFirstObjectByType<TileHand>();
+            if (m_TileHand == null)
+            {
+                Debug.LogError("TileHand not found in scene!");
+            }
+
+            // Get Board reference
+            m_Board = FindFirstObjectByType<Board>();
+            if (m_Board == null)
+            {
+                Debug.LogError("Board not found in scene!");
             }
         }
         #endregion
@@ -85,6 +101,15 @@ namespace Patchwork.Gameplay
             
             m_TileRenderer = gameObject.AddComponent<TileRenderer>();
             m_TileRenderer.Initialize(m_TileData, m_TileData.TileColor, _rotation);
+
+            // Check for draw gems under each square
+            foreach (Vector2Int square in m_OccupiedSquares)
+            {
+                if (m_Board != null)
+                {
+                    m_Board.TryCollectDrawGem(square);
+                }
+            }
 
             // Add tooltip trigger if tile has upgrades
             if (m_TileData.Upgrades.Count > 0)

@@ -22,28 +22,33 @@ namespace Patchwork.Gameplay
 
         #region Public Properties
         public TileData CurrentTile => m_CurrentTile;
+        public int HandSize => m_HandSize;
         #endregion
 
         #region Unity Lifecycle
         private void Start()
         {
-            if (m_Deck == null)
+            // Only initialize if we don't have any tiles yet
+            if (m_AvailableTiles.Count == 0)
             {
-                if (GameManager.Instance == null)
-                {
-                    Debug.LogError("[TileHand] GameManager.Instance is null!");
-                    return;
-                }
-                
-                m_Deck = GameManager.Instance.Deck;
                 if (m_Deck == null)
                 {
-                    Debug.LogError("[TileHand] Failed to get Deck from GameManager");
-                    return;
+                    if (GameManager.Instance == null)
+                    {
+                        Debug.LogError("[TileHand] GameManager.Instance is null!");
+                        return;
+                    }
+                    
+                    m_Deck = GameManager.Instance.Deck;
+                    if (m_Deck == null)
+                    {
+                        Debug.LogError("[TileHand] Failed to get Deck from GameManager");
+                        return;
+                    }
                 }
+                
+                InitializeTileHand();
             }
-            
-            InitializeTileHand();
         }
 
         private void OnEnable()
@@ -60,11 +65,7 @@ namespace Patchwork.Gameplay
                 
                 for (int i = 0; i < m_HandSize; i++)
                 {
-                    TileData drawnTile = m_Deck.DrawTile();
-                    if (drawnTile != null)
-                    {
-                        m_AvailableTiles.Add(drawnTile);
-                    }
+                    m_Deck.DrawTile();
                 }
 
                 if (m_AvailableTiles.Count > 0)
@@ -82,6 +83,20 @@ namespace Patchwork.Gameplay
         {
             m_Deck = _deck;
             InitializeTileHand();
+        }
+
+        public void AddTile(TileData _tileData)
+        {
+            if (_tileData != null)
+            {
+                m_AvailableTiles.Add(_tileData);
+                if (m_CurrentTile == null)
+                {
+                    m_CurrentTileIndex = m_AvailableTiles.Count - 1;
+                    m_CurrentTile = _tileData;
+                }
+                OnTileChanged?.Invoke();
+            }
         }
 
         public void CycleToNextTile()

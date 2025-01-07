@@ -69,9 +69,18 @@ namespace Patchwork.UI
 
         private void OnEnable()
         {
-            if (m_IsInitialized)
+            if (m_IsInitialized && m_Deck != null)
             {
+                m_Deck.OnDeckChanged += UpdateTileCount;
                 UpdateTileCount();
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (m_Deck != null)
+            {
+                m_Deck.OnDeckChanged -= UpdateTileCount;
             }
         }
         #endregion
