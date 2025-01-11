@@ -50,7 +50,7 @@ namespace Tests
         }
 
         [Test]
-        public void SingleSquare_OverHole_Scores10Points()
+        public void SingleSquare_OverHole_Scores2Points()
         {
             // Arrange
             GameObject tileObj = new GameObject("TestPlacedTile");
@@ -78,7 +78,7 @@ namespace Tests
             int score = placedTile.CalculateScore(m_Board, new List<PlacedTile>());
 
             // Assert
-            Assert.AreEqual(10, score);
+            Assert.AreEqual(2, score);
             Object.DestroyImmediate(tileObj);
         }
     }

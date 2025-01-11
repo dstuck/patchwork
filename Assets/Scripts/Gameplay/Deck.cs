@@ -14,6 +14,8 @@ namespace Patchwork.Gameplay
         private static Deck s_Instance;
         private bool m_IsInitialized;
         [SerializeField] private int m_InitialTileCount = 6;  // Add this field
+        [SerializeField] private TileHand m_TileHand;  // Reference to TileHand
+        public System.Action OnDeckChanged;  // Event for when deck contents change
         #endregion
 
         #region Public Properties
@@ -39,9 +41,15 @@ namespace Patchwork.Gameplay
             if (!m_IsInitialized)
             {
                 LoadTilesFromResources();
+                InitializeDeck();
                 m_IsInitialized = true;
             }
-            InitializeDeck();
+            
+            // Find TileHand if not set
+            if (m_TileHand == null)
+            {
+                m_TileHand = FindFirstObjectByType<TileHand>();
+            }
         }
         #endregion
 
@@ -62,15 +70,16 @@ namespace Patchwork.Gameplay
                     shuffledTiles[j] = temp;
                 }
 
-                // Take first 6 tiles and apply upgrades to some of them
+                // Take first N tiles
                 var selectedTiles = shuffledTiles.Take(m_InitialTileCount).ToList();
                 
-                // Create copies of tiles to modify
+                // Create copies of tiles
                 for (int i = 0; i < selectedTiles.Count; i++)
                 {
                     TileData tileCopy = Instantiate(selectedTiles[i]);
                     
-                    // Apply upgrades to first 4 tiles
+                    #if UNITY_EDITOR
+                    // Apply upgrades to first 4 tiles only in editor
                     if (i < 2)
                     {
                         tileCopy.AddUpgrade(new PristineBonus());
@@ -79,6 +88,7 @@ namespace Patchwork.Gameplay
                     {
                         tileCopy.AddUpgrade(new LenientBonus());
                     }
+                    #endif
                     
                     m_DeckTiles.Add(tileCopy);
                 }
@@ -121,6 +131,14 @@ namespace Patchwork.Gameplay
 
             TileData drawnTile = m_DrawPile[m_DrawPile.Count - 1];
             m_DrawPile.RemoveAt(m_DrawPile.Count - 1);
+            
+            // Add tile to hand automatically
+            if (m_TileHand != null)
+            {
+                m_TileHand.AddTile(drawnTile);
+            }
+            
+            OnDeckChanged?.Invoke();  // Trigger the event
             return drawnTile;
         }
 
@@ -131,6 +149,21 @@ namespace Patchwork.Gameplay
             m_DrawPile.AddRange(m_DeckTiles);
             ShuffleDeck();
             
+            // Find the new TileHand instance in the new scene
+            m_TileHand = FindFirstObjectByType<TileHand>();
+            
+            // Draw initial hand if we have a TileHand reference
+            if (m_TileHand != null)
+            {
+                for (int i = 0; i < m_TileHand.HandSize; i++)
+                {
+                    DrawTile();
+                }
+            }
+            else
+            {
+                Debug.LogError("[Deck] Could not find TileHand in scene!");
+            }
         }
 
         public int GetRemainingTileCount()

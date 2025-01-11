@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 using Patchwork.Data;
 using Patchwork.Gameplay;
 
@@ -10,16 +11,25 @@ namespace Patchwork.Gameplay
         #region Private Fields
         [SerializeField] private GridSettings m_GridSettings;
         [SerializeField] private Color m_HoleColor = new Color(0.2f, 0.2f, 0.2f, 1f);
-        [SerializeField] private int m_PatternIndex = 0;  // Choose pattern in inspector
         [SerializeField] private bool m_ShowGridLines = true;
         [SerializeField] private Color m_GridLineColor = new Color(0.5f, 0.5f, 0.5f, 0.3f);
         
         private Dictionary<Vector2Int, GameObject> m_Holes = new Dictionary<Vector2Int, GameObject>();
         private List<PlacedTile> m_PlacedTiles = new List<PlacedTile>();
-        public const int NonHolePenalty = -2;  // Made public for upgrade reference
+        private List<DrawGem> m_DrawGems = new List<DrawGem>();
+        private const int c_BaseHoleCount = 28;     // Base number of holes
+        private const int c_HolesPerGem = 6;        // Additional holes per draw gem
+        private const int c_DefaultGemCount = 2;     // Default starting gems
+        private int m_GemCount;                      // Actual gem count, can be modified
+        public const int NonHolePenalty = -2;       // Made public for upgrade reference
         #endregion
 
         #region Unity Lifecycle
+        private void Awake()
+        {
+            m_GemCount = c_DefaultGemCount;  // Initialize with default value
+        }
+
         private void Start()
         {
             InitializeBoard();
@@ -50,57 +60,11 @@ namespace Patchwork.Gameplay
         #endregion
 
         #region Private Methods
-        private Vector2Int[] GetHolePattern(int _patternIndex)
+        private Vector2Int[] GetHolePattern()
         {
-            switch (_patternIndex)
-            {
-                case 0: // 5x5 Square (25 squares)
-                    return new Vector2Int[]
-                    {
-                        // Row 0
-                        new Vector2Int(0,0), new Vector2Int(1,0), new Vector2Int(2,0), new Vector2Int(3,0), new Vector2Int(4,0),
-                        // Row 1
-                        new Vector2Int(0,1), new Vector2Int(1,1), new Vector2Int(2,1), new Vector2Int(3,1), new Vector2Int(4,1),
-                        // Row 2
-                        new Vector2Int(0,2), new Vector2Int(1,2), new Vector2Int(2,2), new Vector2Int(3,2), new Vector2Int(4,2),
-                        // Row 3
-                        new Vector2Int(0,3), new Vector2Int(1,3), new Vector2Int(2,3), new Vector2Int(3,3), new Vector2Int(4,3),
-                        // Row 4
-                        new Vector2Int(0,4), new Vector2Int(1,4), new Vector2Int(2,4), new Vector2Int(3,4), new Vector2Int(4,4)
-                    };
-
-                case 1: // Long rectangle
-                    return new Vector2Int[]
-                    {
-                        // 5x5 rows
-                        new Vector2Int(0,0), new Vector2Int(1,0), new Vector2Int(2,0), new Vector2Int(3,0), new Vector2Int(4,0),
-                        new Vector2Int(0,1), new Vector2Int(1,1), new Vector2Int(2,1), new Vector2Int(3,1), new Vector2Int(4,1),
-                        new Vector2Int(0,2), new Vector2Int(1,2), new Vector2Int(2,2), new Vector2Int(3,2), new Vector2Int(4,2),
-                        new Vector2Int(0,3), new Vector2Int(1,3), new Vector2Int(2,3), new Vector2Int(3,3), new Vector2Int(4,3),
-                        new Vector2Int(0,4), new Vector2Int(1,4), new Vector2Int(2,4), new Vector2Int(3,4), new Vector2Int(4,4)
-                    };
-
-                case 2: // Zigzag
-                    return new Vector2Int[]
-                    {
-                        // First column
-                        new Vector2Int(0,0), new Vector2Int(0,1), new Vector2Int(0,2), new Vector2Int(0,3), new Vector2Int(0,4),
-                        // Second column
-                        new Vector2Int(1,0), new Vector2Int(1,1), new Vector2Int(1,2), new Vector2Int(1,3), new Vector2Int(1,4),
-                        // Third column
-                        new Vector2Int(2,0), new Vector2Int(2,1), new Vector2Int(2,2), new Vector2Int(2,3), new Vector2Int(2,4),
-                        // Fourth column
-                        new Vector2Int(3,0), new Vector2Int(3,1), new Vector2Int(3,2), new Vector2Int(3,3), new Vector2Int(3,4),
-                        // Fifth column
-                        new Vector2Int(4,0), new Vector2Int(4,1), new Vector2Int(4,2), new Vector2Int(4,3), new Vector2Int(4,4)
-                    };
-
-                case 3: // Random Walk (28 squares)
-                    return GenerateRandomWalkPattern(30);
-
-                default:
-                    return new Vector2Int[0];
-            }
+            // Calculate total holes based on current gem count
+            int totalHoles = c_BaseHoleCount + (c_HolesPerGem * m_GemCount);
+            return GenerateRandomWalkPattern(totalHoles);
         }
 
         private Vector2Int[] GenerateRandomWalkPattern(int _count)
@@ -114,6 +78,7 @@ namespace Patchwork.Gameplay
             // Add starting position
             selectedSquares.Add(currentPos);
             
+            Vector2Int lastPos = currentPos;
             while (selectedSquares.Count < _count)
             {
                 Vector2Int nextPos = GetNextPosition(currentPos);
@@ -126,8 +91,57 @@ namespace Patchwork.Gameplay
                     currentPos = nextPos;
                 }
             }
+
+            return selectedSquares.ToArray();
+        }
+
+        private Vector2Int FindPositionWithTwoNeighbors(HashSet<Vector2Int> _holes)
+        {
+            Vector2Int[] directions = new Vector2Int[]
+            {
+                Vector2Int.up,
+                Vector2Int.right,
+                Vector2Int.down,
+                Vector2Int.left
+            };
+
+            foreach (Vector2Int pos in _holes)
+            {
+                int neighborCount = 0;
+                foreach (Vector2Int dir in directions)
+                {
+                    if (_holes.Contains(pos + dir))
+                    {
+                        neighborCount++;
+                    }
+                }
+
+                if (neighborCount == 2)
+                {
+                    return pos;
+                }
+            }
+
+            // Fallback to first position if no suitable spot found
+            return _holes.First();
+        }
+
+        private void CreateDrawGem(Vector2Int _position)
+        {
+            GameObject gemObj = new GameObject("DrawGem");
+            gemObj.transform.SetParent(transform);
             
-            return new List<Vector2Int>(selectedSquares).ToArray();
+            // Center gem on grid point and move it slightly forward in Z
+            Vector3 worldPos = new Vector3(
+                (_position.x + 0.5f) * m_GridSettings.CellSize,
+                (_position.y + 0.5f) * m_GridSettings.CellSize,
+                0
+            );
+            gemObj.transform.position = worldPos;
+            
+            DrawGem gem = gemObj.AddComponent<DrawGem>();
+            gem.Initialize(_position);
+            m_DrawGems.Add(gem);
         }
 
         private Vector2Int GetNextPosition(Vector2Int currentPos)
@@ -178,7 +192,7 @@ namespace Patchwork.Gameplay
             holesParent.transform.SetParent(transform);
             holesParent.transform.position = Vector3.zero;
 
-            Vector2Int[] holePositions = GetHolePattern(m_PatternIndex);
+            Vector2Int[] holePositions = GetHolePattern();
 
             // Calculate pattern bounds
             Vector2Int min = new Vector2Int(int.MaxValue, int.MaxValue);
@@ -195,11 +209,12 @@ namespace Patchwork.Gameplay
             Vector2Int patternSize = max - min + Vector2Int.one;
             Vector2Int offset = (m_GridSettings.GridSize - patternSize) / 2;
 
+            // Create holes with offset positions
             foreach (Vector2Int pos in holePositions)
             {
                 Vector2Int gridPos = pos - min + offset;
                 
-                // Center holes on grid points, just like the cursor
+                // Center holes on grid points
                 Vector3 worldPos = new Vector3(
                     (gridPos.x + 0.5f) * m_GridSettings.CellSize,
                     (gridPos.y + 0.5f) * m_GridSettings.CellSize,
@@ -219,6 +234,68 @@ namespace Patchwork.Gameplay
                 
                 m_Holes[gridPos] = hole;
             }
+
+            // Now find positions for multiple gems
+            HashSet<Vector2Int> usedGemPositions = new HashSet<Vector2Int>();
+            
+            for (int i = 0; i < m_GemCount; i++)
+            {
+                // Find all positions with two neighbors that aren't already used
+                List<Vector2Int> validPositions = FindAllPositionsWithTwoNeighbors(m_Holes.Keys.ToHashSet())
+                    .Where(pos => !usedGemPositions.Contains(pos))
+                    .ToList();
+
+                if (validPositions.Count == 0)
+                {
+                    Debug.LogWarning($"[Board] Not enough valid positions for gem {i + 1}. Using fallback position.");
+                    // Fallback to any unused hole position
+                    validPositions = m_Holes.Keys
+                        .Where(pos => !usedGemPositions.Contains(pos))
+                        .ToList();
+                }
+
+                if (validPositions.Count > 0)
+                {
+                    Vector2Int gemPosition = validPositions[Random.Range(0, validPositions.Count)];
+                    usedGemPositions.Add(gemPosition);
+                    CreateDrawGem(gemPosition);
+                }
+                else
+                {
+                    Debug.LogError($"[Board] No valid positions left for gem {i + 1}!");
+                }
+            }
+        }
+
+        private List<Vector2Int> FindAllPositionsWithTwoNeighbors(HashSet<Vector2Int> _holes)
+        {
+            List<Vector2Int> validPositions = new List<Vector2Int>();
+            Vector2Int[] directions = new Vector2Int[]
+            {
+                Vector2Int.up,
+                Vector2Int.right,
+                Vector2Int.down,
+                Vector2Int.left
+            };
+
+            foreach (Vector2Int pos in _holes)
+            {
+                int neighborCount = 0;
+                foreach (Vector2Int dir in directions)
+                {
+                    if (_holes.Contains(pos + dir))
+                    {
+                        neighborCount++;
+                    }
+                }
+
+                if (neighborCount == 2)
+                {
+                    validPositions.Add(pos);
+                }
+            }
+
+            return validPositions;
         }
         #endregion
 
@@ -259,6 +336,22 @@ namespace Patchwork.Gameplay
             return totalScore;
         }
 
+        public bool TryCollectDrawGem(Vector2Int _position)
+        {
+            DrawGem gem = m_DrawGems.Find(g => g.GetGridPosition() == _position);
+            if (gem != null && gem.TryCollect())
+            {
+                // Find the GameManager to access the deck
+                var gameManager = FindFirstObjectByType<GameManager>();
+                if (gameManager != null && gameManager.Deck != null)
+                {
+                    gameManager.Deck.DrawTile();
+                }
+                return true;
+            }
+            return false;
+        }
+
         #if UNITY_INCLUDE_TESTS
         public PlacedTile GetTileAt(Vector2Int position)
         {
@@ -271,6 +364,11 @@ namespace Patchwork.Gameplay
             InitializeBoard();
         }
         #endif
+
+        public void SetGemCount(int _count)
+        {
+            m_GemCount = Mathf.Max(0, _count);  // Ensure non-negative
+        }
         #endregion
     }
 } 

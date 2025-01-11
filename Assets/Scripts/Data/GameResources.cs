@@ -27,11 +27,13 @@ namespace Patchwork.Data
         #region Serialized Fields
         [Header("Sprites")]
         [SerializeField] private Sprite m_TileSquareSprite;
+        [SerializeField] private Sprite m_DrawGemSprite;
         [SerializeField] private GameObject m_UpgradeTooltipPrefab;
         #endregion
 
         #region Properties
         public Sprite TileSquareSprite => m_TileSquareSprite;
+        public Sprite DrawGemSprite => m_DrawGemSprite;
         public GameObject UpgradeTooltipPrefab => m_UpgradeTooltipPrefab;
         #endregion
     } 

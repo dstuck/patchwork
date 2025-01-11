@@ -22,9 +22,16 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 ### 0.4: Tile upgrades
 - [x] Create 2 tile scoring upgrades
 - [x] Board scoring accounts for upgrades
-- [ ] Tile upgrade screen
-- [ ] Select new tile and upgrade one after each round
-- [ ] Tooltip to explain upgrades
+- [x] Tile upgrade screen
+- [x] Select new tile and upgrade one after each round
+- [x] Tooltip to explain upgrades
+
+### 0.5: Difficulty scaling
+- [x] Implement draw gems
+- [x] Scale up board size along with draw gems
+- [ ] Add timer with scaling rewards
+
+### 0.6: 
 
 ## Design
 Main concepts
@@ -56,3 +63,35 @@ It's hard to increase the challenge by making the board more complex or smaller
 - Add moving levels
     - Lose opportunity to to place in spots after they disappear
     - Maybe you draw more tiles as you go to fill in more
+
+### Upgrade Routes
+- Higher multipliers but lose precision somehow?
+    - Narratively a more AI-like build where we're scoring faster but with poorer quality
+- More squares
+    - Maybe bigger tiles
+    - Allow multiple scoring rather than losing points for overlap
+    - Narratively, this would be upgrading to do a safer job
+
+
+### Boss Boards
+Large moving level:
+- the board moves to the left
+- tiles need to be carefully saved to hit the draw gems to maximize points
+
+Connection puzzle:
+- the board contains two points that need to be continually connected by tiles
+
+Fog of war:
+- Can only see a small space in the center and one square around the edge of each tile you play
+
+## Story
+
+### Ideas
+- You take a low paying job that involves patching up exposed electrical wiring
+    - You find out soon that the company has a big showy AI that it's using to build its devices and your job is to clean up the messes that it makes. You need to go fast under threat of being outsourced, you don't have enough materials to fully patch things up, and you as the QA team are blamed when the public gets mad at the shoddy work and accidents it causes
+    - In each level you never have enough squares to cover everything
+- Ending could be based on upgrade path and the Gervais Principle
+    - If you use lots of materials to cover wiring you just get canned and find a better job
+    - If you have high coverage throughout the game you are a loser 
+    - If you use the high-multiplier, low accuracy path you are clueless and get promoted to middle management
+    - If you do the minimum amount to get by, you get promoted to upper management as a sociopath

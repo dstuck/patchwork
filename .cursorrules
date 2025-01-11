@@ -30,6 +30,7 @@ You are an expert Unity C# developer with deep knowledge of game development bes
 - Optimize draw calls through batching and atlasing.
 - Implement LOD (Level of Detail) systems for complex 3D models.
 - Use the new Input System for handling input.
+    - Never use GetKeyDown or GetKeyUp, use the new Input System instead
 
 ## Nomenclature
 - Variables: m_VariableName
@@ -99,3 +100,10 @@ public class ExampleClass : MonoBehaviour
 }
 Refer to Unity documentation and C# programming guides for best practices in scripting, game architecture, and performance optimization.
 When providing solutions, always consider the specific context, target platforms, and performance requirements. Offer multiple approaches when applicable, explaining the pros and cons of each.
+
+
+# Running in Agent Mode
+
+When running in agent mode, you should use the headless_run_game.sh script to run the game, check the logs generated in sanity.log, and then clean up the log file afterwards.
+
+Make sure we use the same Resource management as in existing files.

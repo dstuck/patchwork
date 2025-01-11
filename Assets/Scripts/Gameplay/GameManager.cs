@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using Patchwork.UI;
 
 namespace Patchwork.Gameplay
 {
@@ -15,8 +16,21 @@ namespace Patchwork.Gameplay
         [Header("References")]
         [SerializeField] private Deck m_Deck;
         
+        [Header("Timer Settings")]
+        [SerializeField] private float m_BaseTimerDuration = 24f;
+        [SerializeField] private float m_TimerStartDelay = 4f;
+        [SerializeField] private float m_BaseMultiplier = 1f;
+        [SerializeField] private float m_MaxMultiplier = 2f;
+        
+        [Header("Gem Settings")]
+        [SerializeField] private float m_TimePerGem = 6f;  // Time bonus per gem
+        private const int c_MaxGemCount = 3;
+        private const int c_StagesPerGem = 2;
+        
         private static GameManager s_Instance;
         private bool m_IsInitialized;
+        
+        private Timer m_Timer;
         #endregion
 
         #region Game State
@@ -89,7 +103,34 @@ namespace Patchwork.Gameplay
 
         private void OnSceneLoaded(Scene _scene, LoadSceneMode _mode)
         {
-            // Handle any scene-specific initialization
+            if (_scene.name == m_GameplaySceneName)
+            {
+                // Calculate gem count for current stage
+                int gemCount = Mathf.Min((m_CurrentStage - 1) / c_StagesPerGem, c_MaxGemCount);
+                
+                // Calculate total time for this stage
+                float totalTime = m_BaseTimerDuration + (gemCount * m_TimePerGem);
+                
+                // Find and configure the board
+                Board board = FindFirstObjectByType<Board>();
+                if (board != null)
+                {
+                    board.SetGemCount(gemCount);
+                }
+                
+                // Setup timer with adjusted time
+                m_Timer = FindFirstObjectByType<Timer>();
+                if (m_Timer != null)
+                {
+                    m_Timer.StartTimer(totalTime, m_TimerStartDelay, m_BaseMultiplier, m_MaxMultiplier);
+                }
+                
+                // Reset deck
+                if (m_Deck != null)
+                {
+                    m_Deck.ResetForNewStage();
+                }
+            }
         }
 
         private static void InitializeInstance()
@@ -144,22 +185,49 @@ namespace Patchwork.Gameplay
         public void StartNextStage()
         {
             m_CurrentStage++;
-            if (m_Deck != null)
-            {
-                m_Deck.ResetForNewStage();
-            }
+            
+            // Calculate gem count based on stage
+            int gemCount = Mathf.Min((m_CurrentStage - 1) / c_StagesPerGem, c_MaxGemCount);
+            
+            // Load scene first, then set up board
             SceneManager.LoadScene(m_GameplaySceneName);
         }
 
-        public void CompleteStage(int _finalScore)
+        public void CompleteStage(int _baseScore)
         {
-            StartCoroutine(CompleteStageRoutine(_finalScore));
+            float timeMultiplier = m_BaseMultiplier;  // Default to base multiplier
+            if (m_Timer != null)
+            {
+                // If timer is still running, use its multiplier
+                if (m_Timer.GetTimeRemaining() > 0)
+                {
+                    timeMultiplier = m_Timer.GetCurrentMultiplier();
+                }
+                m_Timer.StopTimer();
+            }
+            
+            int stageScore = Mathf.RoundToInt(_baseScore * timeMultiplier);
+            int newTotalScore = m_CumulativeScore + stageScore;
+            
+            // Find and show scoring popup
+            var scoringPopup = FindFirstObjectByType<ScoringPopupUI>();
+            if (scoringPopup != null)
+            {
+                Debug.Log("[GameManager] Found ScoringPopupUI, showing score");
+                scoringPopup.OnPopupComplete.AddListener(() => StartCoroutine(CompleteStageRoutine(newTotalScore)));
+                scoringPopup.ShowScoring(_baseScore, timeMultiplier, stageScore, newTotalScore);
+            }
+            else
+            {
+                Debug.LogError("[GameManager] Could not find ScoringPopupUI in scene!");
+                StartCoroutine(CompleteStageRoutine(newTotalScore));
+            }
         }
 
         private IEnumerator CompleteStageRoutine(int _finalScore)
         {
-            // Wait for one second before transitioning
-            yield return new WaitForSeconds(1f);
+            // Remove the delay or reduce it significantly
+            yield return new WaitForSeconds(0.04f);  // Just a tiny delay to ensure clean transition
             
             // Store the score
             m_CumulativeScore = _finalScore;
