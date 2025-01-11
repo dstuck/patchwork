@@ -15,8 +15,16 @@ namespace Patchwork.Gameplay
         [Header("References")]
         [SerializeField] private Deck m_Deck;
         
+        [Header("Timer Settings")]
+        [SerializeField] private float m_BaseTimerDuration = 24f;
+        [SerializeField] private float m_TimerStartDelay = 2f;
+        [SerializeField] private float m_BaseMultiplier = 1f;
+        [SerializeField] private float m_MaxMultiplier = 2f;
+        
         private static GameManager s_Instance;
         private bool m_IsInitialized;
+        
+        private Timer m_Timer;
         #endregion
 
         #region Game State
@@ -101,6 +109,13 @@ namespace Patchwork.Gameplay
                     board.SetGemCount(gemCount);
                 }
                 
+                // Setup timer
+                m_Timer = FindFirstObjectByType<Timer>();
+                if (m_Timer != null)
+                {
+                    m_Timer.StartTimer(m_BaseTimerDuration, m_TimerStartDelay);
+                }
+                
                 // Reset deck
                 if (m_Deck != null)
                 {
@@ -169,9 +184,21 @@ namespace Patchwork.Gameplay
             SceneManager.LoadScene(m_GameplaySceneName);
         }
 
-        public void CompleteStage(int _finalScore)
+        public void CompleteStage(int _baseScore)
         {
-            StartCoroutine(CompleteStageRoutine(_finalScore));
+            float timeMultiplier = m_BaseMultiplier;  // Default to base multiplier
+            if (m_Timer != null)
+            {
+                // If timer is still running, use its multiplier
+                if (m_Timer.GetTimeRemaining() > 0)
+                {
+                    timeMultiplier = m_Timer.GetCurrentMultiplier();
+                }
+                m_Timer.StopTimer();
+            }
+            
+            int finalScore = Mathf.RoundToInt(_baseScore * timeMultiplier);
+            StartCoroutine(CompleteStageRoutine(finalScore));
         }
 
         private IEnumerator CompleteStageRoutine(int _finalScore)

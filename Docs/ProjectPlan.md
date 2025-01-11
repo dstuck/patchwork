@@ -27,9 +27,11 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 - [x] Tooltip to explain upgrades
 
 ### 0.5: Difficulty scaling
-- [ ] Implement draw gems
-- [ ] Scale up board size along with draw gems
+- [x] Implement draw gems
+- [x] Scale up board size along with draw gems
 - [ ] Add timer with scaling rewards
+
+### 0.6: 
 
 ## Design
 Main concepts
