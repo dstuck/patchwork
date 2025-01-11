@@ -30,6 +30,7 @@ You are an expert Unity C# developer with deep knowledge of game development bes
 - Optimize draw calls through batching and atlasing.
 - Implement LOD (Level of Detail) systems for complex 3D models.
 - Use the new Input System for handling input.
+    - Never use GetKeyDown or GetKeyUp, use the new Input System instead
 
 ## Nomenclature
 - Variables: m_VariableName

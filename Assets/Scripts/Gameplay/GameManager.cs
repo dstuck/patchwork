@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using Patchwork.UI;
 
 namespace Patchwork.Gameplay
 {
@@ -197,14 +198,28 @@ namespace Patchwork.Gameplay
                 m_Timer.StopTimer();
             }
             
-            int finalScore = Mathf.RoundToInt(_baseScore * timeMultiplier);
-            StartCoroutine(CompleteStageRoutine(finalScore));
+            int stageScore = Mathf.RoundToInt(_baseScore * timeMultiplier);
+            int newTotalScore = m_CumulativeScore + stageScore;
+            
+            // Find and show scoring popup
+            var scoringPopup = FindFirstObjectByType<ScoringPopupUI>();
+            if (scoringPopup != null)
+            {
+                Debug.Log("[GameManager] Found ScoringPopupUI, showing score");
+                scoringPopup.OnPopupComplete.AddListener(() => StartCoroutine(CompleteStageRoutine(newTotalScore)));
+                scoringPopup.ShowScoring(_baseScore, timeMultiplier, stageScore, newTotalScore);
+            }
+            else
+            {
+                Debug.LogError("[GameManager] Could not find ScoringPopupUI in scene!");
+                StartCoroutine(CompleteStageRoutine(newTotalScore));
+            }
         }
 
         private IEnumerator CompleteStageRoutine(int _finalScore)
         {
-            // Wait for one second before transitioning
-            yield return new WaitForSeconds(1f);
+            // Remove the delay or reduce it significantly
+            yield return new WaitForSeconds(0.04f);  // Just a tiny delay to ensure clean transition
             
             // Store the score
             m_CumulativeScore = _finalScore;
