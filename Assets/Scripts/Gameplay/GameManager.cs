@@ -22,6 +22,11 @@ namespace Patchwork.Gameplay
         [SerializeField] private float m_BaseMultiplier = 1f;
         [SerializeField] private float m_MaxMultiplier = 2f;
         
+        [Header("Gem Settings")]
+        [SerializeField] private float m_TimePerGem = 6f;  // Time bonus per gem
+        private const int c_MaxGemCount = 3;
+        private const int c_StagesPerGem = 2;
+        
         private static GameManager s_Instance;
         private bool m_IsInitialized;
         
@@ -103,6 +108,9 @@ namespace Patchwork.Gameplay
                 // Calculate gem count for current stage
                 int gemCount = Mathf.Min((m_CurrentStage - 1) / c_StagesPerGem, c_MaxGemCount);
                 
+                // Calculate total time for this stage
+                float totalTime = m_BaseTimerDuration + (gemCount * m_TimePerGem);
+                
                 // Find and configure the board
                 Board board = FindFirstObjectByType<Board>();
                 if (board != null)
@@ -110,11 +118,11 @@ namespace Patchwork.Gameplay
                     board.SetGemCount(gemCount);
                 }
                 
-                // Setup timer
+                // Setup timer with adjusted time
                 m_Timer = FindFirstObjectByType<Timer>();
                 if (m_Timer != null)
                 {
-                    m_Timer.StartTimer(m_BaseTimerDuration, m_TimerStartDelay, m_BaseMultiplier, m_MaxMultiplier);
+                    m_Timer.StartTimer(totalTime, m_TimerStartDelay, m_BaseMultiplier, m_MaxMultiplier);
                 }
                 
                 // Reset deck
@@ -241,8 +249,5 @@ namespace Patchwork.Gameplay
             Initialize();
         }
         #endif
-
-        private const int c_MaxGemCount = 3;
-        private const int c_StagesPerGem = 2;
     }
 } 

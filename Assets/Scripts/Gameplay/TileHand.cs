@@ -46,8 +46,6 @@ namespace Patchwork.Gameplay
                         return;
                     }
                 }
-                
-                InitializeTileHand();
             }
         }
 
