@@ -15,14 +15,18 @@ namespace Patchwork.Gameplay
         private float m_CurrentTime;
         private bool m_IsRunning;
         private bool m_IsDelaying;
+        private float m_MinMultiplier = 1f;
+        private float m_MaxMultiplier = 2f;
         #endregion
 
         #region Public Methods
-        public void StartTimer(float duration, float startDelay)
+        public void StartTimer(float duration, float startDelay, float minMultiplier = 1f, float maxMultiplier = 2f)
         {
             m_Duration = duration;
             m_StartDelay = startDelay;
             m_CurrentTime = m_Duration;
+            m_MinMultiplier = minMultiplier;
+            m_MaxMultiplier = maxMultiplier;
             m_IsRunning = true;
             m_IsDelaying = true;
         }
@@ -44,8 +48,8 @@ namespace Patchwork.Gameplay
 
         public float GetCurrentMultiplier()
         {
-            float rawMultiplier = Mathf.Lerp(1f, 2f, GetNormalizedTimeRemaining());
-            return Mathf.Ceil(rawMultiplier * 4f) / 4f;
+            float rawMultiplier = Mathf.Lerp(m_MinMultiplier, m_MaxMultiplier, GetNormalizedTimeRemaining());
+            return Mathf.Round(rawMultiplier * 2f) / 2f;  // Round to nearest 0.5
         }
         #endregion
 

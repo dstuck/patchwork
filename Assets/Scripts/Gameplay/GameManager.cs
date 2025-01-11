@@ -17,7 +17,7 @@ namespace Patchwork.Gameplay
         
         [Header("Timer Settings")]
         [SerializeField] private float m_BaseTimerDuration = 24f;
-        [SerializeField] private float m_TimerStartDelay = 2f;
+        [SerializeField] private float m_TimerStartDelay = 4f;
         [SerializeField] private float m_BaseMultiplier = 1f;
         [SerializeField] private float m_MaxMultiplier = 2f;
         
@@ -113,7 +113,7 @@ namespace Patchwork.Gameplay
                 m_Timer = FindFirstObjectByType<Timer>();
                 if (m_Timer != null)
                 {
-                    m_Timer.StartTimer(m_BaseTimerDuration, m_TimerStartDelay);
+                    m_Timer.StartTimer(m_BaseTimerDuration, m_TimerStartDelay, m_BaseMultiplier, m_MaxMultiplier);
                 }
                 
                 // Reset deck

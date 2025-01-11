@@ -1698,11 +1698,11 @@ PrefabInstance:
       objectReference: {fileID: 528798290}
     - target: {fileID: 3651296259285992534, guid: bce4a06aa34be418a821729dbada66fc, type: 3}
       propertyPath: m_MaxMultiplier
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3651296259285992534, guid: bce4a06aa34be418a821729dbada66fc, type: 3}
       propertyPath: m_TimerStartDelay
-      value: 2
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3651296259285992534, guid: bce4a06aa34be418a821729dbada66fc, type: 3}
       propertyPath: m_BaseTimerDuration
