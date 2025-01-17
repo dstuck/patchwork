@@ -8,10 +8,10 @@ namespace Patchwork.Gameplay
     public class GridCursor : MonoBehaviour
     {
         #region Private Fields
-        [SerializeField] private GridSettings m_GridSettings;
+        private GridSettings m_GridSettings;
         [SerializeField] private TileHand m_TileHand;
-        [SerializeField] private float m_MoveCooldown = 0.15f;
-        [SerializeField] private float m_RotateCooldown = 0.2f;
+        private float m_MoveCooldown = 0.1f;
+        private float m_RotateCooldown = 0.2f;
         [SerializeField] private Board m_Board;
         
         private Vector2Int m_CurrentGridPosition;
@@ -25,6 +25,14 @@ namespace Patchwork.Gameplay
         #region Unity Lifecycle
         private void Awake()
         {
+            // Load GridSettings from Resources
+            m_GridSettings = Resources.Load<GridSettings>("GridSettings");
+            if (m_GridSettings == null)
+            {
+                Debug.LogError("Failed to load GridSettings from Resources!");
+                return;
+            }
+
             m_Controls = new GameControls();
             
             m_Controls.Movement.Move.performed += OnMove;

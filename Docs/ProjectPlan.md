@@ -29,9 +29,11 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 ### 0.5: Difficulty scaling
 - [x] Implement draw gems
 - [x] Scale up board size along with draw gems
-- [ ] Add timer with scaling rewards
+- [x] Add timer with scaling rewards
 
-### 0.6: 
+### 0.6: Boss boards
+- [ ] Make boss level with moving board
+- [ ] Make boss level explanation screen
 
 ## Design
 Main concepts
@@ -63,6 +65,10 @@ It's hard to increase the challenge by making the board more complex or smaller
 - Add moving levels
     - Lose opportunity to to place in spots after they disappear
     - Maybe you draw more tiles as you go to fill in more
+- Add gems that must be covered by tiles or you lose, maybe we'll call it bomb for now
+    - Maybe we start with one and build them up til there are lots of them
+- Could have little moving things/enemies that move around and lose you points
+    - There could be upgrades that squash them and give bonus points
 
 ### Upgrade Routes
 - Higher multipliers but lose precision somehow?
@@ -71,8 +77,10 @@ It's hard to increase the challenge by making the board more complex or smaller
     - Maybe bigger tiles
     - Allow multiple scoring rather than losing points for overlap
     - Narratively, this would be upgrading to do a safer job
+- More bombs, but higher multiplier
 
-
+- What if the game is more about collecting various gems on the board?
+    - It's more of an excavating game where tiles modify the value of collected gems
 ### Boss Boards
 Large moving level:
 - the board moves to the left
@@ -95,3 +103,7 @@ Fog of war:
     - If you have high coverage throughout the game you are a loser 
     - If you use the high-multiplier, low accuracy path you are clueless and get promoted to middle management
     - If you do the minimum amount to get by, you get promoted to upper management as a sociopath
+
+
+## Todos (followups from previous versions)
+- [ ] Add bomb tiles

@@ -194,6 +194,26 @@ namespace Patchwork.Gameplay
                 m_TooltipTrigger.OnPointerExit(eventData);
             }
         }
+
+        public void UpdatePosition(Vector2Int _newPosition)
+        {
+            m_GridPosition = _newPosition;
+            
+            // Update world position
+            transform.position = new Vector3(
+                (_newPosition.x + 0.5f) * m_GridSettings.CellSize,
+                (_newPosition.y + 0.5f) * m_GridSettings.CellSize,
+                0f
+            );
+            
+            // Update occupied squares
+            Vector2Int[] localSquares = m_TileData.GetRotatedSquares(m_Rotation);
+            m_OccupiedSquares = new Vector2Int[localSquares.Length];
+            for (int i = 0; i < localSquares.Length; i++)
+            {
+                m_OccupiedSquares[i] = m_GridPosition + localSquares[i];
+            }
+        }
         #endregion
 
         #region Private Methods
