@@ -580,8 +580,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_TileHand: {fileID: 1468285571}
-  m_MoveCooldown: 0.1
-  m_RotateCooldown: 0.15
   m_Board: {fileID: 1863798603}
 --- !u!212 &785381263
 SpriteRenderer:
@@ -1809,6 +1807,10 @@ PrefabInstance:
       propertyPath: m_BaseTimerDuration
       value: 24
       objectReference: {fileID: 0}
+    - target: {fileID: 3651296259285992534, guid: bce4a06aa34be418a821729dbada66fc, type: 3}
+      propertyPath: m_BossStageAnnouncementPrefab
+      value: 
+      objectReference: {fileID: 8296342325939621030, guid: 073b9dbae0b424401b0131cc2b02c413, type: 3}
     - target: {fileID: 5309363206392044187, guid: bce4a06aa34be418a821729dbada66fc, type: 3}
       propertyPath: m_Name
       value: GameManager

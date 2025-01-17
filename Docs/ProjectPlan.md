@@ -32,7 +32,7 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 - [x] Add timer with scaling rewards
 
 ### 0.6: Boss boards
-- [ ] Make boss level with moving board
+- [x] Make boss level with moving board
 - [ ] Make boss level explanation screen
 
 ## Design

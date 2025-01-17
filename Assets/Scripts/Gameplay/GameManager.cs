@@ -280,8 +280,6 @@ namespace Patchwork.Gameplay
 
         public void StartNextStage()
         {
-            m_CurrentStage++;
-            
             // Calculate gem count based on stage
             int gemCount = Mathf.Min((m_CurrentStage - 1) / c_StagesPerGem, c_MaxGemCount);
             
@@ -303,19 +301,32 @@ namespace Patchwork.Gameplay
             }
             
             int stageScore = Mathf.RoundToInt(_baseScore * timeMultiplier);
-            int newTotalScore = m_CumulativeScore + stageScore;
+            m_CumulativeScore += stageScore;
             
             // Find and show scoring popup
             var scoringPopup = FindFirstObjectByType<ScoringPopupUI>();
             if (scoringPopup != null)
             {
-                scoringPopup.OnPopupComplete.AddListener(() => StartCoroutine(CompleteStageRoutine(newTotalScore)));
-                scoringPopup.ShowScoring(_baseScore, timeMultiplier, stageScore, newTotalScore);
+                scoringPopup.OnPopupComplete.AddListener(() => {
+                    m_CurrentStage++; // Increment stage here
+                    bool isNextStageBoss = IsBossStage(m_CurrentStage);
+                    
+                    if (isNextStageBoss)
+                    {
+                        SceneManager.LoadScene("BossAnnouncement");
+                    }
+                    else
+                    {
+                        SceneManager.LoadScene(m_TransitionSceneName);
+                    }
+                });
+                
+                scoringPopup.ShowScoring(_baseScore, timeMultiplier, stageScore, m_CumulativeScore);
             }
             else
             {
                 Debug.LogError("[GameManager] Could not find ScoringPopupUI in scene!");
-                StartCoroutine(CompleteStageRoutine(newTotalScore));
+                StartCoroutine(CompleteStageRoutine(m_CumulativeScore));
             }
         }
 
