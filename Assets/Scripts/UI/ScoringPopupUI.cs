@@ -78,13 +78,11 @@ namespace Patchwork.UI
 
         public void ShowScoring(int baseScore, float multiplier, int stageScore, int totalScore)
         {
-            Debug.Log("[ScoringPopupUI] ShowScoring called");
             m_BaseScoreText.text = $"Base Score:{baseScore,6}";
             m_MultiplierText.text = $"Time Multiplier:  x{multiplier:0.#}";
             m_StageScoreText.text = $"Stage Score:{stageScore,6}";
             m_TotalScoreText.text = $"Total Score:{totalScore,6}";
             
-            Debug.Log("[ScoringPopupUI] Starting fade in");
             StartCoroutine(FadeIn());
         }
 

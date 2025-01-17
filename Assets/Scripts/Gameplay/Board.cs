@@ -482,8 +482,6 @@ namespace Patchwork.Gameplay
                 totalScore += tile.CalculateScore(this, m_PlacedTiles);
             }
 
-            // Debug output for scoring
-            Debug.Log($"Final Score: {totalScore}");
             return totalScore;
         }
 

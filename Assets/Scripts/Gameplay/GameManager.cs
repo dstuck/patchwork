@@ -122,11 +122,10 @@ namespace Patchwork.Gameplay
 
         private bool IsBossStage(int stageNumber)
         {
-            // Temporary: Make first stage a boss stage for testing
-            return stageNumber == 1;
+            // // Temporary: Make first stage a boss stage for testing
+            // return stageNumber == 1;
             
-            // Original logic commented out for now
-            // return stageNumber % m_BossStageInterval == 0;
+            return stageNumber % m_BossStageInterval == 0;
         }
 
         private void SetupMovingBossStage()
@@ -310,7 +309,6 @@ namespace Patchwork.Gameplay
             var scoringPopup = FindFirstObjectByType<ScoringPopupUI>();
             if (scoringPopup != null)
             {
-                Debug.Log("[GameManager] Found ScoringPopupUI, showing score");
                 scoringPopup.OnPopupComplete.AddListener(() => StartCoroutine(CompleteStageRoutine(newTotalScore)));
                 scoringPopup.ShowScoring(_baseScore, timeMultiplier, stageScore, newTotalScore);
             }
