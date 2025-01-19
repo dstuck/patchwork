@@ -579,10 +579,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18a67b8bdef054e5584e8bd55f1a5413, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_GridSettings: {fileID: 11400000, guid: 251c914002a4c4ac58ac951ac2d30467, type: 2}
   m_TileHand: {fileID: 1468285571}
-  m_MoveCooldown: 0.15
-  m_RotateCooldown: 0.15
   m_Board: {fileID: 1863798603}
 --- !u!212 &785381263
 SpriteRenderer:
@@ -1269,7 +1266,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 305acb8ab22f242ffac1b428d2fd8ccf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_GridSettings: {fileID: 11400000, guid: b6ced014a13cb43f7814725b79443b2b, type: 2}
   m_HoleColor: {r: 0.3301887, g: 0.30994126, b: 0.30994126, a: 1}
   m_ShowGridLines: 1
   m_GridLineColor: {r: 0.5, g: 0.5, b: 0.5, a: 0.3}
@@ -1811,6 +1807,10 @@ PrefabInstance:
       propertyPath: m_BaseTimerDuration
       value: 24
       objectReference: {fileID: 0}
+    - target: {fileID: 3651296259285992534, guid: bce4a06aa34be418a821729dbada66fc, type: 3}
+      propertyPath: m_BossStageAnnouncementPrefab
+      value: 
+      objectReference: {fileID: 8296342325939621030, guid: 073b9dbae0b424401b0131cc2b02c413, type: 3}
     - target: {fileID: 5309363206392044187, guid: bce4a06aa34be418a821729dbada66fc, type: 3}
       propertyPath: m_Name
       value: GameManager
@@ -2145,6 +2145,10 @@ PrefabInstance:
     - target: {fileID: 4992877966406764422, guid: 763aba295bfd24b84961aa194bb96e50, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7944800592559451149, guid: 763aba295bfd24b84961aa194bb96e50, type: 3}
+      propertyPath: m_InitialTileCount
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 8196743921828460337, guid: 763aba295bfd24b84961aa194bb96e50, type: 3}
       propertyPath: m_Name

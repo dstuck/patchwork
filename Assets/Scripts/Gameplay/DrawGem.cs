@@ -9,6 +9,7 @@ namespace Patchwork.Gameplay
         private Vector2Int m_GridPosition;
         private bool m_IsCollected = false;
         private SpriteRenderer m_SpriteRenderer;
+        private GridSettings m_GridSettings;
         #endregion
 
         #region Unity Lifecycle
@@ -73,6 +74,17 @@ namespace Patchwork.Gameplay
         #region Public Methods
         public void Initialize(Vector2Int _gridPosition)
         {
+            // Load GridSettings if not assigned
+            if (m_GridSettings == null)
+            {
+                m_GridSettings = Resources.Load<GridSettings>("GridSettings");
+                if (m_GridSettings == null)
+                {
+                    Debug.LogError("GridSettings not found in Resources folder!");
+                    return;
+                }
+            }
+            
             m_GridPosition = _gridPosition;
         }
 
@@ -90,6 +102,16 @@ namespace Patchwork.Gameplay
                 return true;
             }
             return false;
+        }
+
+        public void UpdatePosition(Vector2Int _newPosition)
+        {
+            m_GridPosition = _newPosition;
+            transform.position = new Vector3(
+                (_newPosition.x + 0.5f) * m_GridSettings.CellSize,
+                (_newPosition.y + 0.5f) * m_GridSettings.CellSize,
+                0
+            );
         }
         #endregion
     }

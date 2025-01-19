@@ -37,6 +37,7 @@ namespace Patchwork.UI
         private const string c_TilesPath = "Data/BaseTiles";
         private GameControls m_Controls;
         private HorizontalLayoutGroup m_LayoutGroup;
+        private bool m_IsBossReward;
         #endregion
 
         #region Unity Lifecycle
@@ -88,8 +89,16 @@ namespace Patchwork.UI
         {
             if (GameManager.Instance != null)
             {
+                m_IsBossReward = GameManager.Instance.IsPostBossStage;
                 SetupUI();
-                GenerateRewardOptions();
+                if (m_IsBossReward)
+                {
+                    GenerateBossRewardOptions();
+                }
+                else
+                {
+                    GenerateRewardOptions();
+                }
                 CreateRewardPreviews();
                 StartCoroutine(FadeIn());
             }
@@ -132,11 +141,46 @@ namespace Patchwork.UI
         #region Private Methods
         private void SetupUI()
         {
-            m_StageText.text = $"Stage {GameManager.Instance.CurrentStage} Complete!";
+            m_StageText.text = $"Stage {GameManager.Instance.CurrentStage - 1} Complete!";
             m_ScoreText.text = $"Total Score: {GameManager.Instance.CumulativeScore}";
             m_ContinueButtonText.text = "Next Stage";
             m_ContinueButton.onClick.AddListener(OnContinueClicked);
-            m_RewardPromptText.text = "Select a tile to add to your deck:";
+            m_RewardPromptText.text = m_IsBossReward ? "Choose your reward:" : "Select a tile to add to your deck:";
+        }
+
+        private void GenerateBossRewardOptions()
+        {
+            m_RewardOptions.Clear();
+            
+            // Load boss reward tiles from Resources
+            TileData[] bossRewards = Resources.LoadAll<TileData>("Data/BossRewards");
+            
+            if (bossRewards == null || bossRewards.Length == 0)
+            {
+                Debug.LogError($"No boss reward tiles found in Resources/Data/BossRewards");
+                return;
+            }
+
+            // Add both reward options
+            foreach (var rewardTile in bossRewards)
+            {
+                // Create a copy of the tile data to modify
+                TileData rewardCopy = Instantiate(rewardTile);
+                
+                // Update the name and add upgrade based on reward type
+                if (rewardCopy.name.Contains("Multiplier"))
+                {
+                    rewardCopy.name = $"x{GameManager.Instance.BaseMultiplier + 0.5f} Multiplier";
+                    rewardCopy.AddUpgrade(new MultiplierBonus());
+                }
+                else if (rewardCopy.name.Contains("Points"))
+                {
+                    rewardCopy.name = "+2 Points";
+                    rewardCopy.AddUpgrade(new PointsBonus());
+                }
+                
+                m_RewardOptions.Add(rewardCopy);
+            }
         }
 
         private void GenerateRewardOptions()
@@ -233,12 +277,25 @@ namespace Patchwork.UI
 
         private void OnContinueClicked()
         {
-            if (m_SelectedRewardIndex >= 0 && m_SelectedRewardIndex < m_RewardOptions.Count)
+            if (m_IsBossReward)
             {
+                // Apply boss reward based on the selected tile's name
                 TileData selectedTile = m_RewardOptions[m_SelectedRewardIndex];
-                if (selectedTile != null && GameManager.Instance?.Deck != null)
+                if (selectedTile.name.Contains("Multiplier"))
                 {
-                    GameManager.Instance.Deck.AddTileToDeck(selectedTile);
+                    GameManager.Instance.IncreaseMultiplier();
+                }
+                else if (selectedTile.name.Contains("Points"))
+                {
+                    GameManager.Instance.IncreaseTilePoints();
+                }
+            }
+            else
+            {
+                // Regular tile reward
+                if (m_SelectedRewardIndex >= 0 && m_SelectedRewardIndex < m_RewardOptions.Count)
+                {
+                    GameManager.Instance.Deck.AddTileToDeck(m_RewardOptions[m_SelectedRewardIndex]);
                 }
             }
             StartCoroutine(FadeOutAndContinue());
@@ -274,6 +331,38 @@ namespace Patchwork.UI
             m_CanvasGroup.alpha = 0;
             GameManager.Instance.StartNextStage();
         }
+
+        private bool IsBossStage(int _stageNumber)
+        {
+            return _stageNumber % GameManager.Instance.BossStageInterval == 0;
+        }
         #endregion
+    }
+
+    // Move upgrade classes outside TransitionUI but inside namespace
+    public class MultiplierBonus : ITileUpgrade
+    {
+        public string DisplayName => "Multiplier Boost";
+        public string Description => "Increases score multiplier by 0.5x\nFaster scoring but less precise";
+        public Color DisplayColor => Color.yellow;
+        
+        public int ModifyScore(int _baseScore, PlacedTile _tile, Board _board, List<PlacedTile> _otherTiles)
+        {
+            // This is just a visual upgrade for the reward choice, actual multiplier is handled by GameManager
+            return _baseScore;
+        }
+    }
+
+    public class PointsBonus : ITileUpgrade
+    {
+        public string DisplayName => "Points Boost";
+        public string Description => "Increases base points by 2\nMore points per tile";
+        public Color DisplayColor => Color.green;
+        
+        public int ModifyScore(int _baseScore, PlacedTile _tile, Board _board, List<PlacedTile> _otherTiles)
+        {
+            // This is just a visual upgrade for the reward choice, actual points bonus is handled by GameManager
+            return _baseScore;
+        }
     }
 } 

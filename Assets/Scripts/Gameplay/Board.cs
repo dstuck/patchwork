@@ -9,7 +9,7 @@ namespace Patchwork.Gameplay
     public class Board : MonoBehaviour
     {
         #region Private Fields
-        [SerializeField] private GridSettings m_GridSettings;
+        private GridSettings m_GridSettings;
         [SerializeField] private Color m_HoleColor = new Color(0.2f, 0.2f, 0.2f, 1f);
         [SerializeField] private bool m_ShowGridLines = true;
         [SerializeField] private Color m_GridLineColor = new Color(0.5f, 0.5f, 0.5f, 0.3f);
@@ -22,11 +22,26 @@ namespace Patchwork.Gameplay
         private const int c_DefaultGemCount = 2;     // Default starting gems
         private int m_GemCount;                      // Actual gem count, can be modified
         public const int NonHolePenalty = -2;       // Made public for upgrade reference
+
+        // Moving boss specific fields
+        private bool m_IsMovingBossBoard;
+        private int m_TotalColumns;
+        private int m_VisibleStartColumn;
+        private Dictionary<Vector2Int, GameObject> m_AllHoles = new Dictionary<Vector2Int, GameObject>(); // Stores all holes including off-screen
+        private List<DrawGem> m_AllDrawGems = new List<DrawGem>(); // Store all gems including off-screen
         #endregion
 
         #region Unity Lifecycle
         private void Awake()
         {
+            // Load GridSettings from Resources
+            m_GridSettings = Resources.Load<GridSettings>("GridSettings");
+            if (m_GridSettings == null)
+            {
+                Debug.LogError("Failed to load GridSettings from Resources!");
+                return;
+            }
+
             m_GemCount = c_DefaultGemCount;  // Initialize with default value
         }
 
@@ -126,22 +141,22 @@ namespace Patchwork.Gameplay
             return _holes.First();
         }
 
-        private void CreateDrawGem(Vector2Int _position)
+        private DrawGem CreateDrawGem(Vector2Int _position, GameObject _parent)
         {
             GameObject gemObj = new GameObject("DrawGem");
-            gemObj.transform.SetParent(transform);
+            gemObj.transform.SetParent(_parent.transform);
             
-            // Center gem on grid point and move it slightly forward in Z
-            Vector3 worldPos = new Vector3(
+            // Set the world position
+            gemObj.transform.position = new Vector3(
                 (_position.x + 0.5f) * m_GridSettings.CellSize,
                 (_position.y + 0.5f) * m_GridSettings.CellSize,
                 0
             );
-            gemObj.transform.position = worldPos;
             
             DrawGem gem = gemObj.AddComponent<DrawGem>();
             gem.Initialize(_position);
-            m_DrawGems.Add(gem);
+            
+            return gem;
         }
 
         private Vector2Int GetNextPosition(Vector2Int currentPos)
@@ -182,87 +197,46 @@ namespace Patchwork.Gameplay
 
         private void InitializeBoard()
         {
-            if (m_GridSettings == null)
+            if (m_IsMovingBossBoard)
             {
-                Debug.LogError("Board: GridSettings is not assigned!");
+                // Moving boss board initialization stays the same
                 return;
             }
-            
+
+            // Create parent object for holes
             GameObject holesParent = new GameObject("Holes");
             holesParent.transform.SetParent(transform);
-            holesParent.transform.position = Vector3.zero;
 
-            Vector2Int[] holePositions = GetHolePattern();
-
-            // Calculate pattern bounds
-            Vector2Int min = new Vector2Int(int.MaxValue, int.MaxValue);
-            Vector2Int max = new Vector2Int(int.MinValue, int.MinValue);
-            foreach (Vector2Int pos in holePositions)
-            {
-                min.x = Mathf.Min(min.x, pos.x);
-                min.y = Mathf.Min(min.y, pos.y);
-                max.x = Mathf.Max(max.x, pos.x);
-                max.y = Mathf.Max(max.y, pos.y);
-            }
-
-            // Calculate pattern size and offset to center
-            Vector2Int patternSize = max - min + Vector2Int.one;
-            Vector2Int offset = (m_GridSettings.GridSize - patternSize) / 2;
-
-            // Create holes with offset positions
-            foreach (Vector2Int pos in holePositions)
-            {
-                Vector2Int gridPos = pos - min + offset;
-                
-                // Center holes on grid points
-                Vector3 worldPos = new Vector3(
-                    (gridPos.x + 0.5f) * m_GridSettings.CellSize,
-                    (gridPos.y + 0.5f) * m_GridSettings.CellSize,
-                    0
-                );
-                
-                GameObject hole = new GameObject($"Hole_{gridPos.x}_{gridPos.y}");
-                hole.transform.SetParent(holesParent.transform);
-                hole.transform.position = worldPos;
-                
-                SpriteRenderer renderer = hole.AddComponent<SpriteRenderer>();
-                renderer.sprite = GameResources.Instance.TileSquareSprite;
-                renderer.color = m_HoleColor;
-                renderer.sortingOrder = -1;
-                
-                hole.transform.localScale = Vector3.one * m_GridSettings.CellSize * 0.9f;
-                
-                m_Holes[gridPos] = hole;
-            }
-
-            // Now find positions for multiple gems
-            HashSet<Vector2Int> usedGemPositions = new HashSet<Vector2Int>();
+            // Get hole pattern
+            Vector2Int[] holePattern = GetHolePattern();
             
+            // Create holes
+            foreach (Vector2Int pos in holePattern)
+            {
+                GameObject hole = new GameObject($"Hole_{pos.x}_{pos.y}");
+                hole.transform.SetParent(holesParent.transform);
+                CreateHole(pos, hole);  // Pass the hole GameObject to CreateHole
+                m_Holes[pos] = hole;
+            }
+
+            // Create parent object for gems
+            GameObject gemsParent = new GameObject("Gems");
+            gemsParent.transform.SetParent(transform);
+
+            // Place draw gems at random hole positions
             for (int i = 0; i < m_GemCount; i++)
             {
-                // Find all positions with two neighbors that aren't already used
-                List<Vector2Int> validPositions = FindAllPositionsWithTwoNeighbors(m_Holes.Keys.ToHashSet())
-                    .Where(pos => !usedGemPositions.Contains(pos))
-                    .ToList();
-
-                if (validPositions.Count == 0)
+                var availableHoles = m_Holes.Keys.ToList();
+                if (availableHoles.Count > 0)
                 {
-                    Debug.LogWarning($"[Board] Not enough valid positions for gem {i + 1}. Using fallback position.");
-                    // Fallback to any unused hole position
-                    validPositions = m_Holes.Keys
-                        .Where(pos => !usedGemPositions.Contains(pos))
-                        .ToList();
-                }
-
-                if (validPositions.Count > 0)
-                {
-                    Vector2Int gemPosition = validPositions[Random.Range(0, validPositions.Count)];
-                    usedGemPositions.Add(gemPosition);
-                    CreateDrawGem(gemPosition);
-                }
-                else
-                {
-                    Debug.LogError($"[Board] No valid positions left for gem {i + 1}!");
+                    int randomIndex = Random.Range(0, availableHoles.Count);
+                    Vector2Int gemPos = availableHoles[randomIndex];
+                    DrawGem gem = CreateDrawGem(gemPos, gemsParent);
+                    if (gem != null)
+                    {
+                        m_DrawGems.Add(gem);
+                    }
+                    availableHoles.RemoveAt(randomIndex);
                 }
             }
         }
@@ -297,6 +271,174 @@ namespace Patchwork.Gameplay
 
             return validPositions;
         }
+
+        private void GenerateColumnHoles(int _column, int _holesPerColumn, GameObject _parent)
+        {
+            List<int> availableRows = Enumerable.Range(0, m_GridSettings.GridSize.y).ToList();
+            
+            // Ensure connectivity by guaranteeing some holes are adjacent to previous column
+            if (_column > 0)
+            {
+                var previousColumnHoles = m_AllHoles.Keys.Where(pos => pos.x == _column - 1).ToList();
+                foreach (var prevHole in previousColumnHoles)
+                {
+                    // 70% chance to create a connecting hole
+                    if (Random.value < 0.7f)
+                    {
+                        int row = prevHole.y;
+                        if (availableRows.Contains(row))
+                        {
+                            CreateHole(new Vector2Int(_column, row), _parent);
+                            availableRows.Remove(row);
+                            _holesPerColumn--;
+                        }
+                    }
+                }
+            }
+            
+            // Fill remaining holes randomly
+            while (_holesPerColumn > 0 && availableRows.Count > 0)
+            {
+                int randomIndex = Random.Range(0, availableRows.Count);
+                int row = availableRows[randomIndex];
+                availableRows.RemoveAt(randomIndex);
+                
+                CreateHole(new Vector2Int(_column, row), _parent);
+                _holesPerColumn--;
+            }
+        }
+
+        private void CreateHole(Vector2Int _position, GameObject _parent)
+        {
+            if (m_AllHoles.ContainsKey(_position)) return;
+            
+            GameObject hole = new GameObject($"Hole_{_position.x}_{_position.y}");
+            hole.transform.SetParent(_parent.transform);
+            
+            // Set position
+            hole.transform.position = new Vector3(
+                (_position.x + 0.5f) * m_GridSettings.CellSize,
+                (_position.y + 0.5f) * m_GridSettings.CellSize,
+                0f
+            );
+            
+            // Add visual component using existing implementation
+            SpriteRenderer renderer = hole.AddComponent<SpriteRenderer>();
+            renderer.sprite = GameResources.Instance.TileSquareSprite;
+            renderer.color = Color.gray;
+            renderer.sortingOrder = -1;
+            
+            m_AllHoles[_position] = hole;
+        }
+
+        private void UpdateVisibleHoles()
+        {
+            // Clear current visible holes
+            m_Holes.Clear();
+            
+            // Get visible range
+            int visibleEndColumn = m_VisibleStartColumn + m_GridSettings.GridSize.x;
+            
+            // Update visible holes
+            foreach (var kvp in m_AllHoles)
+            {
+                Vector2Int worldPos = kvp.Key;
+                Vector2Int visiblePos = new Vector2Int(worldPos.x - m_VisibleStartColumn, worldPos.y);
+                
+                if (visiblePos.x >= 0 && visiblePos.x < m_GridSettings.GridSize.x)
+                {
+                    m_Holes[visiblePos] = kvp.Value;
+                    kvp.Value.SetActive(true);
+                    
+                    // Update hole position in world space
+                    kvp.Value.transform.position = new Vector3(
+                        (visiblePos.x + 0.5f) * m_GridSettings.CellSize,
+                        (worldPos.y + 0.5f) * m_GridSettings.CellSize,
+                        0
+                    );
+                }
+                else
+                {
+                    kvp.Value.SetActive(false);
+                }
+            }
+        }
+
+        private void GenerateConstrainedRandomWalk(Vector2Int _start, Vector2Int _end, int _pathLength, GameObject _parent)
+        {
+            List<Vector2Int> path = new List<Vector2Int>();
+            path.Add(_start);
+            
+            int requiredRightSteps = _end.x - _start.x;
+            int currentRightSteps = 0;
+            int remainingSteps = _pathLength - 1; // -1 because we already added start
+            
+            while (remainingSteps > 0)
+            {
+                Vector2Int currentPos = path[path.Count - 1];
+                
+                // Calculate minimum required right steps
+                int minimumRequiredRights = requiredRightSteps - currentRightSteps;
+                int stepsAfterRequired = remainingSteps - minimumRequiredRights;
+                
+                // Calculate biases
+                float centerBias = Mathf.Abs(currentPos.y - (m_GridSettings.GridSize.y / 2f)) / (m_GridSettings.GridSize.y / 2f);
+                
+                // Only force right movement when we absolutely must
+                float rightBias = (stepsAfterRequired <= 0) ? 1f : 0.2f;
+                
+                // Determine step direction
+                Vector2Int step;
+                float rand = Random.value;
+                
+                if (rand < rightBias)
+                {
+                    // Move right
+                    step = Vector2Int.right;
+                    currentRightSteps++;
+                }
+                else
+                {
+                    // Vertical movement with center bias
+                    rand = Random.value;
+                    if (currentPos.y > m_GridSettings.GridSize.y / 2)
+                    {
+                        // Above center, bias downward
+                        step = (rand < centerBias) ? Vector2Int.down : Vector2Int.up;
+                    }
+                    else
+                    {
+                        // Below center, bias upward
+                        step = (rand < centerBias) ? Vector2Int.up : Vector2Int.down;
+                    }
+                }
+                
+                Vector2Int nextPos = currentPos + step;
+                
+                // Validate position is within bounds
+                if (nextPos.y >= 0 && nextPos.y < m_GridSettings.GridSize.y)
+                {
+                    path.Add(nextPos);
+                    remainingSteps--;
+                }
+            }
+            
+            // Create holes along the path
+            foreach (Vector2Int pos in path)
+            {
+                CreateHole(pos, _parent);
+            }
+        }
+
+        private void TriggerGemCollection()
+        {
+            // Find the GameManager to access the deck
+            var gameManager = FindFirstObjectByType<GameManager>();
+            if (gameManager != null && gameManager.Deck != null)
+            {
+                gameManager.Deck.DrawTile();
+            }
+        }
         #endregion
 
         #region Public Methods
@@ -316,9 +458,13 @@ namespace Patchwork.Gameplay
             }
         }
 
-        public bool IsHoleAt(Vector2Int position)
+        public bool IsHoleAt(Vector2Int _position)
         {
-            return m_Holes.TryGetValue(position, out GameObject hole) && hole.activeSelf;
+            if (m_IsMovingBossBoard)
+            {
+                return m_AllHoles.ContainsKey(_position);
+            }
+            return m_Holes.ContainsKey(_position);
         }
 
         public void AddPlacedTile(PlacedTile tile)
@@ -329,25 +475,40 @@ namespace Patchwork.Gameplay
         public int CalculateTotalScore()
         {
             int totalScore = 0;
-            foreach (PlacedTile tile in m_PlacedTiles)
+            
+            // Calculate score for each placed tile using the existing scoring system
+            foreach (var tile in m_PlacedTiles)
             {
                 totalScore += tile.CalculateScore(this, m_PlacedTiles);
             }
+
             return totalScore;
         }
 
         public bool TryCollectDrawGem(Vector2Int _position)
         {
-            DrawGem gem = m_DrawGems.Find(g => g.GetGridPosition() == _position);
-            if (gem != null && gem.TryCollect())
+            if (m_IsMovingBossBoard)
             {
-                // Find the GameManager to access the deck
-                var gameManager = FindFirstObjectByType<GameManager>();
-                if (gameManager != null && gameManager.Deck != null)
+                // For moving boss board, position is already in world coordinates
+                Vector2Int worldPos = _position;
+                DrawGem gem = m_AllDrawGems.Find(g => g.GetGridPosition() == worldPos);
+                if (gem != null && gem.TryCollect())
                 {
-                    gameManager.Deck.DrawTile();
+                    m_AllDrawGems.Remove(gem);
+                    TriggerGemCollection();
+                    return true;
                 }
-                return true;
+            }
+            else
+            {
+                // For regular board, check the regular draw gems list
+                DrawGem gem = m_DrawGems.Find(g => g.GetGridPosition() == _position);
+                if (gem != null && gem.TryCollect())
+                {
+                    m_DrawGems.Remove(gem);
+                    TriggerGemCollection();
+                    return true;
+                }
             }
             return false;
         }
@@ -369,6 +530,165 @@ namespace Patchwork.Gameplay
         {
             m_GemCount = Mathf.Max(0, _count);  // Ensure non-negative
         }
+
+        public void SetupMovingBossBoard(int _totalColumns)
+        {
+            m_IsMovingBossBoard = true;
+            m_TotalColumns = _totalColumns;
+            m_VisibleStartColumn = 0;
+            
+            // Clear existing holes
+            foreach (var hole in m_Holes.Values) Destroy(hole);
+            m_Holes.Clear();
+            foreach (var hole in m_AllHoles.Values) Destroy(hole);
+            m_AllHoles.Clear();
+            
+            // Create parent object for all holes
+            GameObject holesParent = new GameObject("Holes");
+            holesParent.transform.SetParent(transform);
+            holesParent.transform.position = Vector3.zero;
+            
+            // Calculate start and end positions for the entire path
+            Vector2Int startPos = new Vector2Int(
+                0, // Start at the left edge
+                m_GridSettings.GridSize.y / 2
+            );
+            
+            Vector2Int endPos = new Vector2Int(
+                _totalColumns - 1, // End at the right edge
+                m_GridSettings.GridSize.y / 2
+            );
+            
+            // Calculate number of holes based on total columns, not just visible width
+            int holesCount = _totalColumns * 6;
+            
+            GenerateConstrainedRandomWalk(startPos, endPos, holesCount, holesParent);
+            UpdateVisibleHoles();
+        }
+
+        public void ScrollOneColumn(int _newStartColumn)
+        {
+            if (!m_IsMovingBossBoard) return;
+            
+            m_VisibleStartColumn = _newStartColumn;
+            
+            // Create a new dictionary to store updated hole positions
+            Dictionary<Vector2Int, GameObject> updatedHoles = new Dictionary<Vector2Int, GameObject>();
+            
+            // Update hole positions and visibility
+            foreach (var kvp in m_AllHoles)
+            {
+                Vector2Int newPos = kvp.Key;
+                newPos.x -= 1; // Shift left one column
+                
+                // Update hole position
+                Vector3 worldPos = new Vector3(
+                    (newPos.x + 0.5f) * m_GridSettings.CellSize,
+                    (newPos.y + 0.5f) * m_GridSettings.CellSize,
+                    0
+                );
+                kvp.Value.transform.position = worldPos;
+                
+                // Set visibility based on position
+                bool isVisible = newPos.x >= 0 && newPos.x < m_GridSettings.GridSize.x;
+                kvp.Value.SetActive(isVisible);
+                
+                // Store in new dictionary with updated position
+                updatedHoles[newPos] = kvp.Value;
+            }
+            
+            // Replace old dictionary with updated one
+            m_AllHoles = updatedHoles;
+            
+            // Update placed tile positions and visibility
+            foreach (var tile in m_PlacedTiles)
+            {
+                Vector2Int newPos = tile.GridPosition;
+                newPos.x -= 1; // Shift left one column
+                tile.UpdatePosition(newPos);
+                
+                // Set visibility based on position
+                bool isVisible = newPos.x >= 0 && newPos.x < m_GridSettings.GridSize.x;
+                tile.gameObject.SetActive(isVisible);
+            }
+            
+            // Update draw gem positions
+            List<DrawGem> gemsToRemove = new List<DrawGem>();
+            foreach (var gem in m_AllDrawGems)
+            {
+                Vector2Int newPos = gem.GetGridPosition();
+                newPos.x -= 1; // Shift left one column
+                
+                if (newPos.x < 0)
+                {
+                    gemsToRemove.Add(gem);
+                }
+                else
+                {
+                    gem.UpdatePosition(newPos);
+                    gem.gameObject.SetActive(newPos.x < m_GridSettings.GridSize.x);
+                }
+            }
+            
+            // Remove off-screen gems
+            foreach (var gem in gemsToRemove)
+            {
+                m_AllDrawGems.Remove(gem);
+                Destroy(gem.gameObject);
+            }
+        }
+
+        public void PlaceDrawGemInColumn(int _column)
+        {
+            if (!m_IsMovingBossBoard) return;
+            
+            // Find a valid hole position in the specified column
+            var possiblePositions = m_AllHoles.Keys
+                .Where(pos => pos.x == _column)
+                .ToList();
+            
+            if (possiblePositions.Count > 0)
+            {
+                // Create parent for gems if it doesn't exist
+                GameObject gemsParent = transform.Find("Gems")?.gameObject;
+                if (gemsParent == null)
+                {
+                    gemsParent = new GameObject("Gems");
+                    gemsParent.transform.SetParent(transform);
+                }
+
+                // Pick a random position in this column
+                Vector2Int gemPos = possiblePositions[Random.Range(0, possiblePositions.Count)];
+                DrawGem gem = CreateDrawGem(gemPos, gemsParent);
+                if (gem != null)
+                {
+                    m_AllDrawGems.Add(gem);
+                    // Only show if in visible range
+                    gem.gameObject.SetActive(gemPos.x < m_GridSettings.GridSize.x);
+                }
+            }
+        }
+
+        public bool IsHole(Vector2Int _position)
+        {
+            // For moving boss board, check against all holes
+            if (m_IsMovingBossBoard)
+            {
+                return m_AllHoles.ContainsKey(_position);
+            }
+            
+            // For regular board, use standard holes dictionary
+            return m_Holes.ContainsKey(_position);
+        }
+
+        public int GetPlacedTileCount()
+        {
+            return m_PlacedTiles.Count;
+        }
+        #endregion
+
+        #region Public Properties
+        public GridSettings GridSettings => m_GridSettings;
         #endregion
     }
 } 
