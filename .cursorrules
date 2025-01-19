@@ -1,3 +1,7 @@
+Never guess about the contents of another file or class. If it is not in the current context, break and ask for additional context.
+
+Keep all modifications to existing classes and methods minimal.
+
 # Unity C# Expert Developer Prompt
 
 We are using Unity 6.0

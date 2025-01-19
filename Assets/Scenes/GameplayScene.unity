@@ -2146,6 +2146,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7944800592559451149, guid: 763aba295bfd24b84961aa194bb96e50, type: 3}
+      propertyPath: m_InitialTileCount
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 8196743921828460337, guid: 763aba295bfd24b84961aa194bb96e50, type: 3}
       propertyPath: m_Name
       value: Deck

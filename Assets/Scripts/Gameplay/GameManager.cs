@@ -19,8 +19,7 @@ namespace Patchwork.Gameplay
         [Header("Timer Settings")]
         [SerializeField] private float m_BaseTimerDuration = 24f;
         [SerializeField] private float m_TimerStartDelay = 4f;
-        [SerializeField] private float m_BaseMultiplier = 1f;
-        [SerializeField] private float m_MaxMultiplier = 2f;
+        [SerializeField] private float m_BaseMultiplier = 2f;
         
         [Header("Boss Battle Settings")]
         [SerializeField] private int m_BossStageInterval = 3; // Every X stages is a boss
@@ -50,6 +49,7 @@ namespace Patchwork.Gameplay
         private float m_NextColumnMoveTime;
         private int m_TotalColumns; // Total number of columns in the full board
         private bool m_BossStageComplete;
+        private int m_TilePointsBonus = 0;
         #endregion
 
         #region Game State
@@ -73,6 +73,9 @@ namespace Patchwork.Gameplay
         public int CurrentStage => m_CurrentStage;
         public int CumulativeScore => m_CumulativeScore;
         public Deck Deck => m_Deck;
+        public float BaseMultiplier => m_BaseMultiplier;
+        public int BossStageInterval => m_BossStageInterval;
+        public bool IsPostBossStage => IsBossStage(m_CurrentStage - 1);
         #endregion
 
         #region Unity Lifecycle
@@ -199,7 +202,6 @@ namespace Patchwork.Gameplay
             {
                 if (IsBossStage(m_CurrentStage))
                 {
-                    // For now we only have moving boss, but later we can determine type here
                     SetupMovingBossStage();
                 }
                 else
@@ -217,7 +219,8 @@ namespace Patchwork.Gameplay
                     m_Timer = FindFirstObjectByType<Timer>();
                     if (m_Timer != null)
                     {
-                        m_Timer.StartTimer(totalTime, m_TimerStartDelay, m_BaseMultiplier, m_MaxMultiplier);
+                        // Always start at 1 and decay from the current max multiplier
+                        m_Timer.StartTimer(totalTime, m_TimerStartDelay, 1f, m_BaseMultiplier);
                     }
                 }
                 
@@ -280,54 +283,48 @@ namespace Patchwork.Gameplay
 
         public void StartNextStage()
         {
-            // Calculate gem count based on stage
-            int gemCount = Mathf.Min((m_CurrentStage - 1) / c_StagesPerGem, c_MaxGemCount);
-            
-            // Load scene first, then set up board
-            SceneManager.LoadScene(m_GameplaySceneName);
+            bool isNextStageBoss = IsBossStage(m_CurrentStage);
+            if (isNextStageBoss)
+            {
+                SceneManager.LoadScene("BossAnnouncement");
+            }
+            else
+            {
+                SceneManager.LoadScene(m_GameplaySceneName);
+            }
         }
 
         public void CompleteStage(int _baseScore)
         {
-            float timeMultiplier = m_BaseMultiplier;  // Default to base multiplier
+            float multiplier = 1f;
             if (m_Timer != null)
             {
-                // If timer is still running, use its multiplier
                 if (m_Timer.GetTimeRemaining() > 0)
                 {
-                    timeMultiplier = m_Timer.GetCurrentMultiplier();
+                    multiplier = m_Timer.GetCurrentMultiplier();
                 }
                 m_Timer.StopTimer();
             }
             
-            int stageScore = Mathf.RoundToInt(_baseScore * timeMultiplier);
+            int stageScore = Mathf.RoundToInt(_baseScore * multiplier);
             m_CumulativeScore += stageScore;
             
-            // Find and show scoring popup
             var scoringPopup = FindFirstObjectByType<ScoringPopupUI>();
             if (scoringPopup != null)
             {
                 scoringPopup.OnPopupComplete.AddListener(() => {
-                    m_CurrentStage++; // Increment stage here
-                    bool isNextStageBoss = IsBossStage(m_CurrentStage);
-                    
-                    if (isNextStageBoss)
-                    {
-                        SceneManager.LoadScene("BossAnnouncement");
-                    }
-                    else
-                    {
-                        SceneManager.LoadScene(m_TransitionSceneName);
-                    }
+                    m_CurrentStage++;
+                    SceneManager.LoadScene(m_TransitionSceneName);
                 });
                 
-                scoringPopup.ShowScoring(_baseScore, timeMultiplier, stageScore, m_CumulativeScore);
+                scoringPopup.ShowScoring(_baseScore, multiplier, stageScore, m_CumulativeScore);
             }
-            else
-            {
-                Debug.LogError("[GameManager] Could not find ScoringPopupUI in scene!");
-                StartCoroutine(CompleteStageRoutine(m_CumulativeScore));
-            }
+        }
+
+        private int GetTotalTilesPlaced()
+        {
+            Board board = FindFirstObjectByType<Board>();
+            return board != null ? board.GetPlacedTileCount() : 0;
         }
 
         private IEnumerator CompleteStageRoutine(int _finalScore)
@@ -345,6 +342,21 @@ namespace Patchwork.Gameplay
         public void ReturnToMainMenu()
         {
             SceneManager.LoadScene(m_MainMenuSceneName);
+        }
+
+        public void IncreaseMultiplier()
+        {
+            m_BaseMultiplier += 0.5f;
+        }
+
+        public void IncreaseTilePoints()
+        {
+            m_TilePointsBonus += 2;
+        }
+
+        public int GetTilePointsBonus()
+        {
+            return m_TilePointsBonus;
         }
         #endregion
 

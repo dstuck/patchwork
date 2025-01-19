@@ -680,6 +680,11 @@ namespace Patchwork.Gameplay
             // For regular board, use standard holes dictionary
             return m_Holes.ContainsKey(_position);
         }
+
+        public int GetPlacedTileCount()
+        {
+            return m_PlacedTiles.Count;
+        }
         #endregion
 
         #region Public Properties

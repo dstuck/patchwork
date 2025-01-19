@@ -162,6 +162,9 @@ namespace Patchwork.Gameplay
                 }
             }
 
+            // Add global points bonus from GameManager
+            m_CurrentScore += GameManager.Instance.GetTilePointsBonus();
+
             // Only show text when we have a score
             m_ScoreText.enabled = true;
             m_ScoreText.text = m_CurrentScore.ToString();

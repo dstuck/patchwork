@@ -12,7 +12,7 @@ EditorBuildSettings:
     path: Assets/Scenes/TransitionScene.unity
     guid: 6584b6b74f89943f5b8511668a0e15a1
   - enabled: 1
-    path: Assets/Scenes/Announcement.unity
+    path: Assets/Scenes/BossAnnouncement.unity
     guid: 04f4925494f4049968894375f290c88e
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
