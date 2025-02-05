@@ -22,7 +22,7 @@ namespace Patchwork.Gameplay
         [SerializeField] private float m_BaseMultiplier = 2f;
         
         [Header("Boss Battle Settings")]
-        [SerializeField] private int m_BossStageInterval = 3; // Every X stages is a boss
+        [SerializeField] private int m_BossStageInterval = 4; // Every X stages is a boss
 
         [Header("Moving Boss Settings")]
         [SerializeField] private int m_MovingBossBoardWidth = 5; // Number of standard board widths
