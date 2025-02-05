@@ -5,20 +5,9 @@ namespace Patchwork.Gameplay
 {
     public class DrawGem : BaseCollectible
     {
-        #region Unity Lifecycle
-        protected override void Awake()
-        {
-            base.Awake();  // This will create the SpriteRenderer
-            
-            // Set sprite from GameResources
-            m_SpriteRenderer.sprite = GameResources.Instance.DrawGemSprite;
+        protected override Sprite GetSprite() => GameResources.Instance.DrawGemSprite;
+        protected override float GetScale() => GameResources.Instance.DrawGemScale;
 
-            // Set color and scale
-            m_SpriteRenderer.color = new Color(0.2f, 0.8f, 1f, 0.8f);  // Light blue, slightly transparent
-            float scale = GameResources.Instance.DrawGemScale;
-            transform.localScale = new Vector3(scale, scale, 1f);
-        }
-        #endregion
 
         #region Public Methods
         public override bool TryCollect()
@@ -33,17 +22,6 @@ namespace Patchwork.Gameplay
                 return true;
             }
             return false;
-        }
-
-        public override void OnLevelEnd()
-        {
-            // DrawGems don't have any special end-of-level behavior
-            base.OnLevelEnd();
-        }
-
-        public override void UpdatePosition(Vector2Int newPosition)
-        {
-            base.UpdatePosition(newPosition);
         }
         #endregion
     }

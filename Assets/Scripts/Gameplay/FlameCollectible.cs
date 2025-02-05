@@ -5,11 +5,7 @@ namespace Patchwork.Gameplay
 {
     public class FlameCollectible : BaseCollectible
     {
-        protected override void Awake()
-        {
-            base.Awake();
-            m_SpriteRenderer.sprite = GameResources.Instance.FlameSprite;
-        }
+        protected override Sprite GetSprite() => GameResources.Instance.FlameSprite;
 
         public override void OnLevelEnd()
         {

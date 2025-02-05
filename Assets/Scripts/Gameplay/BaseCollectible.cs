@@ -16,6 +16,11 @@ namespace Patchwork.Gameplay
         public Vector2Int GridPosition => m_GridPosition;
         #endregion
 
+        #region Protected Abstract Methods
+        protected abstract Sprite GetSprite();
+        protected virtual float GetScale() => 1f;  // Default scale of 1, override if needed
+        #endregion
+
         #region Unity Lifecycle
         protected virtual void Awake()
         {
@@ -28,6 +33,11 @@ namespace Patchwork.Gameplay
             {
                 Debug.LogError("GridSettings not found!");
             }
+
+            // Set sprite and scale
+            m_SpriteRenderer.sprite = GetSprite();
+            float scale = GetScale();
+            transform.localScale = new Vector3(scale, scale, 1f);
         }
         #endregion
 

@@ -5,11 +5,7 @@ namespace Patchwork.Gameplay
 {
     public class SparkCollectible : BaseCollectible
     {
-        protected override void Awake()
-        {
-            base.Awake();
-            m_SpriteRenderer.sprite = GameResources.Instance.SparkSprite;
-        }
+        protected override Sprite GetSprite() => GameResources.Instance.SparkSprite;
 
         public override void OnLevelEnd()
         {
