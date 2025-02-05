@@ -36,6 +36,12 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 - [x] Make boss level explanation screen
 - [x] Add boss rewards
 
+### 0.7: Danger
+- [ ] Add spark tiles that must be covered
+- [ ] Keep track of "danger" and trigger game over
+- [ ] Add fire that spreads after each placement
+
+
 ## Design
 Main concepts
 - Tiles: A tiles shape is composed of connected unit squares and it maybe have modifiers that will be accounted for in scoring and be displayed visually
@@ -55,6 +61,24 @@ The cursor will display the selected tile and when the player presses the confir
 
 ## Brainstorming
 
+- What if the game is more about collecting various gems on the board?
+    - It's more of an excavating game where tiles modify the value of collected gems
+
+- What if the core mechanic is about "defusing bombs" (or map that to some less violent concept)
+    - basic bombs just need a tile covering it
+    - some bombs are paired and need a single tile to cover them both
+    - some bombs have timers making you work fast
+    - some bombs spawn other bombs so need to be defused first
+    - big bombs could cover multiple squares (maybe just combine them automatically if they're next to each other)
+- Maybe we could go back to the original idea of patching up electrical equipment/toys headless_run_game
+    - each spark needs to be covered up
+    - some sparks spawn other sparks
+    - maybe paired sparks make sense
+- Whether sparks or bombs, we still need to figure out ways that could actually trigger a loss
+    - Players are driven to go fast for bonus points but can always slow down if they need to not lose...
+    - timed and spawning bombs could potentially overwhelm the player but not likely
+    - maybe the only way you really lose it on a boss fight, the intermediate ones just matter because it lets you build up resources by doing them fast
+    - So need to make sure that resources are required to beat the bosses consistently
 ### Challenge Increasee
 It's hard to increase the challenge by making the board more complex or smaller
 
@@ -80,8 +104,7 @@ It's hard to increase the challenge by making the board more complex or smaller
     - Narratively, this would be upgrading to do a safer job
 - More bombs, but higher multiplier
 
-- What if the game is more about collecting various gems on the board?
-    - It's more of an excavating game where tiles modify the value of collected gems
+
 ### Boss Boards
 Large moving level:
 - the board moves to the left
