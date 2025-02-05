@@ -16,13 +16,32 @@ namespace Patchwork.Data
                     s_Instance = Resources.Load<GameResources>("GameResources");
                     if (s_Instance == null)
                     {
-                        Debug.LogError("GameResources not found in Resources folder!");
+                        Debug.LogError("GameResources asset not found in Resources folder!");
                     }
                 }
                 return s_Instance;
             }
         }
         #endregion
+
+        #if UNITY_EDITOR
+        [UnityEditor.MenuItem("Assets/Create/Game/Game Resources")]
+        public static void CreateAsset()
+        {
+            if (!System.IO.Directory.Exists("Assets/Resources"))
+            {
+                System.IO.Directory.CreateDirectory("Assets/Resources");
+            }
+
+            var asset = Resources.Load<GameResources>("GameResources");
+            if (asset == null)
+            {
+                asset = CreateInstance<GameResources>();
+                UnityEditor.AssetDatabase.CreateAsset(asset, "Assets/Resources/GameResources.asset");
+                UnityEditor.AssetDatabase.SaveAssets();
+            }
+        }
+        #endif
 
         #region Serialized Fields
         [Header("Board Elements")]
