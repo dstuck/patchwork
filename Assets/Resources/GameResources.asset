@@ -13,4 +13,8 @@ MonoBehaviour:
   m_Name: GameResources
   m_EditorClassIdentifier: 
   m_TileSquareSprite: {fileID: 7482667652216324306, guid: 9620db5204dbd4dd685febea8b36167f, type: 3}
+  m_DrawGemSprite: {fileID: 8710723752907654049, guid: 0293068149bcb4cb6ba5c3e656266908, type: 3}
+  m_DrawGemScale: 4
+  m_SparkSprite: {fileID: -3149389169688070996, guid: a0e2f92c0cadf446eb773385629ba9fe, type: 3}
+  m_FlameSprite: {fileID: 4987901684691990599, guid: 0931113dcf4b84ceea5528537a008d84, type: 3}
   m_UpgradeTooltipPrefab: {fileID: 6793826844607065114, guid: ba81fa9c2006344ec81294052020ae26, type: 3}

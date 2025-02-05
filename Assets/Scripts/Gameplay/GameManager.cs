@@ -50,6 +50,9 @@ namespace Patchwork.Gameplay
         private int m_TotalColumns; // Total number of columns in the full board
         private bool m_BossStageComplete;
         private int m_TilePointsBonus = 0;
+
+        private int m_DangerLevel = 0;
+        private const int c_MaxDangerLevel = 3;
         #endregion
 
         #region Game State
@@ -357,6 +360,21 @@ namespace Patchwork.Gameplay
         public int GetTilePointsBonus()
         {
             return m_TilePointsBonus;
+        }
+
+        public void IncreaseDanger()
+        {
+            m_DangerLevel++;
+            if (m_DangerLevel >= c_MaxDangerLevel)
+            {
+                // Trigger game over
+                SceneManager.LoadScene("GameOver");
+            }
+        }
+
+        public void ResetDanger()
+        {
+            m_DangerLevel = 0;
         }
         #endregion
 

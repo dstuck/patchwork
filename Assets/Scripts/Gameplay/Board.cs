@@ -16,7 +16,7 @@ namespace Patchwork.Gameplay
         
         private Dictionary<Vector2Int, GameObject> m_Holes = new Dictionary<Vector2Int, GameObject>();
         private List<PlacedTile> m_PlacedTiles = new List<PlacedTile>();
-        private List<DrawGem> m_DrawGems = new List<DrawGem>();
+        private List<ICollectible> m_Collectibles = new List<ICollectible>();
         private const int c_BaseHoleCount = 28;     // Base number of holes
         private const int c_HolesPerGem = 6;        // Additional holes per draw gem
         private const int c_DefaultGemCount = 2;     // Default starting gems
@@ -28,7 +28,6 @@ namespace Patchwork.Gameplay
         private int m_TotalColumns;
         private int m_VisibleStartColumn;
         private Dictionary<Vector2Int, GameObject> m_AllHoles = new Dictionary<Vector2Int, GameObject>(); // Stores all holes including off-screen
-        private List<DrawGem> m_AllDrawGems = new List<DrawGem>(); // Store all gems including off-screen
         #endregion
 
         #region Unity Lifecycle
@@ -146,15 +145,9 @@ namespace Patchwork.Gameplay
             GameObject gemObj = new GameObject("DrawGem");
             gemObj.transform.SetParent(_parent.transform);
             
-            // Set the world position
-            gemObj.transform.position = new Vector3(
-                (_position.x + 0.5f) * m_GridSettings.CellSize,
-                (_position.y + 0.5f) * m_GridSettings.CellSize,
-                0
-            );
-            
             DrawGem gem = gemObj.AddComponent<DrawGem>();
             gem.Initialize(_position);
+            m_Collectibles.Add(gem);
             
             return gem;
         }
@@ -199,7 +192,6 @@ namespace Patchwork.Gameplay
         {
             if (m_IsMovingBossBoard)
             {
-                // Moving boss board initialization stays the same
                 return;
             }
 
@@ -215,13 +207,13 @@ namespace Patchwork.Gameplay
             {
                 GameObject hole = new GameObject($"Hole_{pos.x}_{pos.y}");
                 hole.transform.SetParent(holesParent.transform);
-                CreateHole(pos, hole);  // Pass the hole GameObject to CreateHole
+                CreateHole(pos, hole);
                 m_Holes[pos] = hole;
             }
 
-            // Create parent object for gems
-            GameObject gemsParent = new GameObject("Gems");
-            gemsParent.transform.SetParent(transform);
+            // Create parent object for collectibles
+            GameObject collectiblesParent = new GameObject("Collectibles");
+            collectiblesParent.transform.SetParent(transform);
 
             // Place draw gems at random hole positions
             for (int i = 0; i < m_GemCount; i++)
@@ -231,11 +223,14 @@ namespace Patchwork.Gameplay
                 {
                     int randomIndex = Random.Range(0, availableHoles.Count);
                     Vector2Int gemPos = availableHoles[randomIndex];
-                    DrawGem gem = CreateDrawGem(gemPos, gemsParent);
-                    if (gem != null)
-                    {
-                        m_DrawGems.Add(gem);
-                    }
+                    
+                    GameObject gemObj = new GameObject("DrawGem");
+                    gemObj.transform.SetParent(collectiblesParent.transform);
+                    
+                    DrawGem gem = gemObj.AddComponent<DrawGem>();
+                    gem.Initialize(gemPos);
+                    m_Collectibles.Add(gem);
+                    
                     availableHoles.RemoveAt(randomIndex);
                 }
             }
@@ -491,10 +486,9 @@ namespace Patchwork.Gameplay
             {
                 // For moving boss board, position is already in world coordinates
                 Vector2Int worldPos = _position;
-                DrawGem gem = m_AllDrawGems.Find(g => g.GetGridPosition() == worldPos);
+                DrawGem gem = m_Collectibles.OfType<DrawGem>().FirstOrDefault(g => g.GridPosition == worldPos);
                 if (gem != null && gem.TryCollect())
                 {
-                    m_AllDrawGems.Remove(gem);
                     TriggerGemCollection();
                     return true;
                 }
@@ -502,10 +496,9 @@ namespace Patchwork.Gameplay
             else
             {
                 // For regular board, check the regular draw gems list
-                DrawGem gem = m_DrawGems.Find(g => g.GetGridPosition() == _position);
+                DrawGem gem = m_Collectibles.OfType<DrawGem>().FirstOrDefault(g => g.GridPosition == _position);
                 if (gem != null && gem.TryCollect())
                 {
-                    m_DrawGems.Remove(gem);
                     TriggerGemCollection();
                     return true;
                 }
@@ -572,16 +565,13 @@ namespace Patchwork.Gameplay
             
             m_VisibleStartColumn = _newStartColumn;
             
-            // Create a new dictionary to store updated hole positions
-            Dictionary<Vector2Int, GameObject> updatedHoles = new Dictionary<Vector2Int, GameObject>();
-            
             // Update hole positions and visibility
+            Dictionary<Vector2Int, GameObject> updatedHoles = new Dictionary<Vector2Int, GameObject>();
             foreach (var kvp in m_AllHoles)
             {
                 Vector2Int newPos = kvp.Key;
-                newPos.x -= 1; // Shift left one column
+                newPos.x -= 1;
                 
-                // Update hole position
                 Vector3 worldPos = new Vector3(
                     (newPos.x + 0.5f) * m_GridSettings.CellSize,
                     (newPos.y + 0.5f) * m_GridSettings.CellSize,
@@ -589,52 +579,46 @@ namespace Patchwork.Gameplay
                 );
                 kvp.Value.transform.position = worldPos;
                 
-                // Set visibility based on position
                 bool isVisible = newPos.x >= 0 && newPos.x < m_GridSettings.GridSize.x;
                 kvp.Value.SetActive(isVisible);
                 
-                // Store in new dictionary with updated position
                 updatedHoles[newPos] = kvp.Value;
             }
-            
-            // Replace old dictionary with updated one
             m_AllHoles = updatedHoles;
             
-            // Update placed tile positions and visibility
+            // Update placed tile positions
             foreach (var tile in m_PlacedTiles)
             {
                 Vector2Int newPos = tile.GridPosition;
-                newPos.x -= 1; // Shift left one column
+                newPos.x -= 1;
                 tile.UpdatePosition(newPos);
-                
-                // Set visibility based on position
-                bool isVisible = newPos.x >= 0 && newPos.x < m_GridSettings.GridSize.x;
-                tile.gameObject.SetActive(isVisible);
+                tile.gameObject.SetActive(newPos.x >= 0 && newPos.x < m_GridSettings.GridSize.x);
             }
             
-            // Update draw gem positions
-            List<DrawGem> gemsToRemove = new List<DrawGem>();
-            foreach (var gem in m_AllDrawGems)
+            // Update collectible positions
+            List<ICollectible> collectiblesToRemove = new List<ICollectible>();
+            foreach (var collectible in m_Collectibles)
             {
-                Vector2Int newPos = gem.GetGridPosition();
-                newPos.x -= 1; // Shift left one column
+                Vector2Int newPos = collectible.GridPosition;
+                newPos.x -= 1;
                 
                 if (newPos.x < 0)
                 {
-                    gemsToRemove.Add(gem);
+                    collectiblesToRemove.Add(collectible);
+                    Object.Destroy(((MonoBehaviour)collectible).gameObject);
                 }
                 else
                 {
-                    gem.UpdatePosition(newPos);
-                    gem.gameObject.SetActive(newPos.x < m_GridSettings.GridSize.x);
+                    collectible.UpdatePosition(newPos);
+                    ((MonoBehaviour)collectible).gameObject.SetActive(
+                        newPos.x < m_GridSettings.GridSize.x
+                    );
                 }
             }
             
-            // Remove off-screen gems
-            foreach (var gem in gemsToRemove)
+            foreach (var collectible in collectiblesToRemove)
             {
-                m_AllDrawGems.Remove(gem);
-                Destroy(gem.gameObject);
+                m_Collectibles.Remove(collectible);
             }
         }
 
@@ -642,30 +626,29 @@ namespace Patchwork.Gameplay
         {
             if (!m_IsMovingBossBoard) return;
             
-            // Find a valid hole position in the specified column
             var possiblePositions = m_AllHoles.Keys
                 .Where(pos => pos.x == _column)
                 .ToList();
             
             if (possiblePositions.Count > 0)
             {
-                // Create parent for gems if it doesn't exist
-                GameObject gemsParent = transform.Find("Gems")?.gameObject;
-                if (gemsParent == null)
+                GameObject collectiblesParent = transform.Find("Collectibles")?.gameObject;
+                if (collectiblesParent == null)
                 {
-                    gemsParent = new GameObject("Gems");
-                    gemsParent.transform.SetParent(transform);
+                    collectiblesParent = new GameObject("Collectibles");
+                    collectiblesParent.transform.SetParent(transform);
                 }
 
-                // Pick a random position in this column
                 Vector2Int gemPos = possiblePositions[Random.Range(0, possiblePositions.Count)];
-                DrawGem gem = CreateDrawGem(gemPos, gemsParent);
-                if (gem != null)
-                {
-                    m_AllDrawGems.Add(gem);
-                    // Only show if in visible range
-                    gem.gameObject.SetActive(gemPos.x < m_GridSettings.GridSize.x);
-                }
+                
+                GameObject gemObj = new GameObject("DrawGem");
+                gemObj.transform.SetParent(collectiblesParent.transform);
+                
+                DrawGem gem = gemObj.AddComponent<DrawGem>();
+                gem.Initialize(gemPos);
+                m_Collectibles.Add(gem);
+                
+                gemObj.SetActive(gemPos.x < m_GridSettings.GridSize.x);
             }
         }
 
@@ -684,6 +667,57 @@ namespace Patchwork.Gameplay
         public int GetPlacedTileCount()
         {
             return m_PlacedTiles.Count;
+        }
+
+        public void AddSparkCollectible(Vector2Int position)
+        {
+            GameObject collectibleObj = new GameObject("Spark");
+            collectibleObj.transform.SetParent(transform);
+            
+            SparkCollectible spark = collectibleObj.AddComponent<SparkCollectible>();
+            spark.Initialize(position);
+            m_Collectibles.Add(spark);
+        }
+
+        public void AddFlameCollectible(Vector2Int position)
+        {
+            GameObject collectibleObj = new GameObject("Flame");
+            collectibleObj.transform.SetParent(transform);
+            
+            FlameCollectible flame = collectibleObj.AddComponent<FlameCollectible>();
+            flame.Initialize(position);
+            m_Collectibles.Add(flame);
+        }
+
+        public void CheckCollectibles(Vector2Int position)
+        {
+            Vector2Int checkPosition = position;
+            if (m_IsMovingBossBoard)
+            {
+                // For moving boss board, position is already in world coordinates
+                checkPosition = position;
+            }
+            
+            var collectiblesAtPosition = m_Collectibles
+                .Where(c => c.GridPosition == checkPosition)
+                .ToList();
+                
+            foreach (var collectible in collectiblesAtPosition)
+            {
+                if (collectible.TryCollect())
+                {
+                    m_Collectibles.Remove(collectible);
+                }
+            }
+        }
+
+        public void OnLevelComplete()
+        {
+            foreach (var collectible in m_Collectibles)
+            {
+                collectible.OnLevelEnd();
+            }
+            m_Collectibles.Clear();
         }
         #endregion
 

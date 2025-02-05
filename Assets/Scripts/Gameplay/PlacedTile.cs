@@ -102,12 +102,12 @@ namespace Patchwork.Gameplay
             m_TileRenderer = gameObject.AddComponent<TileRenderer>();
             m_TileRenderer.Initialize(m_TileData, m_TileData.TileColor, _rotation);
 
-            // Check for draw gems under each square
+            // Check for collectibles under each square
             foreach (Vector2Int square in m_OccupiedSquares)
             {
                 if (m_Board != null)
                 {
-                    m_Board.TryCollectDrawGem(square);
+                    m_Board.CheckCollectibles(square);
                 }
             }
 
