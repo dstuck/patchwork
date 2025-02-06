@@ -7,6 +7,10 @@ namespace Patchwork.Gameplay
 {
     public class GameManager : MonoBehaviour
     {
+        #region Constants
+        private const int c_MaxLives = 3;
+        #endregion
+
         #region Private Fields
         [Header("Scene Names")]
         [SerializeField] private string m_MainMenuSceneName = "MainMenu";
@@ -53,6 +57,11 @@ namespace Patchwork.Gameplay
 
         private int m_DangerLevel = 0;
         private const int c_MaxDangerLevel = 3;
+
+        [Header("Life Settings")]
+        [SerializeField] private int m_MaxLives = 3;  // Starting max lives
+        private int m_CurrentLives;
+        private PlayerResourceUI m_ResourceUI;
         #endregion
 
         #region Game State
@@ -79,6 +88,7 @@ namespace Patchwork.Gameplay
         public float BaseMultiplier => m_BaseMultiplier;
         public int BossStageInterval => m_BossStageInterval;
         public bool IsPostBossStage => IsBossStage(m_CurrentStage - 1);
+        public int MaxLives => m_MaxLives;
         #endregion
 
         #region Unity Lifecycle
@@ -102,6 +112,17 @@ namespace Patchwork.Gameplay
         private void OnDisable()
         {
             SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+
+        private void Start()
+        {
+            m_CurrentLives = m_MaxLives;
+            m_ResourceUI = FindFirstObjectByType<PlayerResourceUI>();
+            if (m_ResourceUI != null)
+            {
+                m_ResourceUI.Initialize(m_MaxLives);
+                m_ResourceUI.UpdateLives(m_CurrentLives);
+            }
         }
         #endregion
 
@@ -203,6 +224,14 @@ namespace Patchwork.Gameplay
         {
             if (_scene.name == m_GameplaySceneName)
             {
+                // Initialize UI
+                m_ResourceUI = FindFirstObjectByType<PlayerResourceUI>();
+                if (m_ResourceUI != null)
+                {
+                    m_ResourceUI.Initialize(m_MaxLives);
+                    m_ResourceUI.UpdateLives(m_CurrentLives);
+                }
+
                 if (IsBossStage(m_CurrentStage))
                 {
                     SetupMovingBossStage();
@@ -375,6 +404,40 @@ namespace Patchwork.Gameplay
         public void ResetDanger()
         {
             m_DangerLevel = 0;
+        }
+
+        public void DecreaseLives()
+        {
+            m_CurrentLives--;
+            if (m_ResourceUI != null)
+            {
+                m_ResourceUI.UpdateLives(m_CurrentLives);
+            }
+            
+            if (m_CurrentLives <= 0)
+            {
+                SceneManager.LoadScene("GameOver");
+            }
+        }
+
+        public void ResetLives()
+        {
+            m_CurrentLives = m_MaxLives;
+            if (m_ResourceUI != null)
+            {
+                m_ResourceUI.UpdateLives(m_CurrentLives);
+            }
+        }
+
+        public void IncreaseMaxLives()
+        {
+            m_MaxLives++;
+            m_CurrentLives++;
+            if (m_ResourceUI != null)
+            {
+                m_ResourceUI.Initialize(m_MaxLives);  // Reinitialize UI with new max
+                m_ResourceUI.UpdateLives(m_CurrentLives);
+            }
         }
         #endregion
 
