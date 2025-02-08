@@ -140,6 +140,7 @@ namespace Patchwork.Gameplay
             return _holes.First();
         }
 
+// TODO: This method is not called
         private DrawGem CreateDrawGem(Vector2Int _position, GameObject _parent)
         {
             GameObject gemObj = new GameObject("DrawGem");
@@ -230,6 +231,51 @@ namespace Patchwork.Gameplay
                     DrawGem gem = gemObj.AddComponent<DrawGem>();
                     gem.Initialize(gemPos);
                     m_Collectibles.Add(gem);
+                    
+                    availableHoles.RemoveAt(randomIndex);
+                }
+            }
+
+            // Calculate spark and flame counts based on level
+            int stage = GameManager.Instance.CurrentStage;
+            int sparkCount = 2 + ((stage - 1) / 2);  // Start with 2, add 1 every 2 levels
+            int flameCount = 1 + ((stage - 1) / 3);  // Start with 1, add 1 every 3 levels
+
+            // Place sparks at random hole positions
+            for (int i = 0; i < sparkCount; i++)
+            {
+                var availableHoles = m_Holes.Keys.ToList();
+                if (availableHoles.Count > 0)
+                {
+                    int randomIndex = Random.Range(0, availableHoles.Count);
+                    Vector2Int sparkPos = availableHoles[randomIndex];
+                    
+                    GameObject sparkObj = new GameObject("SparkCollectible");
+                    sparkObj.transform.SetParent(collectiblesParent.transform);
+                    
+                    SparkCollectible spark = sparkObj.AddComponent<SparkCollectible>();
+                    spark.Initialize(sparkPos);
+                    m_Collectibles.Add(spark);
+                    
+                    availableHoles.RemoveAt(randomIndex);
+                }
+            }
+
+            // Place flames at random hole positions
+            for (int i = 0; i < flameCount; i++)
+            {
+                var availableHoles = m_Holes.Keys.ToList();
+                if (availableHoles.Count > 0)
+                {
+                    int randomIndex = Random.Range(0, availableHoles.Count);
+                    Vector2Int flamePos = availableHoles[randomIndex];
+                    
+                    GameObject flameObj = new GameObject("FlameCollectible");
+                    flameObj.transform.SetParent(collectiblesParent.transform);
+                    
+                    FlameCollectible flame = flameObj.AddComponent<FlameCollectible>();
+                    flame.Initialize(flamePos);
+                    m_Collectibles.Add(flame);
                     
                     availableHoles.RemoveAt(randomIndex);
                 }
@@ -718,6 +764,14 @@ namespace Patchwork.Gameplay
                 collectible.OnLevelEnd();
             }
             m_Collectibles.Clear();
+        }
+
+        public void OnTilePlaced()
+        {
+            foreach (var collectible in m_Collectibles)
+            {
+                collectible.OnTilePlaced();
+            }
         }
         #endregion
 

@@ -74,6 +74,11 @@ namespace Patchwork.Gameplay
                 0
             );
         }
+
+        public virtual void OnTilePlaced()
+        {
+            // Base implementation does nothing
+        }
         #endregion
     }
 } 

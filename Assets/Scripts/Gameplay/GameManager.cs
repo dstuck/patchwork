@@ -47,16 +47,7 @@ namespace Patchwork.Gameplay
         private bool m_IsInitialized;
         
         private Timer m_Timer;
-        
-        private bool m_IsBossStage;
-        private int m_CurrentColumn;
-        private float m_NextColumnMoveTime;
-        private int m_TotalColumns; // Total number of columns in the full board
-        private bool m_BossStageComplete;
         private int m_TilePointsBonus = 0;
-
-        private int m_DangerLevel = 0;
-        private const int c_MaxDangerLevel = 3;
 
         [Header("Life Settings")]
         [SerializeField] private int m_MaxLives = 3;  // Starting max lives
@@ -391,24 +382,9 @@ namespace Patchwork.Gameplay
             return m_TilePointsBonus;
         }
 
-        public void IncreaseDanger()
+        public void DecreaseLives(int amount = 1)
         {
-            m_DangerLevel++;
-            if (m_DangerLevel >= c_MaxDangerLevel)
-            {
-                // Trigger game over
-                SceneManager.LoadScene("GameOver");
-            }
-        }
-
-        public void ResetDanger()
-        {
-            m_DangerLevel = 0;
-        }
-
-        public void DecreaseLives()
-        {
-            m_CurrentLives--;
+            m_CurrentLives -= amount;
             if (m_ResourceUI != null)
             {
                 m_ResourceUI.UpdateLives(m_CurrentLives);
