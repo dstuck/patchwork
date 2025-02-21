@@ -75,7 +75,7 @@ namespace Patchwork.Gameplay
             );
         }
 
-        public virtual void OnTilePlaced()
+        public virtual void OnTilePlaced(Board board, PlacedTile tile)
         {
             // Base implementation does nothing
         }

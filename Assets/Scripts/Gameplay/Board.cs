@@ -766,12 +766,24 @@ namespace Patchwork.Gameplay
             m_Collectibles.Clear();
         }
 
-        public void OnTilePlaced()
+        public void OnTilePlaced(PlacedTile tile)
         {
-            foreach (var collectible in m_Collectibles)
+            // Create a temporary copy of the collectibles list to avoid modification during iteration
+            var collectiblesCopy = m_Collectibles.ToList();
+            foreach (var collectible in collectiblesCopy)
             {
-                collectible.OnTilePlaced();
+                collectible.OnTilePlaced(this, tile);
             }
+        }
+
+        public bool IsCollectibleAtPosition(Vector2Int _position)
+        {
+            return m_Collectibles.Any(c => c.GridPosition == _position);
+        }
+
+        public bool IsPlacedTileAtPosition(Vector2Int _position)
+        {
+            return m_PlacedTiles.Any(tile => tile.OccupiesPosition(_position));
         }
         #endregion
 

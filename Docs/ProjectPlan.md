@@ -50,7 +50,10 @@ Main concepts
 - Board: The board is a grid that players will place tiles on, each square of the grid can have properties that effect scoring. At baseline a hole will score a base number of points if it's covered by a tile and a solid space will penalize points if covered
 
 
-### Core Game Mode
+### Game overview
+The core game is about an executive trading off safety by choosing powerups that increase score scaling at the cost of introducing more dangerous elements like sparks, flames, and others. On each run the player will need to exponentially increase their score as they progress to meet 
+
+### Core Game Structure
 
 During the core game mode, movement will be confined to a grid. The board will have grid coordinates and the player will move their curosr around the board up, down, left, and right along the grid.
 

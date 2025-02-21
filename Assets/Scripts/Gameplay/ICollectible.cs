@@ -8,7 +8,7 @@ namespace Patchwork.Gameplay
         void Initialize(Vector2Int position);
         bool TryCollect();
         void OnLevelEnd();
-        void OnTilePlaced();
+        void OnTilePlaced(Board board, PlacedTile tile);
         void UpdatePosition(Vector2Int newPosition);  // For moving boards
     }
 } 

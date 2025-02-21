@@ -239,13 +239,11 @@ namespace Patchwork.Gameplay
 
             if (m_Board != null)
             {
-                m_Board.OnTilePlaced();
+                m_Board.AddPlacedTile(tile);  // Add the tile first
+                m_Board.OnTilePlaced(tile);   // Then notify collectibles
+                m_Board.CalculateTotalScore(); // Temporarily display score
             }
-
-            
-            m_Board.AddPlacedTile(tile);
-            m_Board.CalculateTotalScore(); // Temporarily display score
-        }
+                    }
 
         private void HandleLastTilePlaced()
         {
