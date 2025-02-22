@@ -140,19 +140,6 @@ namespace Patchwork.Gameplay
             return _holes.First();
         }
 
-// TODO: This method is not called
-        private DrawGem CreateDrawGem(Vector2Int _position, GameObject _parent)
-        {
-            GameObject gemObj = new GameObject("DrawGem");
-            gemObj.transform.SetParent(_parent.transform);
-            
-            DrawGem gem = gemObj.AddComponent<DrawGem>();
-            gem.Initialize(_position);
-            m_Collectibles.Add(gem);
-            
-            return gem;
-        }
-
         private Vector2Int GetNextPosition(Vector2Int currentPos)
         {
             // Define possible directions (up, right, down, left)
@@ -216,10 +203,11 @@ namespace Patchwork.Gameplay
             GameObject collectiblesParent = new GameObject("Collectibles");
             collectiblesParent.transform.SetParent(transform);
 
+            var availableHoles = m_Holes.Keys.ToList();
+
             // Place draw gems at random hole positions
             for (int i = 0; i < m_GemCount; i++)
             {
-                var availableHoles = m_Holes.Keys.ToList();
                 if (availableHoles.Count > 0)
                 {
                     int randomIndex = Random.Range(0, availableHoles.Count);
@@ -244,7 +232,6 @@ namespace Patchwork.Gameplay
             // Place sparks at random hole positions
             for (int i = 0; i < sparkCount; i++)
             {
-                var availableHoles = m_Holes.Keys.ToList();
                 if (availableHoles.Count > 0)
                 {
                     int randomIndex = Random.Range(0, availableHoles.Count);
@@ -264,7 +251,6 @@ namespace Patchwork.Gameplay
             // Place flames at random hole positions
             for (int i = 0; i < flameCount; i++)
             {
-                var availableHoles = m_Holes.Keys.ToList();
                 if (availableHoles.Count > 0)
                 {
                     int randomIndex = Random.Range(0, availableHoles.Count);
