@@ -43,7 +43,11 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 
 
 ## Design
-Main concepts
+Core feeling to capture: "I am so good at my job but it doesn't matter due to the moronic decisions of executives"
+
+You only control your own work and upgrades tied to your deck of patches and limited in scope while large scale upgrade decisions that manage your ability to scale score up and that will add more dangers to the board are chosen by the CEOs that will be determined at the start of each run/company you join.
+
+Main structures
 - Tiles: A tiles shape is composed of connected unit squares and it maybe have modifiers that will be accounted for in scoring and be displayed visually
 - Deck: The deck is a collection of tiles that will persist in a given run
 - Hand: A hand is a selection of tiles from the players deck
@@ -130,7 +134,11 @@ Fog of war:
     - If you have high coverage throughout the game you are a loser 
     - If you use the high-multiplier, low accuracy path you are clueless and get promoted to middle management
     - If you do the minimum amount to get by, you get promoted to upper management as a sociopath
-
+- What if the meta game is about taking down a set of CEOs whose companies you're working for
+    - You'd need some tangential mechanical way to make progress like maybe get enough high combos or intentially tanking at a particular point
+    - This could reduce the possible CEOs for future runs
+    - Maybe if you "beat" a level by making the company profitable your character becomes a CEO for a future run? Or maybe you're just laid off all the same
+    - What if there's a "shadows of mordor" vibe where you make CEOs more powerful or weak based on your performance and instead of making each run a high score attempt, you're intentionally trying to set up things to change power dynamics?
 
 ## Todos (followups from previous versions)
 - [ ] Add bomb tiles

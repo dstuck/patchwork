@@ -21,8 +21,8 @@ namespace Patchwork.Gameplay
         [SerializeField] private Deck m_Deck;
         
         [Header("Timer Settings")]
-        [SerializeField] private float m_BaseTimerDuration = 24f;
-        [SerializeField] private float m_TimerStartDelay = 4f;
+        [SerializeField] private float m_BaseTimerDuration = 30f;
+        [SerializeField] private float m_TimerStartDelay = 6f;
         [SerializeField] private float m_BaseMultiplier = 2f;
         
         [Header("Boss Battle Settings")]
@@ -39,7 +39,7 @@ namespace Patchwork.Gameplay
         private bool m_MovingBossComplete;
         
         [Header("Gem Settings")]
-        [SerializeField] private float m_TimePerGem = 6f;  // Time bonus per gem
+        [SerializeField] private float m_TimePerGem = 8f;  // Time bonus per gem
         private const int c_MaxGemCount = 3;
         private const int c_StagesPerGem = 2;
         
@@ -53,6 +53,12 @@ namespace Patchwork.Gameplay
         [SerializeField] private int m_MaxLives = 3;  // Starting max lives
         private int m_CurrentLives;
         private PlayerResourceUI m_ResourceUI;
+
+        [Header("Collectible Settings")]
+        [SerializeField] private int m_BaseSparkCount = 2;    // Start with 2 sparks
+        [SerializeField] private int m_BaseFlameCount = 0;    // Start with 1 flame
+        [SerializeField] private int m_StagesPerSpark = 2;    // Add 1 spark every 2 stages
+        [SerializeField] private int m_StagesPerFlame = 3;    // Add 1 flame every 3 stages
         #endregion
 
         #region Game State
@@ -80,6 +86,8 @@ namespace Patchwork.Gameplay
         public int BossStageInterval => m_BossStageInterval;
         public bool IsPostBossStage => IsBossStage(m_CurrentStage - 1);
         public int MaxLives => m_MaxLives;
+        public int SparkCount => m_BaseSparkCount + ((m_CurrentStage - 1) / m_StagesPerSpark);
+        public int FlameCount => m_BaseFlameCount + ((m_CurrentStage - 1) / m_StagesPerFlame);
         #endregion
 
         #region Unity Lifecycle

@@ -1910,16 +1910,20 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 528798290}
     - target: {fileID: 3651296259285992534, guid: bce4a06aa34be418a821729dbada66fc, type: 3}
+      propertyPath: m_TimePerGem
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3651296259285992534, guid: bce4a06aa34be418a821729dbada66fc, type: 3}
       propertyPath: m_MaxMultiplier
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3651296259285992534, guid: bce4a06aa34be418a821729dbada66fc, type: 3}
       propertyPath: m_TimerStartDelay
-      value: 4
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 3651296259285992534, guid: bce4a06aa34be418a821729dbada66fc, type: 3}
       propertyPath: m_BaseTimerDuration
-      value: 24
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 3651296259285992534, guid: bce4a06aa34be418a821729dbada66fc, type: 3}
       propertyPath: m_BossStageInterval

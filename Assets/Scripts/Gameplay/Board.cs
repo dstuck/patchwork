@@ -224,10 +224,9 @@ namespace Patchwork.Gameplay
                 }
             }
 
-            // Calculate spark and flame counts based on level
-            int stage = GameManager.Instance.CurrentStage;
-            int sparkCount = 2 + ((stage - 1) / 2);  // Start with 2, add 1 every 2 levels
-            int flameCount = 1 + ((stage - 1) / 3);  // Start with 1, add 1 every 3 levels
+            // Calculate spark and flame counts from GameManager
+            int sparkCount = GameManager.Instance.SparkCount;
+            int flameCount = GameManager.Instance.FlameCount;
 
             // Place sparks at random hole positions
             for (int i = 0; i < sparkCount; i++)
