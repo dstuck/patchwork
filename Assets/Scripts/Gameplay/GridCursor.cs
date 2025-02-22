@@ -236,13 +236,23 @@ namespace Patchwork.Gameplay
             
             PlacedTile tile = placedTile.AddComponent<PlacedTile>();
             tile.Initialize(m_TileHand.CurrentTile, m_CurrentGridPosition, m_CurrentRotation);
-            
-            m_Board.AddPlacedTile(tile);
-            m_Board.CalculateTotalScore(); // Temporarily display score
-        }
+
+            if (m_Board != null)
+            {
+                m_Board.AddPlacedTile(tile);  // Add the tile first
+                m_Board.OnTilePlaced(tile);   // Then notify collectibles
+                m_Board.CalculateTotalScore(); // Temporarily display score
+            }
+                    }
 
         private void HandleLastTilePlaced()
         {
+            // First check collectibles for end-of-level effects
+            if (m_Board != null)
+            {
+                m_Board.OnLevelComplete();
+            }
+
             int finalScore = m_Board.CalculateTotalScore();
             
             // Transition to next stage via GameManager

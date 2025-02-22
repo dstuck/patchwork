@@ -77,19 +77,7 @@ namespace Patchwork.Gameplay
                 for (int i = 0; i < selectedTiles.Count; i++)
                 {
                     TileData tileCopy = Instantiate(selectedTiles[i]);
-                    
-                    #if UNITY_EDITOR
-                    // Apply upgrades to first 4 tiles only in editor
-                    if (i < 2)
-                    {
-                        tileCopy.AddUpgrade(new PristineBonus());
-                    }
-                    else if (i < 4)
-                    {
-                        tileCopy.AddUpgrade(new LenientBonus());
-                    }
-                    #endif
-                    
+                                        
                     m_DeckTiles.Add(tileCopy);
                 }
             }

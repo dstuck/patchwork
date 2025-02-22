@@ -7,6 +7,10 @@ namespace Patchwork.Gameplay
 {
     public class GameManager : MonoBehaviour
     {
+        #region Constants
+        private const int c_MaxLives = 3;
+        #endregion
+
         #region Private Fields
         [Header("Scene Names")]
         [SerializeField] private string m_MainMenuSceneName = "MainMenu";
@@ -17,12 +21,12 @@ namespace Patchwork.Gameplay
         [SerializeField] private Deck m_Deck;
         
         [Header("Timer Settings")]
-        [SerializeField] private float m_BaseTimerDuration = 24f;
-        [SerializeField] private float m_TimerStartDelay = 4f;
+        [SerializeField] private float m_BaseTimerDuration = 30f;
+        [SerializeField] private float m_TimerStartDelay = 6f;
         [SerializeField] private float m_BaseMultiplier = 2f;
         
         [Header("Boss Battle Settings")]
-        [SerializeField] private int m_BossStageInterval = 3; // Every X stages is a boss
+        [SerializeField] private int m_BossStageInterval = 4; // Every X stages is a boss
 
         [Header("Moving Boss Settings")]
         [SerializeField] private int m_MovingBossBoardWidth = 5; // Number of standard board widths
@@ -35,7 +39,7 @@ namespace Patchwork.Gameplay
         private bool m_MovingBossComplete;
         
         [Header("Gem Settings")]
-        [SerializeField] private float m_TimePerGem = 6f;  // Time bonus per gem
+        [SerializeField] private float m_TimePerGem = 8f;  // Time bonus per gem
         private const int c_MaxGemCount = 3;
         private const int c_StagesPerGem = 2;
         
@@ -43,13 +47,18 @@ namespace Patchwork.Gameplay
         private bool m_IsInitialized;
         
         private Timer m_Timer;
-        
-        private bool m_IsBossStage;
-        private int m_CurrentColumn;
-        private float m_NextColumnMoveTime;
-        private int m_TotalColumns; // Total number of columns in the full board
-        private bool m_BossStageComplete;
         private int m_TilePointsBonus = 0;
+
+        [Header("Life Settings")]
+        [SerializeField] private int m_MaxLives = 3;  // Starting max lives
+        private int m_CurrentLives;
+        private PlayerResourceUI m_ResourceUI;
+
+        [Header("Collectible Settings")]
+        [SerializeField] private int m_BaseSparkCount = 2;    // Start with 2 sparks
+        [SerializeField] private int m_BaseFlameCount = 0;    // Start with 1 flame
+        [SerializeField] private int m_StagesPerSpark = 2;    // Add 1 spark every 2 stages
+        [SerializeField] private int m_StagesPerFlame = 3;    // Add 1 flame every 3 stages
         #endregion
 
         #region Game State
@@ -76,6 +85,9 @@ namespace Patchwork.Gameplay
         public float BaseMultiplier => m_BaseMultiplier;
         public int BossStageInterval => m_BossStageInterval;
         public bool IsPostBossStage => IsBossStage(m_CurrentStage - 1);
+        public int MaxLives => m_MaxLives;
+        public int SparkCount => m_BaseSparkCount + ((m_CurrentStage - 1) / m_StagesPerSpark);
+        public int FlameCount => m_BaseFlameCount + ((m_CurrentStage - 1) / m_StagesPerFlame);
         #endregion
 
         #region Unity Lifecycle
@@ -99,6 +111,17 @@ namespace Patchwork.Gameplay
         private void OnDisable()
         {
             SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+
+        private void Start()
+        {
+            m_CurrentLives = m_MaxLives;
+            m_ResourceUI = FindFirstObjectByType<PlayerResourceUI>();
+            if (m_ResourceUI != null)
+            {
+                m_ResourceUI.Initialize(m_MaxLives);
+                m_ResourceUI.UpdateLives(m_CurrentLives);
+            }
         }
         #endregion
 
@@ -200,6 +223,14 @@ namespace Patchwork.Gameplay
         {
             if (_scene.name == m_GameplaySceneName)
             {
+                // Initialize UI
+                m_ResourceUI = FindFirstObjectByType<PlayerResourceUI>();
+                if (m_ResourceUI != null)
+                {
+                    m_ResourceUI.Initialize(m_MaxLives);
+                    m_ResourceUI.UpdateLives(m_CurrentLives);
+                }
+
                 if (IsBossStage(m_CurrentStage))
                 {
                     SetupMovingBossStage();
@@ -357,6 +388,40 @@ namespace Patchwork.Gameplay
         public int GetTilePointsBonus()
         {
             return m_TilePointsBonus;
+        }
+
+        public void DecreaseLives(int amount = 1)
+        {
+            m_CurrentLives -= amount;
+            if (m_ResourceUI != null)
+            {
+                m_ResourceUI.UpdateLives(m_CurrentLives);
+            }
+            
+            if (m_CurrentLives <= 0)
+            {
+                SceneManager.LoadScene("GameOver");
+            }
+        }
+
+        public void ResetLives()
+        {
+            m_CurrentLives = m_MaxLives;
+            if (m_ResourceUI != null)
+            {
+                m_ResourceUI.UpdateLives(m_CurrentLives);
+            }
+        }
+
+        public void IncreaseMaxLives()
+        {
+            m_MaxLives++;
+            m_CurrentLives++;
+            if (m_ResourceUI != null)
+            {
+                m_ResourceUI.Initialize(m_MaxLives);  // Reinitialize UI with new max
+                m_ResourceUI.UpdateLives(m_CurrentLives);
+            }
         }
         #endregion
 
