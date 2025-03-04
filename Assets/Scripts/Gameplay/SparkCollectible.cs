@@ -5,6 +5,9 @@ namespace Patchwork.Gameplay
 {
     public class SparkCollectible : BaseCollectible
     {
+        public override string DisplayName => "Spark";
+        public override string Description => "Dangerous if not cleaned up";
+
         protected override Sprite GetSprite() => GameResources.Instance.SparkSprite;
         protected override float GetScale() => GameResources.Instance.SparkScale;
 

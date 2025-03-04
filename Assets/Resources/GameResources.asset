@@ -16,5 +16,11 @@ MonoBehaviour:
   m_DrawGemSprite: {fileID: 8710723752907654049, guid: 0293068149bcb4cb6ba5c3e656266908, type: 3}
   m_DrawGemScale: 4
   m_SparkSprite: {fileID: -3149389169688070996, guid: a0e2f92c0cadf446eb773385629ba9fe, type: 3}
+  m_SparkScale: 0.1
   m_FlameSprite: {fileID: 4987901684691990599, guid: 0931113dcf4b84ceea5528537a008d84, type: 3}
+  m_FlameScale: 0.1
+  m_ScoreBonusSprite: {fileID: 8230488904728474184, guid: 6e5cbdee1b4ca46049603389fc573e31, type: 3}
+  m_ScoreBonusScale: 0.1
+  m_MultiplierBonusSprite: {fileID: 6745624003978375915, guid: cfe7bb675fb254f4697140e751f5190b, type: 3}
+  m_MultiplierBonusScale: 0.1
   m_UpgradeTooltipPrefab: {fileID: 0}

@@ -14,6 +14,8 @@ namespace Patchwork.Gameplay
 
         #region Public Properties
         public Vector2Int GridPosition => m_GridPosition;
+        public abstract string DisplayName { get; }
+        public abstract string Description { get; }
         #endregion
 
         #region Protected Abstract Methods
@@ -79,6 +81,8 @@ namespace Patchwork.Gameplay
         {
             // Base implementation does nothing
         }
+
+        public Sprite GetDisplaySprite() => GetSprite();
         #endregion
     }
 } 

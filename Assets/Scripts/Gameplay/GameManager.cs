@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using Patchwork.UI;
+using System.Collections.Generic;
 
 namespace Patchwork.Gameplay
 {
@@ -59,6 +60,8 @@ namespace Patchwork.Gameplay
         [SerializeField] private int m_BaseFlameCount = 0;    // Start with 1 flame
         [SerializeField] private int m_StagesPerSpark = 2;    // Add 1 spark every 2 stages
         [SerializeField] private int m_StagesPerFlame = 3;    // Add 1 flame every 3 stages
+
+        private List<ICollectible> m_CollectiblePrototypes = new List<ICollectible>();
         #endregion
 
         #region Game State
@@ -375,14 +378,14 @@ namespace Patchwork.Gameplay
             SceneManager.LoadScene(m_MainMenuSceneName);
         }
 
-        public void IncreaseMultiplier()
+        public void IncreaseMultiplier(float amount)
         {
-            m_BaseMultiplier += 0.5f;
+            m_BaseMultiplier += amount;
         }
 
-        public void IncreaseTilePoints()
+        public void IncreaseTilePoints(int amount)
         {
-            m_TilePointsBonus += 2;
+            m_TilePointsBonus += amount;
         }
 
         public int GetTilePointsBonus()
@@ -422,6 +425,32 @@ namespace Patchwork.Gameplay
                 m_ResourceUI.Initialize(m_MaxLives);  // Reinitialize UI with new max
                 m_ResourceUI.UpdateLives(m_CurrentLives);
             }
+        }
+
+        public List<ICollectible> GetCollectiblesForStage()
+        {
+            List<ICollectible> collectibles = new List<ICollectible>();
+            
+            // Add regular collectibles based on stage
+            for (int i = 0; i < SparkCount; i++)
+            {
+                collectibles.Add(new SparkCollectible());
+            }
+            
+            for (int i = 0; i < FlameCount; i++)
+            {
+                collectibles.Add(new FlameCollectible());
+            }
+
+            // Add any boss reward collectibles if they exist
+            collectibles.AddRange(m_CollectiblePrototypes);
+            
+            return collectibles;
+        }
+
+        public void AddCollectiblePrototype(ICollectible collectible)
+        {
+            m_CollectiblePrototypes.Add(collectible);
         }
         #endregion
 

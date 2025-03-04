@@ -1927,7 +1927,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3651296259285992534, guid: bce4a06aa34be418a821729dbada66fc, type: 3}
       propertyPath: m_BossStageInterval
-      value: 4
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3651296259285992534, guid: bce4a06aa34be418a821729dbada66fc, type: 3}
       propertyPath: m_BossStageAnnouncementPrefab

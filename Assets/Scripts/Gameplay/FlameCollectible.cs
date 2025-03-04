@@ -5,6 +5,9 @@ namespace Patchwork.Gameplay
 {
     public class FlameCollectible : BaseCollectible
     {
+        public override string DisplayName => "Flame";
+        public override string Description => "Spreads if ignored; dangerous";
+
         protected override Sprite GetSprite() => GameResources.Instance.FlameSprite;
         protected override float GetScale() => GameResources.Instance.FlameScale;
         private const int c_SpreadDistance = 1;

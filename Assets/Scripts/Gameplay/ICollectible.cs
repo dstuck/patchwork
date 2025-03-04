@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Patchwork.Gameplay
 {
-    public interface ICollectible
+    public interface ICollectible : ITooltipContent
     {
         Vector2Int GridPosition { get; }
         void Initialize(Vector2Int position);
@@ -10,5 +10,6 @@ namespace Patchwork.Gameplay
         void OnLevelEnd();
         void OnTilePlaced(Board board, PlacedTile tile);
         void UpdatePosition(Vector2Int newPosition);  // For moving boards
+        Sprite GetDisplaySprite();
     }
 } 

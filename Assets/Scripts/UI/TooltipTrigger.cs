@@ -6,19 +6,19 @@ namespace Patchwork.UI
 {
     public class TooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
-        private ITileUpgrade m_Upgrade;
+        private ITooltipContent m_Content;
 
-        public void Initialize(ITileUpgrade upgrade)
+        public void Initialize(ITooltipContent content)
         {
-            m_Upgrade = upgrade;
+            m_Content = content;
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (m_Upgrade != null && TooltipSystem.Instance != null)
+            if (m_Content != null && TooltipSystem.Instance != null)
             {
                 Vector2 screenPos = eventData.position;
-                TooltipSystem.Instance.Show(m_Upgrade.DisplayName, m_Upgrade.Description, screenPos);
+                TooltipSystem.Instance.Show(m_Content.DisplayName, m_Content.Description, screenPos);
             }
         }
 
