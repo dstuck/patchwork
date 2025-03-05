@@ -13,21 +13,11 @@ namespace Patchwork.Gameplay
         protected override Sprite GetSprite() => GameResources.Instance.ScoreBonusSprite;
         protected override float GetScale() => GameResources.Instance.ScoreBonusScale;
 
-        public override void OnLevelEnd()
-        {
-            if (!m_IsCollected)
-            {
-                // No penalty for missing score bonus
-                return;
-            }
-        }
-
         public override bool TryCollect()
         {
             if (base.TryCollect())
             {
-                // Increase the tile points bonus in GameManager
-                GameManager.Instance.IncreaseTilePoints(BONUS_AMOUNT);
+                GameManager.Instance.IncreaseScoreBonus(BONUS_AMOUNT);
                 return true;
             }
             return false;

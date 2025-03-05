@@ -205,62 +205,22 @@ namespace Patchwork.Gameplay
 
             var availableHoles = m_Holes.Keys.ToList();
 
-            // Place draw gems at random hole positions
-            for (int i = 0; i < m_GemCount; i++)
+            // Get collectibles from the deck via GameManager
+            var collectibles = GameManager.Instance.GetCollectiblesForStage();
+            foreach (var collectible in collectibles)
             {
+                // Find an empty hole position
                 if (availableHoles.Count > 0)
                 {
                     int randomIndex = Random.Range(0, availableHoles.Count);
-                    Vector2Int gemPos = availableHoles[randomIndex];
+                    Vector2Int pos = availableHoles[randomIndex];
                     
-                    GameObject gemObj = new GameObject("DrawGem");
-                    gemObj.transform.SetParent(collectiblesParent.transform);
+                    GameObject collectibleObj = new GameObject(collectible.DisplayName);
+                    collectibleObj.transform.SetParent(collectiblesParent.transform);
                     
-                    DrawGem gem = gemObj.AddComponent<DrawGem>();
-                    gem.Initialize(gemPos);
-                    m_Collectibles.Add(gem);
-                    
-                    availableHoles.RemoveAt(randomIndex);
-                }
-            }
-
-            // Calculate spark and flame counts from GameManager
-            int sparkCount = GameManager.Instance.SparkCount;
-            int flameCount = GameManager.Instance.FlameCount;
-
-            // Place sparks at random hole positions
-            for (int i = 0; i < sparkCount; i++)
-            {
-                if (availableHoles.Count > 0)
-                {
-                    int randomIndex = Random.Range(0, availableHoles.Count);
-                    Vector2Int sparkPos = availableHoles[randomIndex];
-                    
-                    GameObject sparkObj = new GameObject("SparkCollectible");
-                    sparkObj.transform.SetParent(collectiblesParent.transform);
-                    
-                    SparkCollectible spark = sparkObj.AddComponent<SparkCollectible>();
-                    spark.Initialize(sparkPos);
-                    m_Collectibles.Add(spark);
-                    
-                    availableHoles.RemoveAt(randomIndex);
-                }
-            }
-
-            // Place flames at random hole positions
-            for (int i = 0; i < flameCount; i++)
-            {
-                if (availableHoles.Count > 0)
-                {
-                    int randomIndex = Random.Range(0, availableHoles.Count);
-                    Vector2Int flamePos = availableHoles[randomIndex];
-                    
-                    GameObject flameObj = new GameObject("FlameCollectible");
-                    flameObj.transform.SetParent(collectiblesParent.transform);
-                    
-                    FlameCollectible flame = flameObj.AddComponent<FlameCollectible>();
-                    flame.Initialize(flamePos);
-                    m_Collectibles.Add(flame);
+                    var newCollectible = collectibleObj.AddComponent(((MonoBehaviour)collectible).GetType()) as ICollectible;
+                    newCollectible.Initialize(pos);
+                    m_Collectibles.Add(newCollectible);
                     
                     availableHoles.RemoveAt(randomIndex);
                 }
@@ -698,16 +658,6 @@ namespace Patchwork.Gameplay
         public int GetPlacedTileCount()
         {
             return m_PlacedTiles.Count;
-        }
-
-        public void AddSparkCollectible(Vector2Int position)
-        {
-            GameObject collectibleObj = new GameObject("Spark");
-            collectibleObj.transform.SetParent(transform);
-            
-            SparkCollectible spark = collectibleObj.AddComponent<SparkCollectible>();
-            spark.Initialize(position);
-            m_Collectibles.Add(spark);
         }
 
         public void AddFlameCollectible(Vector2Int position)

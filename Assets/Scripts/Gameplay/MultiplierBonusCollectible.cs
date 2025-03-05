@@ -13,15 +13,6 @@ namespace Patchwork.Gameplay
         protected override Sprite GetSprite() => GameResources.Instance.MultiplierBonusSprite;
         protected override float GetScale() => GameResources.Instance.MultiplierBonusScale;
 
-        public override void OnLevelEnd()
-        {
-            if (!m_IsCollected)
-            {
-                // No penalty for missing multiplier bonus
-                return;
-            }
-        }
-
         public override bool TryCollect()
         {
             if (base.TryCollect())

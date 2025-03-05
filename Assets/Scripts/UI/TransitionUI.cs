@@ -270,7 +270,15 @@ namespace Patchwork.UI
             {
                 if (m_SelectedRewardIndex >= 0 && m_SelectedRewardIndex < m_CollectibleRewardOptions.Count)
                 {
-                    GameManager.Instance.AddCollectiblePrototype(m_CollectibleRewardOptions[m_SelectedRewardIndex]);
+                    var deck = GameManager.Instance?.CollectiblesDeck;
+                    if (deck != null)
+                    {
+                        deck.AddCollectibleToDeck(m_CollectibleRewardOptions[m_SelectedRewardIndex]);
+                    }
+                    else
+                    {
+                        Debug.LogError("CollectiblesDeck not found!");
+                    }
                 }
             }
             else

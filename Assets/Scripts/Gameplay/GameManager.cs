@@ -20,6 +20,7 @@ namespace Patchwork.Gameplay
         
         [Header("References")]
         [SerializeField] private Deck m_Deck;
+        [SerializeField] private CollectiblesDeck m_CollectiblesDeck;
         
         [Header("Timer Settings")]
         [SerializeField] private float m_BaseTimerDuration = 30f;
@@ -48,7 +49,6 @@ namespace Patchwork.Gameplay
         private bool m_IsInitialized;
         
         private Timer m_Timer;
-        private int m_TilePointsBonus = 0;
 
         [Header("Life Settings")]
         [SerializeField] private int m_MaxLives = 3;  // Starting max lives
@@ -61,7 +61,7 @@ namespace Patchwork.Gameplay
         [SerializeField] private int m_StagesPerSpark = 2;    // Add 1 spark every 2 stages
         [SerializeField] private int m_StagesPerFlame = 3;    // Add 1 flame every 3 stages
 
-        private List<ICollectible> m_CollectiblePrototypes = new List<ICollectible>();
+        private int m_StageScoreBonus = 0;
         #endregion
 
         #region Game State
@@ -91,6 +91,7 @@ namespace Patchwork.Gameplay
         public int MaxLives => m_MaxLives;
         public int SparkCount => m_BaseSparkCount + ((m_CurrentStage - 1) / m_StagesPerSpark);
         public int FlameCount => m_BaseFlameCount + ((m_CurrentStage - 1) / m_StagesPerFlame);
+        public CollectiblesDeck CollectiblesDeck => m_CollectiblesDeck;
         #endregion
 
         #region Unity Lifecycle
@@ -101,8 +102,21 @@ namespace Patchwork.Gameplay
                 Destroy(gameObject);
                 return;
             }
+            
             s_Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            // Try to find CollectiblesDeck if not assigned
+            if (m_CollectiblesDeck == null)
+            {
+                m_CollectiblesDeck = FindFirstObjectByType<CollectiblesDeck>();
+                if (m_CollectiblesDeck == null)
+                {
+                    Debug.LogError("[GameManager] CollectiblesDeck not found in scene!");
+                    return;
+                }
+            }
+
             Initialize();
         }
 
@@ -144,6 +158,18 @@ namespace Patchwork.Gameplay
                 m_Deck.Initialize();
             }
 
+            if (m_CollectiblesDeck == null)
+            {
+                Debug.LogError("[GameManager] CollectiblesDeck reference is missing!");
+                return;
+            }
+
+            if (!m_CollectiblesDeck.IsInitialized)
+            {
+                m_CollectiblesDeck.Initialize();
+            }
+
+            InitializeCollectibles();
             m_CurrentStage = 1;
             m_CumulativeScore = 0;
             m_IsInitialized = true;
@@ -226,6 +252,9 @@ namespace Patchwork.Gameplay
         {
             if (_scene.name == m_GameplaySceneName)
             {
+                // Reset stage-specific bonuses
+                m_StageScoreBonus = 0;
+                
                 // Initialize UI
                 m_ResourceUI = FindFirstObjectByType<PlayerResourceUI>();
                 if (m_ResourceUI != null)
@@ -295,6 +324,43 @@ namespace Patchwork.Gameplay
                 }
             }
         }
+
+        private void InitializeCollectibles()
+        {
+            // Add base collectibles
+            for (int i = 0; i < m_BaseSparkCount; i++)
+            {
+                var sparkObj = new GameObject("SparkPrototype");
+                var spark = sparkObj.AddComponent<SparkCollectible>();
+                CollectiblesDeck.Instance.AddCollectibleToDeck(spark);
+            }
+
+            for (int i = 0; i < m_BaseFlameCount; i++)
+            {
+                var flameObj = new GameObject("FlamePrototype");
+                var flame = flameObj.AddComponent<FlameCollectible>();
+                CollectiblesDeck.Instance.AddCollectibleToDeck(flame);
+            }
+        }
+
+        private void UpdateCollectiblesForStage()
+        {
+            // Add new spark if it's time
+            if (m_CurrentStage > 0 && m_CurrentStage % m_StagesPerSpark == 0)
+            {
+                var sparkObj = new GameObject("SparkPrototype");
+                var spark = sparkObj.AddComponent<SparkCollectible>();
+                CollectiblesDeck.Instance.AddCollectibleToDeck(spark);
+            }
+
+            // Add new flame if it's time
+            if (m_CurrentStage > 0 && m_CurrentStage % m_StagesPerFlame == 0)
+            {
+                var flameObj = new GameObject("FlamePrototype");
+                var flame = flameObj.AddComponent<FlameCollectible>();
+                CollectiblesDeck.Instance.AddCollectibleToDeck(flame);
+            }
+        }
         #endregion
 
         #region Public Methods
@@ -340,7 +406,9 @@ namespace Patchwork.Gameplay
                 m_Timer.StopTimer();
             }
             
-            int stageScore = Mathf.RoundToInt(_baseScore * multiplier);
+            // Add bonus to base score before multiplier
+            int scoreWithBonus = _baseScore + m_StageScoreBonus;
+            int stageScore = Mathf.RoundToInt(scoreWithBonus * multiplier);
             m_CumulativeScore += stageScore;
             
             var scoringPopup = FindFirstObjectByType<ScoringPopupUI>();
@@ -351,8 +419,11 @@ namespace Patchwork.Gameplay
                     SceneManager.LoadScene(m_TransitionSceneName);
                 });
                 
-                scoringPopup.ShowScoring(_baseScore, multiplier, stageScore, m_CumulativeScore);
+                scoringPopup.ShowScoring(scoreWithBonus, multiplier, stageScore, m_CumulativeScore);
             }
+            
+            // Reset the bonus for next stage
+            m_StageScoreBonus = 0;
         }
 
         private int GetTotalTilesPlaced()
@@ -380,17 +451,15 @@ namespace Patchwork.Gameplay
 
         public void IncreaseMultiplier(float amount)
         {
-            m_BaseMultiplier += amount;
+            if (m_Timer != null)
+            {
+                m_Timer.IncreaseCurrentMultiplier(amount);
+            }
         }
 
-        public void IncreaseTilePoints(int amount)
+        public void IncreaseScoreBonus(int amount)
         {
-            m_TilePointsBonus += amount;
-        }
-
-        public int GetTilePointsBonus()
-        {
-            return m_TilePointsBonus;
+            m_StageScoreBonus += amount;
         }
 
         public void DecreaseLives(int amount = 1)
@@ -429,28 +498,9 @@ namespace Patchwork.Gameplay
 
         public List<ICollectible> GetCollectiblesForStage()
         {
-            List<ICollectible> collectibles = new List<ICollectible>();
-            
-            // Add regular collectibles based on stage
-            for (int i = 0; i < SparkCount; i++)
-            {
-                collectibles.Add(new SparkCollectible());
-            }
-            
-            for (int i = 0; i < FlameCount; i++)
-            {
-                collectibles.Add(new FlameCollectible());
-            }
-
-            // Add any boss reward collectibles if they exist
-            collectibles.AddRange(m_CollectiblePrototypes);
-            
-            return collectibles;
-        }
-
-        public void AddCollectiblePrototype(ICollectible collectible)
-        {
-            m_CollectiblePrototypes.Add(collectible);
+            // Reset the deck for the new stage
+            m_CollectiblesDeck.ResetForNewStage();
+            return m_CollectiblesDeck.GetCollectibles();
         }
         #endregion
 
