@@ -44,7 +44,10 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 ### 0.8: Collectible Modifiers
 - [ ] Add additional dangers that can be used for upgrades
 - [ ] Refactor time and multiplier bonuses to be collectibles
-- [ ] Add company scrip collectible
+- [ ] Add company scrip collectible?
+
+### 0.8.1: Collectible Upgrades
+- [ ] Add 
 
 ### 0.9: CEOs
 - [ ] Add boss stage upgrades that come with costs
@@ -62,6 +65,8 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 Core feeling to capture: "I am so good at my job but it doesn't matter due to the moronic decisions of executives"
 
 You only control your own work and upgrades tied to your deck of patches and limited in scope while large scale upgrade decisions that manage your ability to scale score up and that will add more dangers to the board are chosen by the CEOs that will be determined at the start of each run/company you join.
+
+The CEO will add the collectibles present on your board, but what you can control is how you place them and then how you combine collectibles in a crafting-like step between stages. The recipes for how they combine will be revealed as you make them and will be persistent between runs providing a sense of growth at the outer loop
 
 Main structures
 - Tiles: A tiles shape is composed of connected unit squares and it maybe have modifiers that will be accounted for in scoring and be displayed visually

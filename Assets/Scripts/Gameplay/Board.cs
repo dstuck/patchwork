@@ -471,32 +471,6 @@ namespace Patchwork.Gameplay
             return totalScore;
         }
 
-        public bool TryCollectDrawGem(Vector2Int _position)
-        {
-            if (m_IsMovingBossBoard)
-            {
-                // For moving boss board, position is already in world coordinates
-                Vector2Int worldPos = _position;
-                DrawGem gem = m_Collectibles.OfType<DrawGem>().FirstOrDefault(g => g.GridPosition == worldPos);
-                if (gem != null && gem.TryCollect())
-                {
-                    TriggerGemCollection();
-                    return true;
-                }
-            }
-            else
-            {
-                // For regular board, check the regular draw gems list
-                DrawGem gem = m_Collectibles.OfType<DrawGem>().FirstOrDefault(g => g.GridPosition == _position);
-                if (gem != null && gem.TryCollect())
-                {
-                    TriggerGemCollection();
-                    return true;
-                }
-            }
-            return false;
-        }
-
         #if UNITY_INCLUDE_TESTS
         public PlacedTile GetTileAt(Vector2Int position)
         {
@@ -635,7 +609,7 @@ namespace Patchwork.Gameplay
                 GameObject gemObj = new GameObject("DrawGem");
                 gemObj.transform.SetParent(collectiblesParent.transform);
                 
-                DrawGem gem = gemObj.AddComponent<DrawGem>();
+                DrawGemCollectible gem = gemObj.AddComponent<DrawGemCollectible>();
                 gem.Initialize(gemPos);
                 m_Collectibles.Add(gem);
                 

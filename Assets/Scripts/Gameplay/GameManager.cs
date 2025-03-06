@@ -147,13 +147,11 @@ namespace Patchwork.Gameplay
         {
             if (m_IsInitialized) return;
             
-            if (m_Deck == null)
-            {
-                Debug.LogError("[GameManager] Deck reference is missing!");
-                return;
-            }
-
-            if (!m_Deck.IsInitialized)
+            m_CurrentStage = 1;
+            m_CumulativeScore = 0;
+            m_CurrentLives = m_MaxLives;
+            
+            if (m_Deck != null)
             {
                 m_Deck.Initialize();
             }
@@ -164,14 +162,15 @@ namespace Patchwork.Gameplay
                 return;
             }
 
+            m_CurrentStage = 1;
+            m_CumulativeScore = 0;
+            InitializeCollectibles();
+
             if (!m_CollectiblesDeck.IsInitialized)
             {
                 m_CollectiblesDeck.Initialize();
             }
 
-            InitializeCollectibles();
-            m_CurrentStage = 1;
-            m_CumulativeScore = 0;
             m_IsInitialized = true;
         }
 
@@ -255,6 +254,14 @@ namespace Patchwork.Gameplay
                 // Reset stage-specific bonuses
                 m_StageScoreBonus = 0;
                 
+                // Add stage progress collectibles before resetting deck
+                AddStageProgressCollectibles();
+                
+                if (m_CollectiblesDeck != null)
+                {
+                    m_CollectiblesDeck.ResetForNewStage();
+                }
+                
                 // Initialize UI
                 m_ResourceUI = FindFirstObjectByType<PlayerResourceUI>();
                 if (m_ResourceUI != null)
@@ -327,38 +334,57 @@ namespace Patchwork.Gameplay
 
         private void InitializeCollectibles()
         {
-            // Add base collectibles
+            // Add base number of sparks
             for (int i = 0; i < m_BaseSparkCount; i++)
             {
                 var sparkObj = new GameObject("SparkPrototype");
+                sparkObj.SetActive(false);  // Hide the prototype
                 var spark = sparkObj.AddComponent<SparkCollectible>();
-                CollectiblesDeck.Instance.AddCollectibleToDeck(spark);
+                m_CollectiblesDeck.AddCollectibleToDeck(spark);
+                Destroy(sparkObj);  // Destroy after adding to deck
             }
 
+            // Add base number of flames
             for (int i = 0; i < m_BaseFlameCount; i++)
             {
                 var flameObj = new GameObject("FlamePrototype");
+                flameObj.SetActive(false);  // Hide the prototype
                 var flame = flameObj.AddComponent<FlameCollectible>();
-                CollectiblesDeck.Instance.AddCollectibleToDeck(flame);
+                m_CollectiblesDeck.AddCollectibleToDeck(flame);
+                Destroy(flameObj);  // Destroy after adding to deck
             }
         }
 
-        private void UpdateCollectiblesForStage()
+        private void AddStageProgressCollectibles()
         {
             // Add new spark if it's time
             if (m_CurrentStage > 0 && m_CurrentStage % m_StagesPerSpark == 0)
             {
                 var sparkObj = new GameObject("SparkPrototype");
+                sparkObj.SetActive(false);  // Hide the prototype
                 var spark = sparkObj.AddComponent<SparkCollectible>();
-                CollectiblesDeck.Instance.AddCollectibleToDeck(spark);
+                m_CollectiblesDeck.AddCollectibleToDeck(spark);
+                Destroy(sparkObj);  // Destroy after adding to deck
             }
 
             // Add new flame if it's time
             if (m_CurrentStage > 0 && m_CurrentStage % m_StagesPerFlame == 0)
             {
                 var flameObj = new GameObject("FlamePrototype");
+                flameObj.SetActive(false);  // Hide the prototype
                 var flame = flameObj.AddComponent<FlameCollectible>();
-                CollectiblesDeck.Instance.AddCollectibleToDeck(flame);
+                m_CollectiblesDeck.AddCollectibleToDeck(flame);
+                Destroy(flameObj);  // Destroy after adding to deck
+            }
+
+            // Add new draw gem if it's time
+            if (m_CurrentStage > 0 && m_CurrentStage % c_StagesPerGem == 0 && (m_CurrentStage / c_StagesPerGem) <= c_MaxGemCount)
+            {
+                var gemObj = new GameObject("DrawGemPrototype");
+                gemObj.SetActive(false);  // Hide the prototype
+                var gem = gemObj.AddComponent<DrawGemCollectible>();
+                m_CollectiblesDeck.AddCollectibleToDeck(gem);
+                Destroy(gemObj);  // Destroy after adding to deck
             }
         }
         #endregion

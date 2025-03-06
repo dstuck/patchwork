@@ -3,7 +3,7 @@ using Patchwork.Data;
 
 namespace Patchwork.Gameplay
 {
-    public class DrawGem : BaseCollectible
+    public class DrawGemCollectible : BaseCollectible
     {
         public override string DisplayName => "Draw Gem";
         public override string Description => "Draw an additional tile";
