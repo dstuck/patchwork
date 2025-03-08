@@ -43,13 +43,17 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 
 ### 0.8: Collectible Modifiers
 - [ ] Add additional dangers that can be used for upgrades
-- [ ] Refactor time and multiplier bonuses to be collectibles
-- [ ] Add company scrip collectible?
+- [x] Refactor time and multiplier bonuses to be collectibles
+- [ ] Restructure upgrades to be randomized on each new stage
 
-### 0.8.1: Collectible Upgrades
-- [ ] Add 
+### 0.9: Collectible Upgrades
+- [ ] Create upgraded versions for collectibles (modify sprite with + and ++)
+- [ ] Create recipes for combining collectibles into higher level
+- [ ] Create upgrade screen providing upgrade options
 
-### 0.9: CEOs
+### 0.10:
+
+<!-- ### 0.9: CEOs
 - [ ] Add boss stage upgrades that come with costs
 - [ ] Generate these bonuses randomly
 - [ ] Create CEOs that choose bonuses for you based on preferences
@@ -58,7 +62,7 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 ### 0.10: Badges (rename when we understand how it fits in story better)
 - [ ] Implement a badge system that can be equipped on new runs
 - [ ] CEOs define badge limits
-- [ ] Create 10 initial badges (start with upgraded tiles, allow dropping tiles, extra time...)
+- [ ] Create 10 initial badges (start with upgraded tiles, allow dropping tiles, extra time...) -->
 
 
 ## Design

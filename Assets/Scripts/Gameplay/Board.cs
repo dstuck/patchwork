@@ -694,6 +694,11 @@ namespace Patchwork.Gameplay
         {
             return m_PlacedTiles.Any(tile => tile.OccupiesPosition(_position));
         }
+
+        public int GetGemCount()
+        {
+            return m_GemCount;
+        }
         #endregion
 
         #region Public Properties

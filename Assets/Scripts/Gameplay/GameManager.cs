@@ -385,6 +385,13 @@ namespace Patchwork.Gameplay
                 var gem = gemObj.AddComponent<DrawGemCollectible>();
                 m_CollectiblesDeck.AddCollectibleToDeck(gem);
                 Destroy(gemObj);  // Destroy after adding to deck
+
+                // Update the board's gem count by adding one
+                Board board = FindFirstObjectByType<Board>();
+                if (board != null)
+                {
+                    board.SetGemCount(board.GetGemCount() + 1);
+                }
             }
         }
         #endregion
