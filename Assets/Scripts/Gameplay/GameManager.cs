@@ -334,12 +334,12 @@ namespace Patchwork.Gameplay
 
         private void InitializeCollectibles()
         {
-            // Add base number of sparks
+            // Add base number of ghost sparks (instead of regular sparks)
             for (int i = 0; i < m_BaseSparkCount; i++)
             {
-                var sparkObj = new GameObject("SparkPrototype");
+                var sparkObj = new GameObject("JumpingSparkPrototype");
                 sparkObj.SetActive(false);  // Hide the prototype
-                var spark = sparkObj.AddComponent<SparkCollectible>();
+                var spark = sparkObj.AddComponent<JumpingSparkCollectible>();
                 m_CollectiblesDeck.AddCollectibleToDeck(spark);
                 Destroy(sparkObj);  // Destroy after adding to deck
             }
@@ -357,12 +357,12 @@ namespace Patchwork.Gameplay
 
         private void AddStageProgressCollectibles()
         {
-            // Add new spark if it's time
+            // Add new ghost spark if it's time (instead of regular spark)
             if (m_CurrentStage > 0 && m_CurrentStage % m_StagesPerSpark == 0)
             {
-                var sparkObj = new GameObject("SparkPrototype");
+                var sparkObj = new GameObject("JumpingSparkPrototype");
                 sparkObj.SetActive(false);  // Hide the prototype
-                var spark = sparkObj.AddComponent<SparkCollectible>();
+                var spark = sparkObj.AddComponent<JumpingSparkCollectible>();
                 m_CollectiblesDeck.AddCollectibleToDeck(spark);
                 Destroy(sparkObj);  // Destroy after adding to deck
             }
@@ -399,8 +399,13 @@ namespace Patchwork.Gameplay
         #region Public Methods
         public void StartNewGame()
         {
+            // Reset game state
+            m_CurrentStage = 1;
             m_CumulativeScore = 0;
+            m_CurrentLives = m_MaxLives;
+            m_StageScoreBonus = 0;
             
+            // Reset deck
             if (m_Deck != null)
             {
                 m_Deck.ResetDeck();
@@ -409,6 +414,25 @@ namespace Patchwork.Gameplay
             {
                 Debug.LogError("[GameManager] Cannot start game - Deck is null");
                 return;
+            }
+            
+            // Reset collectibles deck
+            if (m_CollectiblesDeck != null)
+            {
+                m_CollectiblesDeck.ResetDeck();
+                InitializeCollectibles();  // Reinitialize with base collectibles
+            }
+            else
+            {
+                Debug.LogError("[GameManager] Cannot start game - CollectiblesDeck is null");
+                return;
+            }
+
+            // Reset UI if it exists
+            if (m_ResourceUI != null)
+            {
+                m_ResourceUI.Initialize(m_MaxLives);
+                m_ResourceUI.UpdateLives(m_CurrentLives);
             }
 
             SceneManager.LoadScene(m_GameplaySceneName);

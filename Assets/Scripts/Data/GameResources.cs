@@ -52,6 +52,10 @@ namespace Patchwork.Data
         [Header("Collectibles")]
         [SerializeField] private Sprite m_SparkSprite;
         [SerializeField, Range(0.01f, 5f)] private float m_SparkScale = 0.1f;
+        [SerializeField] private Sprite m_GhostSparkSprite;
+        [SerializeField, Range(0.01f, 5f)] private float m_GhostSparkScale = 0.1f;
+        [SerializeField] private Sprite m_JumpingSparkSprite;
+        [SerializeField, Range(0.01f, 5f)] private float m_JumpingSparkScale = 0.1f;
         [SerializeField] private Sprite m_FlameSprite;
         [SerializeField, Range(0.01f, 5f)] private float m_FlameScale = 0.1f;
         
@@ -70,6 +74,10 @@ namespace Patchwork.Data
         public float DrawGemScale => m_DrawGemScale;
         public Sprite SparkSprite => m_SparkSprite;
         public float SparkScale => m_SparkScale;
+        public Sprite GhostSparkSprite => m_GhostSparkSprite;
+        public float GhostSparkScale => m_GhostSparkScale;
+        public Sprite JumpingSparkSprite => m_JumpingSparkSprite;
+        public float JumpingSparkScale => m_JumpingSparkScale;
         public Sprite FlameSprite => m_FlameSprite;
         public float FlameScale => m_FlameScale;
         public Sprite ScoreBonusSprite => m_ScoreBonusSprite;
