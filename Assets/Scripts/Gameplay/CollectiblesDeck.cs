@@ -85,6 +85,12 @@ namespace Patchwork.Gameplay
             m_DrawPile.AddRange(m_DeckCollectibles);
             ShuffleDeck();
         }
+
+        public void ClearDeck()
+        {
+            m_DeckCollectibles.Clear();
+            m_DrawPile.Clear();
+        }
         #endregion
     }
 } 

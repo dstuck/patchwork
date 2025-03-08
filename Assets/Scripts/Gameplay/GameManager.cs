@@ -332,49 +332,60 @@ namespace Patchwork.Gameplay
             }
         }
 
+        private ICollectible CreateRandomSparkCollectible()
+        {
+            // Randomly choose spark type (0 = regular, 1 = ghost, 2 = jumping)
+            int sparkType = Random.Range(0, 3);
+            
+            GameObject sparkObj = new GameObject("SparkPrototype");
+            sparkObj.SetActive(false);  // Hide the prototype
+            
+            ICollectible spark = null;
+            switch (sparkType)
+            {
+                case 0:
+                    spark = sparkObj.AddComponent<SparkCollectible>();
+                    break;
+                case 1:
+                    spark = sparkObj.AddComponent<GhostSparkCollectible>();
+                    break;
+                case 2:
+                    spark = sparkObj.AddComponent<JumpingSparkCollectible>();
+                    break;
+            }
+            
+            return spark;
+        }
+
         private void InitializeCollectibles()
         {
-            // Add base number of ghost sparks (instead of regular sparks)
+            // Add base number of random sparks
             for (int i = 0; i < m_BaseSparkCount; i++)
             {
-                var sparkObj = new GameObject("JumpingSparkPrototype");
-                sparkObj.SetActive(false);  // Hide the prototype
-                var spark = sparkObj.AddComponent<JumpingSparkCollectible>();
+                var spark = CreateRandomSparkCollectible();
                 m_CollectiblesDeck.AddCollectibleToDeck(spark);
-                Destroy(sparkObj);  // Destroy after adding to deck
+                Destroy(((MonoBehaviour)spark).gameObject);
             }
 
             // Add base number of flames
             for (int i = 0; i < m_BaseFlameCount; i++)
             {
                 var flameObj = new GameObject("FlamePrototype");
-                flameObj.SetActive(false);  // Hide the prototype
+                flameObj.SetActive(false);
                 var flame = flameObj.AddComponent<FlameCollectible>();
                 m_CollectiblesDeck.AddCollectibleToDeck(flame);
-                Destroy(flameObj);  // Destroy after adding to deck
+                Destroy(flameObj);
             }
         }
 
         private void AddStageProgressCollectibles()
         {
-            // Add new ghost spark if it's time (instead of regular spark)
+            // Add new random spark if it's time
             if (m_CurrentStage > 0 && m_CurrentStage % m_StagesPerSpark == 0)
             {
-                var sparkObj = new GameObject("JumpingSparkPrototype");
-                sparkObj.SetActive(false);  // Hide the prototype
-                var spark = sparkObj.AddComponent<JumpingSparkCollectible>();
+                var spark = CreateRandomSparkCollectible();
                 m_CollectiblesDeck.AddCollectibleToDeck(spark);
-                Destroy(sparkObj);  // Destroy after adding to deck
-            }
-
-            // Add new flame if it's time
-            if (m_CurrentStage > 0 && m_CurrentStage % m_StagesPerFlame == 0)
-            {
-                var flameObj = new GameObject("FlamePrototype");
-                flameObj.SetActive(false);  // Hide the prototype
-                var flame = flameObj.AddComponent<FlameCollectible>();
-                m_CollectiblesDeck.AddCollectibleToDeck(flame);
-                Destroy(flameObj);  // Destroy after adding to deck
+                Destroy(((MonoBehaviour)spark).gameObject);
             }
 
             // Add new draw gem if it's time
@@ -405,10 +416,10 @@ namespace Patchwork.Gameplay
             m_CurrentLives = m_MaxLives;
             m_StageScoreBonus = 0;
             
-            // Reset deck
+            // Reset deck by clearing and reinitializing
             if (m_Deck != null)
             {
-                m_Deck.ResetDeck();
+                m_Deck.Initialize();  // This will reload tiles from resources
             }
             else
             {
@@ -416,10 +427,10 @@ namespace Patchwork.Gameplay
                 return;
             }
             
-            // Reset collectibles deck
+            // Reset collectibles deck by clearing and reinitializing
             if (m_CollectiblesDeck != null)
             {
-                m_CollectiblesDeck.ResetDeck();
+                m_CollectiblesDeck.ClearDeck();
                 InitializeCollectibles();  // Reinitialize with base collectibles
             }
             else
