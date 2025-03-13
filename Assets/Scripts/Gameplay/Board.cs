@@ -705,12 +705,13 @@ namespace Patchwork.Gameplay
         public List<ICollectible> GetActiveCollectibles()
         {
             var collectibles = m_Collectibles.Where(c => c.IsVisible).ToList();
-            Debug.Log($"[Board] Found {collectibles.Count} visible collectibles");
             return collectibles;
         }
 
         public void ToggleCollectibleTooltips(bool show)
         {
+            if (m_IsMovingBossBoard) return;  // Skip tooltips on moving boss levels
+            
             if (!show)
             {
                 TooltipSystem.Instance.Hide();
@@ -727,6 +728,8 @@ namespace Patchwork.Gameplay
 
         public bool CycleToNextCollectibleTooltip()
         {
+            if (m_IsMovingBossBoard) return false;  // Skip tooltips on moving boss levels
+            
             var collectibles = GetActiveCollectibles();
             if (collectibles.Count == 0) return false;
 

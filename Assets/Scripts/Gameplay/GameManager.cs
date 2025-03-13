@@ -586,9 +586,7 @@ namespace Patchwork.Gameplay
         private void OnShowTooltip(bool show)
         {
             if (!show) return; // Ignore key release
-            
-            Debug.Log($"[GameManager] OnShowTooltip called with show={show}");
-            
+                        
             var board = FindFirstObjectByType<Board>();
             if (board == null) return;
 
