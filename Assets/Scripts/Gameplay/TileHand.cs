@@ -118,16 +118,6 @@ namespace Patchwork.Gameplay
             OnTileChanged?.Invoke();
         }
 
-        public bool SelectTile(int _index)
-        {
-            if (_index < 0 || _index >= m_AvailableTiles.Count) return false;
-            
-            m_CurrentTileIndex = _index;
-            m_CurrentTile = m_AvailableTiles[m_CurrentTileIndex];
-            OnTileChanged?.Invoke();
-            return true;
-        }
-
         public int GetTileCount()
         {
             return m_AvailableTiles.Count;

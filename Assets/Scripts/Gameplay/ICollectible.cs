@@ -5,6 +5,7 @@ namespace Patchwork.Gameplay
     public interface ICollectible : ITooltipContent
     {
         Vector2Int GridPosition { get; }
+        bool IsVisible { get; }
         void Initialize(Vector2Int position);
         bool TryCollect();
         void OnLevelEnd();

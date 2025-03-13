@@ -42,9 +42,11 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 - [x] Add fire that spreads after each placement
 
 ### 0.8: Collectible Modifiers
-- [ ] Add additional dangers that can be used for upgrades
+- [x] Add additional dangers that can be used for upgrades
+- [ ] Add additional benefits that can be used for upgrades
 - [x] Refactor time and multiplier bonuses to be collectibles
-- [ ] Restructure upgrades to be randomized on each new stage
+- [x] Restructure upgrades to be randomized on each new stage
+- [ ] Collectible tooltip shows up on button press
 
 ### 0.9: Collectible Upgrades
 - [ ] Create upgraded versions for collectibles (modify sprite with + and ++)

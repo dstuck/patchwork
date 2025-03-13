@@ -38,7 +38,6 @@ namespace Patchwork.Gameplay
             m_Controls.Movement.Move.performed += OnMove;
             m_Controls.Movement.Rotate.performed += OnRotate;
             m_Controls.Movement.Place.performed += OnPlace;
-            m_Controls.Movement.SelectTile.performed += OnSelectTile;
             m_Controls.Movement.CycleTile.performed += OnCycleTile;
         }
 
@@ -151,15 +150,6 @@ namespace Patchwork.Gameplay
                 {
                     UpdateCurrentTile();
                 }
-            }
-        }
-
-        private void OnSelectTile(InputAction.CallbackContext context)
-        {
-            int index = Mathf.RoundToInt(context.ReadValue<float>());
-            if (m_TileHand.SelectTile(index))
-            {
-                UpdateCurrentTile();
             }
         }
 

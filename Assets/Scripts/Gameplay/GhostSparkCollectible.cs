@@ -42,5 +42,7 @@ namespace Patchwork.Gameplay
                 }
             }
         }
+
+        public override bool IsVisible => m_IsVisible && !m_IsCollected;
     }
 } 

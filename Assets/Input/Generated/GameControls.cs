@@ -66,13 +66,13 @@ namespace Patchwork.Input
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""SelectTile"",
-                    ""type"": ""Value"",
-                    ""id"": ""4203f0f8-1b1c-4783-b7d2-3dafd1c948bf"",
+                    ""name"": ""ShowTooltips"",
+                    ""type"": ""Button"",
+                    ""id"": ""484bc23e-7233-43a8-bdda-ea771d2e56ac"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
-                    ""initialStateCheck"": true
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -364,45 +364,23 @@ namespace Patchwork.Input
                 },
                 {
                     ""name"": """",
-                    ""id"": ""7576bbca-feef-4927-9141-19c58d286de0"",
-                    ""path"": ""<Keyboard>/1"",
+                    ""id"": ""c1b795bf-cd47-4517-8227-2119f1627c90"",
+                    ""path"": ""<Keyboard>/f"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""SelectTile"",
+                    ""action"": ""ShowTooltips"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""12a07673-f4bf-4247-8325-83cdb0222cca"",
-                    ""path"": ""<Keyboard>/2"",
+                    ""id"": ""6a77367e-4a4e-4aee-b3e4-eb9f1b69b6e7"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""SelectTile"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""4f566fa8-c4f4-42c8-9e14-1b90cb96902d"",
-                    ""path"": ""<Keyboard>/3"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""SelectTile"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""fb56a74f-ccb6-456a-8709-72c840ec50b7"",
-                    ""path"": ""<Keyboard>/4"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""SelectTile"",
+                    ""action"": ""ShowTooltips"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1005,7 +983,7 @@ namespace Patchwork.Input
             m_Movement_Place = m_Movement.FindAction("Place", throwIfNotFound: true);
             m_Movement_Rotate = m_Movement.FindAction("Rotate", throwIfNotFound: true);
             m_Movement_CycleTile = m_Movement.FindAction("CycleTile", throwIfNotFound: true);
-            m_Movement_SelectTile = m_Movement.FindAction("SelectTile", throwIfNotFound: true);
+            m_Movement_ShowTooltips = m_Movement.FindAction("ShowTooltips", throwIfNotFound: true);
             // UI
             m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
             m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1089,7 +1067,7 @@ namespace Patchwork.Input
         private readonly InputAction m_Movement_Place;
         private readonly InputAction m_Movement_Rotate;
         private readonly InputAction m_Movement_CycleTile;
-        private readonly InputAction m_Movement_SelectTile;
+        private readonly InputAction m_Movement_ShowTooltips;
         public struct MovementActions
         {
             private @GameControls m_Wrapper;
@@ -1098,7 +1076,7 @@ namespace Patchwork.Input
             public InputAction @Place => m_Wrapper.m_Movement_Place;
             public InputAction @Rotate => m_Wrapper.m_Movement_Rotate;
             public InputAction @CycleTile => m_Wrapper.m_Movement_CycleTile;
-            public InputAction @SelectTile => m_Wrapper.m_Movement_SelectTile;
+            public InputAction @ShowTooltips => m_Wrapper.m_Movement_ShowTooltips;
             public InputActionMap Get() { return m_Wrapper.m_Movement; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -1120,9 +1098,9 @@ namespace Patchwork.Input
                 @CycleTile.started += instance.OnCycleTile;
                 @CycleTile.performed += instance.OnCycleTile;
                 @CycleTile.canceled += instance.OnCycleTile;
-                @SelectTile.started += instance.OnSelectTile;
-                @SelectTile.performed += instance.OnSelectTile;
-                @SelectTile.canceled += instance.OnSelectTile;
+                @ShowTooltips.started += instance.OnShowTooltips;
+                @ShowTooltips.performed += instance.OnShowTooltips;
+                @ShowTooltips.canceled += instance.OnShowTooltips;
             }
 
             private void UnregisterCallbacks(IMovementActions instance)
@@ -1139,9 +1117,9 @@ namespace Patchwork.Input
                 @CycleTile.started -= instance.OnCycleTile;
                 @CycleTile.performed -= instance.OnCycleTile;
                 @CycleTile.canceled -= instance.OnCycleTile;
-                @SelectTile.started -= instance.OnSelectTile;
-                @SelectTile.performed -= instance.OnSelectTile;
-                @SelectTile.canceled -= instance.OnSelectTile;
+                @ShowTooltips.started -= instance.OnShowTooltips;
+                @ShowTooltips.performed -= instance.OnShowTooltips;
+                @ShowTooltips.canceled -= instance.OnShowTooltips;
             }
 
             public void RemoveCallbacks(IMovementActions instance)
@@ -1328,7 +1306,7 @@ namespace Patchwork.Input
             void OnPlace(InputAction.CallbackContext context);
             void OnRotate(InputAction.CallbackContext context);
             void OnCycleTile(InputAction.CallbackContext context);
-            void OnSelectTile(InputAction.CallbackContext context);
+            void OnShowTooltips(InputAction.CallbackContext context);
         }
         public interface IUIActions
         {

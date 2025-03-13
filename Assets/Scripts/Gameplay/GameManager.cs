@@ -3,6 +3,8 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using Patchwork.UI;
 using System.Collections.Generic;
+using UnityEngine.InputSystem;
+using Patchwork.Input;
 
 namespace Patchwork.Gameplay
 {
@@ -62,6 +64,10 @@ namespace Patchwork.Gameplay
         [SerializeField] private int m_StagesPerFlame = 3;    // Add 1 flame every 3 stages
 
         private int m_StageScoreBonus = 0;
+
+        private bool m_ShowingTooltips = false;
+
+        private GameControls m_Controls;
         #endregion
 
         #region Game State
@@ -118,16 +124,22 @@ namespace Patchwork.Gameplay
             }
 
             Initialize();
+
+            m_Controls = new GameControls();
+            m_Controls.Movement.ShowTooltips.started += ctx => OnShowTooltip(true);
+            m_Controls.Movement.ShowTooltips.canceled += ctx => OnShowTooltip(false);
         }
 
         private void OnEnable()
         {
             SceneManager.sceneLoaded += OnSceneLoaded;
+            m_Controls.Enable();
         }
 
         private void OnDisable()
         {
             SceneManager.sceneLoaded -= OnSceneLoaded;
+            m_Controls.Disable();
         }
 
         private void Start()
@@ -569,6 +581,32 @@ namespace Patchwork.Gameplay
             // Reset the deck for the new stage
             m_CollectiblesDeck.ResetForNewStage();
             return m_CollectiblesDeck.GetCollectibles();
+        }
+
+        private void OnShowTooltip(bool show)
+        {
+            if (!show) return; // Ignore key release
+            
+            Debug.Log($"[GameManager] OnShowTooltip called with show={show}");
+            
+            var board = FindFirstObjectByType<Board>();
+            if (board == null) return;
+
+            if (!m_ShowingTooltips)
+            {
+                // First press - show first collectible
+                m_ShowingTooltips = true;
+                board.ToggleCollectibleTooltips(true);
+            }
+            else
+            {
+                // Already showing - try to cycle to next
+                bool hasMore = board.CycleToNextCollectibleTooltip();
+                if (!hasMore)
+                {
+                    m_ShowingTooltips = false;
+                }
+            }
         }
         #endregion
 

@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using Patchwork.Data;
+using Patchwork.UI;
 using Patchwork.Gameplay;
 
 namespace Patchwork.Gameplay
@@ -28,6 +29,7 @@ namespace Patchwork.Gameplay
         private int m_TotalColumns;
         private int m_VisibleStartColumn;
         private Dictionary<Vector2Int, GameObject> m_AllHoles = new Dictionary<Vector2Int, GameObject>(); // Stores all holes including off-screen
+        private int m_CurrentTooltipIndex = -1;
         #endregion
 
         #region Unity Lifecycle
@@ -698,6 +700,54 @@ namespace Patchwork.Gameplay
         public int GetGemCount()
         {
             return m_GemCount;
+        }
+
+        public List<ICollectible> GetActiveCollectibles()
+        {
+            var collectibles = m_Collectibles.Where(c => c.IsVisible).ToList();
+            Debug.Log($"[Board] Found {collectibles.Count} visible collectibles");
+            return collectibles;
+        }
+
+        public void ToggleCollectibleTooltips(bool show)
+        {
+            if (!show)
+            {
+                TooltipSystem.Instance.Hide();
+                m_CurrentTooltipIndex = -1;
+                return;
+            }
+
+            var collectibles = GetActiveCollectibles();
+            if (collectibles.Count == 0) return;
+
+            m_CurrentTooltipIndex = 0;
+            ShowCurrentCollectibleTooltip(collectibles);
+        }
+
+        public bool CycleToNextCollectibleTooltip()
+        {
+            var collectibles = GetActiveCollectibles();
+            if (collectibles.Count == 0) return false;
+
+            m_CurrentTooltipIndex++;
+            if (m_CurrentTooltipIndex >= collectibles.Count)
+            {
+                TooltipSystem.Instance.Hide();
+                m_CurrentTooltipIndex = -1;
+                return false;
+            }
+
+            ShowCurrentCollectibleTooltip(collectibles);
+            return true;
+        }
+
+        private void ShowCurrentCollectibleTooltip(List<ICollectible> collectibles)
+        {
+            var collectible = collectibles[m_CurrentTooltipIndex];
+            Vector3 worldPos = ((MonoBehaviour)collectible).transform.position;
+            Vector2 screenPos = Camera.main.WorldToScreenPoint(worldPos);
+            TooltipSystem.Instance.Show(collectible.DisplayName, collectible.Description, screenPos);
         }
         #endregion
 

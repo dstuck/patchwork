@@ -46,7 +46,34 @@ Spreading flame danger, cost 1 life if not picked up. Spreads to N squares on ea
 2. 2 squares
 3. 4 squares
 
+### Poison (-2)
+Discard N tiles from hand if picked up
+1. 1 tile
+2. 2 tiles
+3. 4 tiles
+
 ## Positive Collectibles
 
 ### Draw Gem (+2)
-Collect to draw a bonus tile, increases size of board by 
+Collect to draw a bonus tile, increases size of board by 5
+1. 1 tile
+2. 2 tiles
+3. 4 tiles
+
+### Heart Piece (+2)
+Collect to add N to max hearts
+1. .25 hearts
+2. .5 hearts
+3. 1 heart
+
+
+## Tile Upgrades
+
+### Pristine Bonus
+Adds 5 points if the tile is not overlapping with anything
+
+### Lenient Bonus
+No penalty for overlapping with anything
+
+### Healing Bonus
+Heal one heart if the tile is placed without collecting any collectibles

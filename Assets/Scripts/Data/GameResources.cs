@@ -24,25 +24,6 @@ namespace Patchwork.Data
         }
         #endregion
 
-        #if UNITY_EDITOR
-        [UnityEditor.MenuItem("Assets/Create/Game/Game Resources")]
-        public static void CreateAsset()
-        {
-            if (!System.IO.Directory.Exists("Assets/Resources"))
-            {
-                System.IO.Directory.CreateDirectory("Assets/Resources");
-            }
-
-            var asset = Resources.Load<GameResources>("GameResources");
-            if (asset == null)
-            {
-                asset = CreateInstance<GameResources>();
-                UnityEditor.AssetDatabase.CreateAsset(asset, "Assets/Resources/GameResources.asset");
-                UnityEditor.AssetDatabase.SaveAssets();
-            }
-        }
-        #endif
-
         #region Serialized Fields
         [Header("Board Elements")]
         [SerializeField] private Sprite m_TileSquareSprite;

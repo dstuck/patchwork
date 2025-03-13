@@ -16,6 +16,7 @@ namespace Patchwork.Gameplay
         public Vector2Int GridPosition => m_GridPosition;
         public abstract string DisplayName { get; }
         public abstract string Description { get; }
+        public virtual bool IsVisible => !m_IsCollected;
         #endregion
 
         #region Protected Abstract Methods
