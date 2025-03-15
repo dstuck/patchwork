@@ -23,6 +23,8 @@ MonoBehaviour:
   m_JumpingSparkScale: 0.8
   m_FlameSprite: {fileID: 4987901684691990599, guid: 0931113dcf4b84ceea5528537a008d84, type: 3}
   m_FlameScale: 0.1
+  m_HeartPieceSprite: {fileID: 2716719685213482973, guid: 65c49f46f41134c998ad6ff00aeafcb7, type: 3}
+  m_HeartPieceScale: 4
   m_ScoreBonusSprite: {fileID: 8230488904728474184, guid: 6e5cbdee1b4ca46049603389fc573e31, type: 3}
   m_ScoreBonusScale: 0.6
   m_MultiplierBonusSprite: {fileID: 6745624003978375915, guid: cfe7bb675fb254f4697140e751f5190b, type: 3}

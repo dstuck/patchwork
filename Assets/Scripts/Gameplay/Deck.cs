@@ -20,7 +20,11 @@ namespace Patchwork.Gameplay
 
         #region Public Properties
         public static Deck Instance => s_Instance;
-        public bool IsInitialized => m_IsInitialized;
+        public bool IsInitialized 
+        { 
+            get => m_IsInitialized;
+            set => m_IsInitialized = value;
+        }
         #endregion
 
         #region Unity Lifecycle

@@ -66,6 +66,24 @@ Collect to add N to max hearts
 2. .5 hearts
 3. 1 heart
 
+### Multiplier (+2)
+Collect to increase multiplier by N
+1. x0.5
+2. x1
+3. x2
+
+### Point Bonus (+2)
+Collect to increase tile points by N
+1. +10
+2. +20
+3. +40
+
+### Pristine Gem (+2)
+Adds Pristine upgrade to tile
+1. +5
+2. +10
+3. +20
+
 
 ## Tile Upgrades
 

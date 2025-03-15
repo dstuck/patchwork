@@ -53,8 +53,8 @@ namespace Patchwork.Gameplay
         private Timer m_Timer;
 
         [Header("Life Settings")]
-        [SerializeField] private int m_MaxLives = 3;  // Starting max lives
-        private int m_CurrentLives;
+        [SerializeField] private float m_MaxLives = 3f;  // Changed to float
+        private float m_CurrentLives;  // Changed to float
         private PlayerResourceUI m_ResourceUI;
 
         [Header("Collectible Settings")]
@@ -94,7 +94,7 @@ namespace Patchwork.Gameplay
         public float BaseMultiplier => m_BaseMultiplier;
         public int BossStageInterval => m_BossStageInterval;
         public bool IsPostBossStage => IsBossStage(m_CurrentStage - 1);
-        public int MaxLives => m_MaxLives;
+        public int MaxLives => c_MaxLives;
         public int SparkCount => m_BaseSparkCount + ((m_CurrentStage - 1) / m_StagesPerSpark);
         public int FlameCount => m_BaseFlameCount + ((m_CurrentStage - 1) / m_StagesPerFlame);
         public CollectiblesDeck CollectiblesDeck => m_CollectiblesDeck;
@@ -388,6 +388,13 @@ namespace Patchwork.Gameplay
                 m_CollectiblesDeck.AddCollectibleToDeck(flame);
                 Destroy(flameObj);
             }
+
+            var heartContainerObj = new GameObject("HeartContainerPrototype");
+            heartContainerObj.SetActive(false);
+            var heartContainer = heartContainerObj.AddComponent<HeartPieceCollectible>();
+            m_CollectiblesDeck.AddCollectibleToDeck(heartContainer);
+            Destroy(heartContainerObj);
+
         }
 
         private void AddStageProgressCollectibles()
@@ -428,10 +435,11 @@ namespace Patchwork.Gameplay
             m_CurrentLives = m_MaxLives;
             m_StageScoreBonus = 0;
             
-            // Reset deck by clearing and reinitializing
+            // Force deck to reinitialize by resetting initialized flag
             if (m_Deck != null)
             {
-                m_Deck.Initialize();  // This will reload tiles from resources
+                m_Deck.IsInitialized = false;  // Need to make this property settable
+                m_Deck.Initialize();
             }
             else
             {
@@ -443,7 +451,7 @@ namespace Patchwork.Gameplay
             if (m_CollectiblesDeck != null)
             {
                 m_CollectiblesDeck.ClearDeck();
-                InitializeCollectibles();  // Reinitialize with base collectibles
+                InitializeCollectibles();
             }
             else
             {
@@ -550,7 +558,7 @@ namespace Patchwork.Gameplay
                 m_ResourceUI.UpdateLives(m_CurrentLives);
             }
             
-            if (m_CurrentLives <= 0)
+            if (m_CurrentLives < 1)  // Changed from <= 0
             {
                 SceneManager.LoadScene("GameOver");
             }
@@ -572,6 +580,17 @@ namespace Patchwork.Gameplay
             if (m_ResourceUI != null)
             {
                 m_ResourceUI.Initialize(m_MaxLives);  // Reinitialize UI with new max
+                m_ResourceUI.UpdateLives(m_CurrentLives);
+            }
+        }
+
+        public void IncreaseMaxLivesByAmount(float amount)
+        {
+            m_MaxLives += amount;
+            m_CurrentLives += amount;
+            if (m_ResourceUI != null)
+            {
+                m_ResourceUI.Initialize(m_MaxLives);
                 m_ResourceUI.UpdateLives(m_CurrentLives);
             }
         }
@@ -616,4 +635,4 @@ namespace Patchwork.Gameplay
         }
         #endif
     }
-} 
+}
