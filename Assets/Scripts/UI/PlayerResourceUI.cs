@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 
 namespace Patchwork.UI
@@ -9,7 +10,6 @@ namespace Patchwork.UI
         [SerializeField] private GameObject m_HeartPrefab;
         [SerializeField] private Transform m_HeartsContainer;
         private List<GameObject> m_Hearts = new List<GameObject>();
-        private List<SpriteRenderer> m_HeartRenderers = new List<SpriteRenderer>();
         private float m_HeartHeight;
         #endregion
 
@@ -31,13 +31,13 @@ namespace Patchwork.UI
                 m_Hearts.Add(heart);
             }
 
-            // Store the heart height for scaling calculations
+            // Store the heart height for masking calculations
             if (m_Hearts.Count > 0)
             {
-                var renderer = m_Hearts[0].GetComponent<SpriteRenderer>();
-                if (renderer != null)
+                var rectTransform = m_Hearts[0].GetComponent<RectTransform>();
+                if (rectTransform != null)
                 {
-                    m_HeartHeight = renderer.bounds.size.y;
+                    m_HeartHeight = rectTransform.rect.height;
                 }
             }
         }
@@ -47,21 +47,29 @@ namespace Patchwork.UI
             int fullHearts = Mathf.FloorToInt(currentLives);
             float remainder = currentLives - fullHearts;
 
+            // Add visual bias to make partial hearts look cleaner
+            if (remainder > 0)
+            {
+                if (remainder < 0.3f) remainder = 0.3f;
+                else if (remainder > 0.7f) remainder = 0.7f;
+            }
+
             for (int i = 0; i < m_Hearts.Count; i++)
             {
                 if (i < fullHearts)
                 {
-                    m_Hearts[i].transform.localScale = Vector3.one;
-                    m_Hearts[i].transform.localPosition = Vector3.zero;
+                    // Full hearts
                     m_Hearts[i].SetActive(true);
                 }
                 else if (i == fullHearts && remainder > 0)
                 {
-                    // Show partial heart from top down
-                    m_Hearts[i].transform.localScale = new Vector3(1, remainder, 1);
-                    // Move the heart up to align with the top
-                    float offset = m_HeartHeight * (1 - remainder) * 0.5f;
-                    m_Hearts[i].transform.localPosition = new Vector3(0, offset, 0);
+                    // Partial heart - show only the bottom portion
+                    var mask = m_Hearts[i].GetComponent<RectMask2D>();
+                    if (mask != null)
+                    {
+                        float padding = m_HeartHeight * (1 - remainder);  // Inverted the remainder
+                        mask.padding = new Vector4(0, 0, 0, padding);  // Bottom padding
+                    }
                     m_Hearts[i].SetActive(true);
                 }
                 else
