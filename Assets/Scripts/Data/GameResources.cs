@@ -46,7 +46,9 @@ namespace Patchwork.Data
         [SerializeField, Range(0.01f, 5f)] private float m_ScoreBonusScale = 0.1f;
         [SerializeField] private Sprite m_MultiplierBonusSprite;
         [SerializeField, Range(0.01f, 5f)] private float m_MultiplierBonusScale = 0.1f;
-        
+        [SerializeField] private Sprite m_PaintSprite;
+        [SerializeField, Range(0.01f, 5f)] private float m_PaintScale = 0.1f;
+
         [Header("UI Elements")]
         [SerializeField] private GameObject m_UpgradeTooltipPrefab;
         #endregion
@@ -70,6 +72,8 @@ namespace Patchwork.Data
         public Sprite HeartPieceSprite => m_HeartPieceSprite;
         public float HeartPieceScale => m_HeartPieceScale;
         public GameObject UpgradeTooltipPrefab => m_UpgradeTooltipPrefab;
+        public Sprite PaintSprite => m_PaintSprite;
+        public float PaintScale => m_PaintScale;
         #endregion
     } 
 }

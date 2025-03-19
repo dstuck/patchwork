@@ -29,4 +29,6 @@ MonoBehaviour:
   m_ScoreBonusScale: 0.6
   m_MultiplierBonusSprite: {fileID: 6745624003978375915, guid: cfe7bb675fb254f4697140e751f5190b, type: 3}
   m_MultiplierBonusScale: 0.6
+  m_PaintSprite: {fileID: 7757420160248012790, guid: 7fe22bdbb1016459cb59b27d50f97653, type: 3}
+  m_PaintScale: 0.8
   m_UpgradeTooltipPrefab: {fileID: 0}

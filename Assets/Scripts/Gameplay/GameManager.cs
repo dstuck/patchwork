@@ -5,6 +5,7 @@ using Patchwork.UI;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using Patchwork.Input;
+using Patchwork.Data;
 
 namespace Patchwork.Gameplay
 {
@@ -395,6 +396,21 @@ namespace Patchwork.Gameplay
             m_CollectiblesDeck.AddCollectibleToDeck(heartContainer);
             Destroy(heartContainerObj);
 
+            // Add Pristine upgrade collectible
+            var pristineObj = new GameObject("PristineUpgradePrototype");
+            pristineObj.SetActive(false);
+            var pristineCollectible = pristineObj.AddComponent<PaintUpgradeCollectible>();
+            pristineCollectible.Initialize(new PristineBonus());
+            m_CollectiblesDeck.AddCollectibleToDeck(pristineCollectible);
+            Destroy(pristineObj);
+
+            // Add Lenient upgrade collectible
+            var lenientObj = new GameObject("LenientUpgradePrototype");
+            lenientObj.SetActive(false);
+            var lenientCollectible = lenientObj.AddComponent<PaintUpgradeCollectible>();
+            lenientCollectible.Initialize(new LenientBonus());
+            m_CollectiblesDeck.AddCollectibleToDeck(lenientCollectible);
+            Destroy(lenientObj);
         }
 
         private void AddStageProgressCollectibles()
