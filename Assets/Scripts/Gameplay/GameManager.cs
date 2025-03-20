@@ -396,20 +396,15 @@ namespace Patchwork.Gameplay
             m_CollectiblesDeck.AddCollectibleToDeck(heartContainer);
             Destroy(heartContainerObj);
 
-            // Add Pristine upgrade collectible
+            // Add upgrade collectibles
             var pristineObj = new GameObject("PristineUpgradePrototype");
             pristineObj.SetActive(false);
-            var pristineCollectible = pristineObj.AddComponent<PaintUpgradeCollectible>();
-            pristineCollectible.Initialize(new PristineBonus());
-            m_CollectiblesDeck.AddCollectibleToDeck(pristineCollectible);
+            m_CollectiblesDeck.AddCollectibleToDeck(pristineObj.AddComponent<PristinePaintCollectible>());
             Destroy(pristineObj);
 
-            // Add Lenient upgrade collectible
             var lenientObj = new GameObject("LenientUpgradePrototype");
             lenientObj.SetActive(false);
-            var lenientCollectible = lenientObj.AddComponent<PaintUpgradeCollectible>();
-            lenientCollectible.Initialize(new LenientBonus());
-            m_CollectiblesDeck.AddCollectibleToDeck(lenientCollectible);
+            m_CollectiblesDeck.AddCollectibleToDeck(lenientObj.AddComponent<LenientPaintCollectible>());
             Destroy(lenientObj);
         }
 

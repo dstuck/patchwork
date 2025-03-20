@@ -6,17 +6,16 @@ namespace Patchwork.Gameplay
     public class PaintUpgradeCollectible : BaseCollectible
     {
         private ITileUpgrade m_Upgrade;
-        private Color m_Color;
 
-        public void Initialize(ITileUpgrade upgrade)
+        protected virtual ITileUpgrade GetUpgrade() => null;
+
+        protected override void Awake()
         {
-            m_Upgrade = upgrade;
-            m_Color = upgrade.DisplayColor;
-            
-            // Update the sprite renderer color if it exists
-            if (m_SpriteRenderer != null)
+            base.Awake();
+            m_Upgrade = GetUpgrade();
+            if (m_Upgrade != null && m_SpriteRenderer != null)
             {
-                m_SpriteRenderer.color = m_Color;
+                m_SpriteRenderer.color = m_Upgrade.DisplayColor;
             }
         }
 
