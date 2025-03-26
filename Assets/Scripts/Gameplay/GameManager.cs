@@ -69,6 +69,8 @@ namespace Patchwork.Gameplay
         private bool m_ShowingTooltips = false;
 
         private GameControls m_Controls;
+
+        private bool m_IsBeingDestroyed;
         #endregion
 
         #region Game State
@@ -106,6 +108,7 @@ namespace Patchwork.Gameplay
         {
             if (s_Instance != null && s_Instance != this)
             {
+                m_IsBeingDestroyed = true; // Flag that we're being destroyed
                 Destroy(gameObject);
                 return;
             }
@@ -139,8 +142,15 @@ namespace Patchwork.Gameplay
 
         private void OnDisable()
         {
+            // Skip cleanup if we're the duplicate being destroyed
+            if (m_IsBeingDestroyed) return;
+
+            if (m_Controls != null)
+            {
+                m_Controls.Disable();
+            }
+            
             SceneManager.sceneLoaded -= OnSceneLoaded;
-            m_Controls.Disable();
         }
 
         private void Start()
