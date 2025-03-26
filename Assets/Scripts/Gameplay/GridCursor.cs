@@ -18,7 +18,7 @@ namespace Patchwork.Gameplay
         private float m_LastMoveTime;
         private float m_LastRotateTime;
         private int m_CurrentRotation;
-        private TileRenderer m_TileRenderer;
+        private PlacedTile m_PreviewTile;
         private GameControls m_Controls;
         #endregion
 
@@ -88,7 +88,12 @@ namespace Patchwork.Gameplay
         private void InitializeComponents()
         {
             m_CurrentGridPosition = new Vector2Int(m_GridSettings.GridSize.x / 2, m_GridSettings.GridSize.y / 2);
-            m_TileRenderer = gameObject.AddComponent<TileRenderer>();
+            
+            // Create preview tile
+            GameObject previewObj = new GameObject("PreviewTile");
+            previewObj.transform.SetParent(transform);
+            previewObj.transform.localPosition = Vector3.zero;
+            m_PreviewTile = previewObj.AddComponent<PlacedTile>();
             
             UpdateCurrentTile();
             UpdatePosition();
@@ -141,9 +146,9 @@ namespace Patchwork.Gameplay
                 
                 if (m_TileHand.CurrentTile == null)
                 {
-                    if (m_TileRenderer != null)
+                    if (m_PreviewTile != null)
                     {
-                        m_TileRenderer.Initialize(null, Color.clear);
+                        m_PreviewTile.InitializePreview(null, Color.clear);
                     }
                 }
                 else
@@ -170,10 +175,10 @@ namespace Patchwork.Gameplay
 
         private void UpdateCurrentTile()
         {
-            if (m_TileRenderer != null && m_TileHand.CurrentTile != null)
+            if (m_PreviewTile != null && m_TileHand.CurrentTile != null)
             {
                 m_CurrentRotation = 0;  // Reset rotation when switching tiles
-                m_TileRenderer.Initialize(m_TileHand.CurrentTile, new Color(1f, 1f, 1f, 0.5f), m_CurrentRotation);
+                m_PreviewTile.InitializePreview(m_TileHand.CurrentTile, new Color(1f, 1f, 1f, 0.5f), m_CurrentRotation);
             }
         }
 
@@ -205,7 +210,7 @@ namespace Patchwork.Gameplay
         private void RotateTile(bool _clockwise)
         {
             // Additional safety check
-            if (m_TileHand.CurrentTile == null || m_TileRenderer == null) return;
+            if (m_TileHand.CurrentTile == null || m_PreviewTile == null) return;
 
             m_CurrentRotation += _clockwise ? 90 : -90;
             
@@ -213,9 +218,9 @@ namespace Patchwork.Gameplay
             if (m_CurrentRotation >= 360) m_CurrentRotation -= 360;
             if (m_CurrentRotation < 0) m_CurrentRotation += 360;
                         
-            if (m_TileRenderer != null)
+            if (m_PreviewTile != null)
             {
-                m_TileRenderer.UpdateRotation(m_CurrentRotation);
+                m_PreviewTile.UpdateRotation(m_CurrentRotation);
             }
         }
 
@@ -233,7 +238,7 @@ namespace Patchwork.Gameplay
                 m_Board.OnTilePlaced(tile);   // Then notify collectibles
                 m_Board.CalculateTotalScore(); // Temporarily display score
             }
-                    }
+        }
 
         private void HandleLastTilePlaced()
         {
