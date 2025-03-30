@@ -30,6 +30,10 @@ namespace Patchwork.Gameplay
         private int m_VisibleStartColumn;
         private Dictionary<Vector2Int, GameObject> m_AllHoles = new Dictionary<Vector2Int, GameObject>(); // Stores all holes including off-screen
         private int m_CurrentTooltipIndex = -1;
+
+        // Add these fields to the Private Fields region
+        private List<string> m_AvailableTileNames;
+        private HashSet<string> m_UsedTileNames = new HashSet<string>();
         #endregion
 
         #region Unity Lifecycle
@@ -44,6 +48,9 @@ namespace Patchwork.Gameplay
             }
 
             m_GemCount = c_DefaultGemCount;  // Initialize with default value
+            
+            // Initialize available tile names
+            m_AvailableTileNames = TileFactory.AvailableTileNames.ToList();
         }
 
         private void Start()
@@ -303,7 +310,7 @@ namespace Patchwork.Gameplay
             GameObject hole = new GameObject($"Hole_{_position.x}_{_position.y}");
             hole.transform.SetParent(_parent.transform);
             
-            // Set position
+            // Set positionin
             hole.transform.position = new Vector3(
                 (_position.x + 0.5f) * m_GridSettings.CellSize,
                 (_position.y + 0.5f) * m_GridSettings.CellSize,
@@ -418,13 +425,35 @@ namespace Patchwork.Gameplay
             }
         }
 
+        // Add this new method to manage tile selection
+        private string GetNextAvailableTileName()
+        {
+            // If we've used all tiles, reset the used set
+            if (m_UsedTileNames.Count >= m_AvailableTileNames.Count)
+            {
+                m_UsedTileNames.Clear();
+            }
+
+            // Get a random unused tile
+            var unusedTiles = m_AvailableTileNames.Where(name => !m_UsedTileNames.Contains(name)).ToList();
+            string nextTile = unusedTiles[Random.Range(0, unusedTiles.Count)];
+            m_UsedTileNames.Add(nextTile);
+            return nextTile;
+        }
+
+        // Update TriggerGemCollection to use the factory
         private void TriggerGemCollection()
         {
-            // Find the GameManager to access the deck
             var gameManager = FindFirstObjectByType<GameManager>();
             if (gameManager != null && gameManager.Deck != null)
             {
-                gameManager.Deck.DrawTile();
+                // Create a new tile using the factory
+                string tileName = GetNextAvailableTileName();
+                TileData newTile = TileFactory.CreateTile(tileName);
+                if (newTile != null)
+                {
+                    gameManager.Deck.AddTile(newTile);
+                }
             }
         }
         #endregion

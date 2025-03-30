@@ -14,7 +14,7 @@ namespace Patchwork.Gameplay
 
         #region Private Fields
         [SerializeField] private List<TileData> m_AvailableTiles = new List<TileData>();
-        [SerializeField] private TileData m_CurrentTile;
+        private TileData m_CurrentTile;
         private int m_CurrentTileIndex;
         [SerializeField] private int m_HandSize = 3;
         private Deck m_Deck;  // Reference to Deck
@@ -46,6 +46,8 @@ namespace Patchwork.Gameplay
                         return;
                     }
                 }
+                
+                InitializeTileHand();
             }
         }
 
@@ -57,6 +59,7 @@ namespace Patchwork.Gameplay
         #region Private Methods
         private void InitializeTileHand()
         {
+            Debug.Log("[TileHand] InitializeTileHand called");
             if (m_Deck != null)
             {
                 m_AvailableTiles.Clear();

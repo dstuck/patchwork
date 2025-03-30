@@ -1,16 +1,17 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;  // Add this for ToList()
 
 namespace Patchwork.Data
 {
-    [CreateAssetMenu(fileName = "NewTile", menuName = "Game/Tile Data")]
-    public class TileData : ScriptableObject
+    [System.Serializable]
+    public class TileData
     {
         #region Private Fields
         [SerializeField] private string m_TileName;
         [SerializeField] private Vector2Int[] m_Squares;
-        [SerializeField] private Color m_TileColor = Color.white;
-        [SerializeField] private Sprite m_TileSprite;
+        [SerializeField] private Color m_TileColor = Color.white;  // Default white, only changed by upgrades
+        private Sprite m_TileSprite;
         private List<ITileUpgrade> m_Upgrades = new List<ITileUpgrade>();
         #endregion
 
@@ -19,31 +20,23 @@ namespace Patchwork.Data
         public Vector2Int[] Squares => m_Squares;
         public Color TileColor 
         {
-            get
-            {
-                return m_Upgrades.Count > 0 ? m_Upgrades[0].DisplayColor : m_TileColor;
-            }
+            get => (m_Upgrades != null && m_Upgrades.Count > 0 && m_Upgrades[0] != null) 
+                ? m_Upgrades[0].DisplayColor 
+                : m_TileColor;
         }
         public Sprite TileSprite 
         { 
-            get 
-            {
-                if (m_TileSprite != null) return m_TileSprite;
-                if (GameResources.Instance == null)
-                {
-                    Debug.LogError($"[TileData] GameResources.Instance is null when getting sprite for {name}");
-                    return null;
-                }
-                if (GameResources.Instance.TileSquareSprite == null)
-                {
-                    Debug.LogError($"[TileData] TileSquareSprite is null in GameResources for {name}");
-                    return null;
-                }
-                return GameResources.Instance.TileSquareSprite;
-            }
+            get => GameResources.Instance?.TileSquareSprite;
         }
         public IReadOnlyList<ITileUpgrade> Upgrades => m_Upgrades;
         #endregion
+
+        public TileData(string name, Vector2Int[] squares)
+        {
+            m_TileName = name;
+            m_Squares = squares;
+            m_Upgrades = new List<ITileUpgrade>();
+        }
 
         public void AddUpgrade(ITileUpgrade _upgrade)
         {
@@ -73,56 +66,6 @@ namespace Patchwork.Data
             }
             return worldPositions;
         }
-
-        public Vector2Int[] GetRotatedSquares(int _rotation)
-        {
-            // Normalize rotation to 0, 90, 180, or 270
-            int normalizedRotation = ((_rotation % 360) + 360) % 360;
-            int quarterTurns = normalizedRotation / 90;
-            
-            Vector2Int[] rotatedSquares = new Vector2Int[m_Squares.Length];
-            
-            for (int i = 0; i < m_Squares.Length; i++)
-            {
-                Vector2Int point = m_Squares[i];
-                
-                // Apply rotation based on number of 90-degree turns
-                switch (quarterTurns)
-                {
-                    case 1: // 90 degrees clockwise
-                        rotatedSquares[i] = new Vector2Int(point.y, -point.x);
-                        break;
-                    case 2: // 180 degrees
-                        rotatedSquares[i] = new Vector2Int(-point.x, -point.y);
-                        break;
-                    case 3: // 270 degrees clockwise
-                        rotatedSquares[i] = new Vector2Int(-point.y, point.x);
-                        break;
-                    default: // 0 degrees
-                        rotatedSquares[i] = point;
-                        break;
-                }
-            }
-            
-            return rotatedSquares;
-        }
-        #endregion
-
-        #region Private Methods
-        private Vector2Int RotatePoint(Vector2Int _point, int _degrees)
-        {
-            // Convert degrees to radians
-            float radians = _degrees * Mathf.Deg2Rad;
-            
-            // Rotate point using 2D rotation matrix
-            float cos = Mathf.Cos(radians);
-            float sin = Mathf.Sin(radians);
-            
-            return new Vector2Int(
-                Mathf.RoundToInt(_point.x * cos - _point.y * sin),
-                Mathf.RoundToInt(_point.x * sin + _point.y * cos)
-            );
-        }
         #endregion
 
         #if UNITY_EDITOR
@@ -139,11 +82,143 @@ namespace Patchwork.Data
         #if UNITY_INCLUDE_TESTS
         public static TileData CreateTestTile(Vector2Int[] squares)
         {
-            var testTile = CreateInstance<TileData>();
-            testTile.m_Squares = squares;
-            testTile.m_TileName = "TestTile";
-            return testTile;
+            return new TileData("TestTile", squares);
         }
         #endif
-    } 
+    }
+
+    // Factory class for creating basic tile shapes
+    public static class TileFactory
+    {
+        private static readonly Dictionary<string, Vector2Int[]> s_TileConfigurations = new Dictionary<string, Vector2Int[]>
+        {
+            { "L", new Vector2Int[] 
+                {
+                    new Vector2Int(2, 0),
+                    new Vector2Int(1, 0),
+                    new Vector2Int(0, 0),
+                    new Vector2Int(0, 1),
+                    new Vector2Int(0, 2)
+                }
+            },
+            { "T", new Vector2Int[] 
+                {
+                    new Vector2Int(0, 0),
+                    new Vector2Int(-1, 0),
+                    new Vector2Int(1, 0),
+                    new Vector2Int(0, 1),
+                    new Vector2Int(0, 2)
+                }
+            },
+            { "4", new Vector2Int[] 
+                {
+                    new Vector2Int(0, 2),
+                    new Vector2Int(0, 1),
+                    new Vector2Int(0, 0),
+                    new Vector2Int(-1, 0),
+                    new Vector2Int(-1, -1)
+                }
+            },
+            { "F", new Vector2Int[] 
+                {
+                    new Vector2Int(0, 0),
+                    new Vector2Int(1, 0),
+                    new Vector2Int(0, 1),
+                    new Vector2Int(-1, 1),
+                    new Vector2Int(0, 2)
+                }
+            },
+            { "I", new Vector2Int[] 
+                {
+                    new Vector2Int(0, 0),
+                    new Vector2Int(0, 1),
+                    new Vector2Int(0, 2),
+                    new Vector2Int(0, 3),
+                    new Vector2Int(0, 4)
+                }
+            },
+            { "J", new Vector2Int[] 
+                {
+                    new Vector2Int(0, 0),
+                    new Vector2Int(0, 1),
+                    new Vector2Int(0, 2),
+                    new Vector2Int(-1, 2),
+                    new Vector2Int(-1, 1)
+                }
+            },
+            { "M", new Vector2Int[] 
+                {
+                    new Vector2Int(0, 0),
+                    new Vector2Int(1, 0),
+                    new Vector2Int(1, 1),
+                    new Vector2Int(0, 1),
+                    new Vector2Int(-1, 1)
+                }
+            },
+            { "P", new Vector2Int[] 
+                {
+                    new Vector2Int(0, 0),
+                    new Vector2Int(1, 0),
+                    new Vector2Int(0, 1),
+                    new Vector2Int(1, 1),
+                    new Vector2Int(0, 2)
+                }
+            },
+            { "R", new Vector2Int[] 
+                {
+                    new Vector2Int(0, 0),
+                    new Vector2Int(1, 0),
+                    new Vector2Int(0, 1),
+                    new Vector2Int(1, 1),
+                    new Vector2Int(1, 2)
+                }
+            },
+            { "S", new Vector2Int[] 
+                {
+                    new Vector2Int(0, 0),
+                    new Vector2Int(1, 0),
+                    new Vector2Int(0, 1),
+                    new Vector2Int(-1, 1),
+                    new Vector2Int(-1, 2)
+                }
+            },
+            { "U", new Vector2Int[] 
+                {
+                    new Vector2Int(0, 0),
+                    new Vector2Int(1, 0),
+                    new Vector2Int(0, 1),
+                    new Vector2Int(0, 2),
+                    new Vector2Int(1, 2)
+                }
+            },
+            { "X", new Vector2Int[] 
+                {
+                    new Vector2Int(0, 0),
+                    new Vector2Int(-1, 0),
+                    new Vector2Int(1, 0),
+                    new Vector2Int(0, 1),
+                    new Vector2Int(0, -1)
+                }
+            }
+        };
+
+        public static IReadOnlyList<string> AvailableTileNames => s_TileConfigurations.Keys.ToList();
+
+        public static TileData CreateTile(string _tileName)
+        {
+            if (!s_TileConfigurations.TryGetValue(_tileName, out Vector2Int[] squares))
+            {
+                Debug.LogError($"Tile configuration not found for tile name: {_tileName}");
+                return null;
+            }
+            return new TileData(_tileName, squares);
+        }
+
+        public static TileData CreateRandomTile()
+        {
+            var tileNames = s_TileConfigurations.Keys.ToList();
+            string randomName = tileNames[Random.Range(0, tileNames.Count)];
+            return CreateTile(randomName);
+        }
+    }
 }

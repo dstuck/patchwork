@@ -73,7 +73,7 @@ namespace Patchwork.Gameplay
             m_Rotation = _rotation;
             
             // Calculate world-space occupied squares
-            Vector2Int[] localSquares = m_TileData.GetRotatedSquares(_rotation);
+            Vector2Int[] localSquares = GetRotatedSquares();
             m_OccupiedSquares = new Vector2Int[localSquares.Length];
             for (int i = 0; i < localSquares.Length; i++)
             {
@@ -182,7 +182,7 @@ namespace Patchwork.Gameplay
 
         public Vector2Int[] GetSquares()
         {
-            return m_TileData.GetRotatedSquares(m_Rotation);
+            return GetRotatedSquares();
         }
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -213,7 +213,7 @@ namespace Patchwork.Gameplay
             );
             
             // Update occupied squares
-            Vector2Int[] localSquares = m_TileData.GetRotatedSquares(m_Rotation);
+            Vector2Int[] localSquares = GetRotatedSquares();
             m_OccupiedSquares = new Vector2Int[localSquares.Length];
             for (int i = 0; i < localSquares.Length; i++)
             {
@@ -243,7 +243,7 @@ namespace Patchwork.Gameplay
             m_TileRoot.transform.localRotation = Quaternion.identity;
 
             // Get grid-based rotated positions
-            Vector2Int[] squares = m_TileData.GetRotatedSquares(m_Rotation);
+            Vector2Int[] squares = GetRotatedSquares();
             m_SquareRenderers = new SpriteRenderer[squares.Length];
 
             Color tileColor = m_TileData.TileColor;
@@ -348,6 +348,40 @@ namespace Patchwork.Gameplay
                 }
             }
             return false;
+        }
+
+        private Vector2Int[] GetRotatedSquares()
+        {
+            // Normalize rotation to 0, 90, 180, or 270
+            int normalizedRotation = ((m_Rotation % 360) + 360) % 360;
+            int quarterTurns = normalizedRotation / 90;
+            
+            Vector2Int[] squares = m_TileData.Squares;
+            Vector2Int[] rotatedSquares = new Vector2Int[squares.Length];
+            
+            for (int i = 0; i < squares.Length; i++)
+            {
+                Vector2Int point = squares[i];
+                
+                // Apply rotation based on number of 90-degree turns
+                switch (quarterTurns)
+                {
+                    case 1: // 90 degrees clockwise
+                        rotatedSquares[i] = new Vector2Int(point.y, -point.x);
+                        break;
+                    case 2: // 180 degrees
+                        rotatedSquares[i] = new Vector2Int(-point.x, -point.y);
+                        break;
+                    case 3: // 270 degrees clockwise
+                        rotatedSquares[i] = new Vector2Int(-point.y, point.x);
+                        break;
+                    default: // 0 degrees
+                        rotatedSquares[i] = point;
+                        break;
+                }
+            }
+            
+            return rotatedSquares;
         }
         #endregion
 

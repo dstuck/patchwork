@@ -42,15 +42,8 @@ namespace Patchwork.Tests.PlayMode
             deckObject.transform.SetParent(m_TestGameObject.transform);
             m_Deck = deckObject.AddComponent<Deck>();
             
-            // Create an L-shaped tile using the test helper
-            var testTile = TileData.CreateTestTile(new Vector2Int[] 
-            {
-                Vector2Int.zero,      // Origin
-                new Vector2Int(1, 0), // Right
-                new Vector2Int(0, 1)  // Up
-            });
-            testTile.name = "TestTile";
-            
+            // Create an L-shaped tile using TileFactory
+            var testTile = TileFactory.CreateTile("L");
             m_Deck.AddTileToDeck(testTile);
             
             // Setup tile hand
@@ -103,7 +96,7 @@ namespace Patchwork.Tests.PlayMode
                 new Vector2Int(1, 0)   // Right (rotated from up)
             };
             
-            Vector2Int[] actualSquares = placedTile.TileData.GetRotatedSquares(90);
+            Vector2Int[] actualSquares = placedTile.GetSquares();
             Assert.IsTrue(CompareSquareArrays(expectedSquares, actualSquares),
                 "Rotated squares don't match expected positions");
         }

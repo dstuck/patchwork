@@ -161,20 +161,12 @@ namespace Patchwork.UI
 
         private void GenerateRewardOptions()
         {
-            TileData[] allTiles = Resources.LoadAll<TileData>(c_TilesPath);
             m_TileRewardOptions.Clear();
             
-            if (allTiles == null || allTiles.Length == 0)
-            {
-                Debug.LogError($"No tiles found in Resources/{c_TilesPath}");
-                return;
-            }
-
-            // Get three random tiles
+            // Get three random tiles using TileFactory
             for (int i = 0; i < 3; i++)
             {
-                int randomIndex = Random.Range(0, allTiles.Length);
-                TileData rewardTile = Instantiate(allTiles[randomIndex]);
+                TileData rewardTile = TileFactory.CreateRandomTile();
                 
                 // Apply appropriate upgrade based on index
                 if (i == 0)
