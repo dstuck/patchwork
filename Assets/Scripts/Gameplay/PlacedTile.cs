@@ -69,6 +69,7 @@ namespace Patchwork.Gameplay
         public void Initialize(TileData _tileData, Vector2Int _gridPosition, int _rotation)
         {
             m_TileData = _tileData;
+            m_TileData.OnDataChanged += OnTileDataChanged;  // Subscribe to changes
             m_GridPosition = _gridPosition;
             m_Rotation = _rotation;
             
@@ -113,7 +114,7 @@ namespace Patchwork.Gameplay
             {
                 if (m_Board != null)
                 {
-                    m_Board.CheckCollectibles(square);
+                    m_Board.CheckCollectibles(square, this);
                 }
             }
 
@@ -382,6 +383,20 @@ namespace Patchwork.Gameplay
             }
             
             return rotatedSquares;
+        }
+
+        private void OnTileDataChanged()
+        {
+            Debug.Log($"[PlacedTile] TileData changed - Updating visuals");
+            CreateVisuals(m_TileData.TileColor);
+        }
+
+        private void OnDestroy()
+        {
+            if (m_TileData != null)
+            {
+                m_TileData.OnDataChanged -= OnTileDataChanged;  // Unsubscribe when destroyed
+            }
         }
         #endregion
 

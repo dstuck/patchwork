@@ -27,19 +27,15 @@ namespace Patchwork.Gameplay
         protected override Sprite GetSprite() => GameResources.Instance.PaintSprite;
         protected override float GetScale() => GameResources.Instance.PaintScale;
 
-        public override bool TryCollect()
+        public override bool TryCollect(PlacedTile collectingTile)
         {
-            if (base.TryCollect())
+            if (base.TryCollect(collectingTile))
             {
-                // Get the tile that collected this
-                var board = FindFirstObjectByType<Board>();
-                if (board != null)
+                if (collectingTile != null && m_Upgrade != null)
                 {
-                    var tile = board.GetTileAt(m_GridPosition);
-                    if (tile != null && m_Upgrade != null)
-                    {
-                        tile.TileData.AddUpgrade(m_Upgrade);
-                    }
+                    Debug.Log($"[PaintUpgrade] Before upgrade - Color: {collectingTile.TileData.TileColor}");
+                    collectingTile.TileData.AddUpgrade(m_Upgrade);
+                    Debug.Log($"[PaintUpgrade] After upgrade - Color: {collectingTile.TileData.TileColor}");                    
                 }
                 return true;
             }

@@ -13,9 +13,9 @@ namespace Patchwork.Gameplay
 
 
         #region Public Methods
-        public override bool TryCollect()
+        public override bool TryCollect(PlacedTile collectingTile)
         {
-            if (base.TryCollect())
+            if (base.TryCollect(collectingTile))
             {
                 var gameManager = Object.FindFirstObjectByType<GameManager>();
                 if (gameManager != null && gameManager.Deck != null)

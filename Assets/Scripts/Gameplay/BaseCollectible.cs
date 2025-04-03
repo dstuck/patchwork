@@ -51,7 +51,7 @@ namespace Patchwork.Gameplay
             UpdatePosition(position);
         }
 
-        public virtual bool TryCollect()
+        public virtual bool TryCollect(PlacedTile collectingTile)
         {
             if (!m_IsCollected)
             {

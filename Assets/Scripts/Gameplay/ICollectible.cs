@@ -7,7 +7,7 @@ namespace Patchwork.Gameplay
         Vector2Int GridPosition { get; }
         bool IsVisible { get; }
         void Initialize(Vector2Int position);
-        bool TryCollect();
+        bool TryCollect(PlacedTile collectingTile);
         void OnLevelEnd();
         void OnTilePlaced(Board board, PlacedTile tile);
         void UpdatePosition(Vector2Int newPosition);  // For moving boards

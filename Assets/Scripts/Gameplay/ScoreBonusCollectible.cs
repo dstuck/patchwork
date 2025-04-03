@@ -13,9 +13,9 @@ namespace Patchwork.Gameplay
         protected override Sprite GetSprite() => GameResources.Instance.ScoreBonusSprite;
         protected override float GetScale() => GameResources.Instance.ScoreBonusScale;
 
-        public override bool TryCollect()
+        public override bool TryCollect(PlacedTile collectingTile)
         {
-            if (base.TryCollect())
+            if (base.TryCollect(collectingTile))
             {
                 GameManager.Instance.IncreaseScoreBonus(BONUS_AMOUNT);
                 return true;

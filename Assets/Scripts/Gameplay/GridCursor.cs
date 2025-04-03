@@ -53,8 +53,6 @@ namespace Patchwork.Gameplay
 
         private void Start()
         {
-            Debug.Log("[GridCursor] Start - Checking for first tile");
-            Debug.Log($"[GridCursor] m_TileHand.CurrentTile is {(m_TileHand?.CurrentTile == null ? "null" : "not null")}");
             if (m_TileHand == null)
             {
                 Debug.LogError("TileHand reference not set in GridCursor!");
@@ -70,13 +68,11 @@ namespace Patchwork.Gameplay
             // Wait for TileHand to be ready
             if (m_TileHand.CurrentTile == null)
             {
-                Debug.Log("[GridCursor] Start - Waiting for first tile");
                 // Subscribe to the OnTileChanged event
                 m_TileHand.OnTileChanged += InitializeFirstTile;
             }
             else
             {
-                Debug.Log("[GridCursor] Start - Initializing components");
                 InitializeComponents();
             }
 
@@ -85,7 +81,6 @@ namespace Patchwork.Gameplay
 
         private void InitializeFirstTile()
         {
-            Debug.Log("[GridCursor] InitializeFirstTile called");
             m_TileHand.OnTileChanged -= InitializeFirstTile;
             InitializeComponents();
         }
@@ -94,7 +89,6 @@ namespace Patchwork.Gameplay
         {
             m_CurrentGridPosition = new Vector2Int(m_GridSettings.GridSize.x / 2, m_GridSettings.GridSize.y / 2);
 
-            Debug.Log("[GridCursor] InitializeComponents - Creating preview tile");
             // Create preview tile
             GameObject previewObj = new GameObject("PreviewTile");
             previewObj.transform.SetParent(transform);
@@ -183,7 +177,6 @@ namespace Patchwork.Gameplay
         {
             if (m_PreviewTile != null && m_TileHand.CurrentTile != null)
             {
-                Debug.Log($"Updating preview tile with {m_TileHand.CurrentTile.TileName}");
                 m_CurrentRotation = 0;  // Reset rotation when switching tiles
                 m_PreviewTile.InitializePreview(m_TileHand.CurrentTile, new Color(1f, 1f, 1f, 0.5f), m_CurrentRotation);
             }

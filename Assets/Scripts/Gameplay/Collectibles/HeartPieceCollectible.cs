@@ -13,9 +13,9 @@ namespace Patchwork.Gameplay
         protected override Sprite GetSprite() => GameResources.Instance.HeartPieceSprite;
         protected override float GetScale() => GameResources.Instance.HeartPieceScale;
 
-        public override bool TryCollect()
+        public override bool TryCollect(PlacedTile collectingTile)
         {
-            if (base.TryCollect())
+            if (base.TryCollect(collectingTile))
             {
                 GameManager.Instance.IncreaseMaxLivesByAmount(HEART_AMOUNT);
                 return true;

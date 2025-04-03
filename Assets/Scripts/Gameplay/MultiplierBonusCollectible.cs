@@ -13,9 +13,9 @@ namespace Patchwork.Gameplay
         protected override Sprite GetSprite() => GameResources.Instance.MultiplierBonusSprite;
         protected override float GetScale() => GameResources.Instance.MultiplierBonusScale;
 
-        public override bool TryCollect()
+        public override bool TryCollect(PlacedTile collectingTile)
         {
-            if (base.TryCollect())
+            if (base.TryCollect(collectingTile))
             {
                 // Increase the multiplier in GameManager
                 GameManager.Instance.IncreaseMultiplier(MULTIPLIER_INCREASE);

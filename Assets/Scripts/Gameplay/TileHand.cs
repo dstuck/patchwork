@@ -59,7 +59,6 @@ namespace Patchwork.Gameplay
         #region Private Methods
         private void InitializeTileHand()
         {
-            Debug.Log("[TileHand] InitializeTileHand called");
             if (m_Deck != null)
             {
                 m_AvailableTiles.Clear();

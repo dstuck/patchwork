@@ -13,6 +13,7 @@ namespace Patchwork.Data
         [SerializeField] private Color m_TileColor = Color.white;  // Default white, only changed by upgrades
         private Sprite m_TileSprite;
         private List<ITileUpgrade> m_Upgrades = new List<ITileUpgrade>();
+        public event System.Action OnDataChanged;
         #endregion
 
         #region Public Properties
@@ -43,12 +44,22 @@ namespace Patchwork.Data
             if (!m_Upgrades.Contains(_upgrade))
             {
                 m_Upgrades.Add(_upgrade);
+                OnDataChanged?.Invoke();
             }
         }
 
         public void RemoveUpgrade(ITileUpgrade _upgrade)
         {
-            m_Upgrades.Remove(_upgrade);
+            if (m_Upgrades.Remove(_upgrade))
+            {
+                OnDataChanged?.Invoke();
+            }
+        }
+
+        // Add this for any other property changes that should trigger visual updates
+        protected void NotifyDataChanged()
+        {
+            OnDataChanged?.Invoke();
         }
 
         #region Public Methods

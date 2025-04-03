@@ -505,6 +505,7 @@ namespace Patchwork.Gameplay
         #if UNITY_INCLUDE_TESTS
         public PlacedTile GetTileAt(Vector2Int position)
         {
+            Debug.Log($"[Board] GetTileAt called for position {position}");
             return m_PlacedTiles.Find(t => t.GridPosition == position);
         }
 
@@ -675,12 +676,11 @@ namespace Patchwork.Gameplay
             m_Collectibles.Add(flame);
         }
 
-        public void CheckCollectibles(Vector2Int position)
+        public void CheckCollectibles(Vector2Int position, PlacedTile collectingTile)
         {
             Vector2Int checkPosition = position;
             if (m_IsMovingBossBoard)
             {
-                // For moving boss board, position is already in world coordinates
                 checkPosition = position;
             }
             
@@ -690,7 +690,7 @@ namespace Patchwork.Gameplay
                 
             foreach (var collectible in collectiblesAtPosition)
             {
-                if (collectible.TryCollect())
+                if (collectible.TryCollect(collectingTile))
                 {
                     m_Collectibles.Remove(collectible);
                 }
