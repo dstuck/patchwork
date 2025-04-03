@@ -41,11 +41,9 @@ namespace Patchwork.Data
 
         public void AddUpgrade(ITileUpgrade _upgrade)
         {
-            if (!m_Upgrades.Contains(_upgrade))
-            {
-                m_Upgrades.Add(_upgrade);
-                OnDataChanged?.Invoke();
-            }
+            m_Upgrades.Clear();  // Remove any existing upgrades
+            m_Upgrades.Add(_upgrade);  // Add the new upgrade
+            OnDataChanged?.Invoke();
         }
 
         public void RemoveUpgrade(ITileUpgrade _upgrade)
