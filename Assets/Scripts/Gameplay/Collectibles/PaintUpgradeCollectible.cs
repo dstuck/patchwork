@@ -33,9 +33,7 @@ namespace Patchwork.Gameplay
             {
                 if (collectingTile != null && m_Upgrade != null)
                 {
-                    Debug.Log($"[PaintUpgrade] Before upgrade - Color: {collectingTile.TileData.TileColor}");
                     collectingTile.TileData.AddUpgrade(m_Upgrade);
-                    Debug.Log($"[PaintUpgrade] After upgrade - Color: {collectingTile.TileData.TileColor}");                    
                 }
                 return true;
             }

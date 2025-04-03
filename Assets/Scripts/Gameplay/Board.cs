@@ -505,7 +505,6 @@ namespace Patchwork.Gameplay
         #if UNITY_INCLUDE_TESTS
         public PlacedTile GetTileAt(Vector2Int position)
         {
-            Debug.Log($"[Board] GetTileAt called for position {position}");
             return m_PlacedTiles.Find(t => t.GridPosition == position);
         }
 

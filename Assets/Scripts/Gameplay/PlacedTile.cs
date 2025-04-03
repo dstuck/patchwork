@@ -387,7 +387,6 @@ namespace Patchwork.Gameplay
 
         private void OnTileDataChanged()
         {
-            Debug.Log($"[PlacedTile] TileData changed - Updating visuals");
             CreateVisuals(m_TileData.TileColor);
         }
 
