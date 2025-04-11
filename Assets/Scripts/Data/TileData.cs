@@ -75,6 +75,94 @@ namespace Patchwork.Data
             }
             return worldPositions;
         }
+
+        public bool AddSquare()
+        {
+            if (m_Squares.Length == 0)
+            {
+                // If no squares exist, add at origin
+                m_Squares = new Vector2Int[] { Vector2Int.zero };
+                NotifyDataChanged();
+                return true;
+            }
+
+            // Find all valid positions adjacent to existing squares
+            List<Vector2Int> validPositions = new List<Vector2Int>();
+            List<Vector2Int> doubleAdjacentPositions = new List<Vector2Int>();
+
+            // Define possible adjacent positions
+            Vector2Int[] adjacentOffsets = new Vector2Int[]
+            {
+                Vector2Int.up,
+                Vector2Int.down,
+                Vector2Int.left,
+                Vector2Int.right
+            };
+
+            // Check each existing square's adjacent positions
+            foreach (Vector2Int square in m_Squares)
+            {
+                foreach (Vector2Int offset in adjacentOffsets)
+                {
+                    Vector2Int potentialPos = square + offset;
+
+                    // Skip if position is already occupied or too far from origin
+                    if (OccupiesPosition(potentialPos) || 
+                        Mathf.Abs(potentialPos.x) > 2 || 
+                        Mathf.Abs(potentialPos.y) > 2)
+                    {
+                        continue;
+                    }
+
+                    // Count adjacent squares
+                    int adjacentCount = 0;
+                    foreach (Vector2Int existingSquare in m_Squares)
+                    {
+                        if (Mathf.Abs(potentialPos.x - existingSquare.x) + 
+                            Mathf.Abs(potentialPos.y - existingSquare.y) == 1)
+                        {
+                            adjacentCount++;
+                        }
+                    }
+
+                    if (adjacentCount == 2)
+                    {
+                        if (!doubleAdjacentPositions.Contains(potentialPos))
+                        {
+                            doubleAdjacentPositions.Add(potentialPos);
+                        }
+                    }
+                    else if (adjacentCount == 1)
+                    {
+                        if (!validPositions.Contains(potentialPos))
+                        {
+                            validPositions.Add(potentialPos);
+                        }
+                    }
+                }
+            }
+
+            // Try to use a double-adjacent position first
+            List<Vector2Int> positionsToUse = doubleAdjacentPositions.Count > 0 ? 
+                doubleAdjacentPositions : validPositions;
+
+            if (positionsToUse.Count == 0)
+            {
+                return false;
+            }
+
+            // Pick a random position
+            Vector2Int newPosition = positionsToUse[Random.Range(0, positionsToUse.Count)];
+
+            // Add the new square
+            Vector2Int[] newSquares = new Vector2Int[m_Squares.Length + 1];
+            m_Squares.CopyTo(newSquares, 0);
+            newSquares[m_Squares.Length] = newPosition;
+            m_Squares = newSquares;
+
+            NotifyDataChanged();
+            return true;
+        }
         #endregion
 
         #if UNITY_EDITOR

@@ -222,6 +222,11 @@ namespace Patchwork.Gameplay
             }
         }
 
+        public bool AddSquare()
+        {
+            return m_TileData.AddSquare();
+        }
+
         // Methods from TileRenderer
         private void CreateVisuals(Color _alpha)
         {

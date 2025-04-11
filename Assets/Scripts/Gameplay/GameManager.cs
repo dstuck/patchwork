@@ -416,6 +416,12 @@ namespace Patchwork.Gameplay
             lenientObj.SetActive(false);
             m_CollectiblesDeck.AddCollectibleToDeck(lenientObj.AddComponent<LenientPaintCollectible>());
             Destroy(lenientObj);
+
+            // Add new square collectible
+            var newSquareObj = new GameObject("NewSquarePrototype");
+            newSquareObj.SetActive(false);
+            m_CollectiblesDeck.AddCollectibleToDeck(newSquareObj.AddComponent<NewSquareCollectible>());
+            Destroy(newSquareObj);
         }
 
         private void AddStageProgressCollectibles()
