@@ -43,7 +43,7 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 
 ### 0.8: Collectible Modifiers
 - [x] Add additional dangers that can be used for upgrades
-- [ ] Add additional benefits that can be used for upgrades
+- [x] Add additional benefits that can be used for upgrades
 - [x] Refactor time and multiplier bonuses to be collectibles
 - [x] Restructure upgrades to be randomized on each new stage
 - [x] Collectible tooltip shows up on button press

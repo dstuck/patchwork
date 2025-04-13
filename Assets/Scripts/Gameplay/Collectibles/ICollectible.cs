@@ -6,6 +6,7 @@ namespace Patchwork.Gameplay
     {
         Vector2Int GridPosition { get; }
         bool IsVisible { get; }
+        int Power { get; }
         void Initialize(Vector2Int position);
         bool TryCollect(PlacedTile collectingTile);
         void OnLevelEnd();

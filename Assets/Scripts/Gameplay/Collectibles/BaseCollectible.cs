@@ -10,6 +10,7 @@ namespace Patchwork.Gameplay
         protected bool m_IsCollected;
         protected SpriteRenderer m_SpriteRenderer;
         protected GridSettings m_GridSettings;
+        protected int m_Power = 2;  // Default power value
         #endregion
 
         #region Public Properties
@@ -17,6 +18,7 @@ namespace Patchwork.Gameplay
         public abstract string DisplayName { get; }
         public abstract string Description { get; }
         public virtual bool IsVisible => !m_IsCollected;
+        public virtual int Power => m_Power;  // New property implementation
         #endregion
 
         #region Protected Abstract Methods
