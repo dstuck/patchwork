@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine.InputSystem;
 using Patchwork.Input;
 using Patchwork.Data;
+using System.Linq;
 
 namespace Patchwork.Gameplay
 {
@@ -71,6 +72,14 @@ namespace Patchwork.Gameplay
         private GameControls m_Controls;
 
         private bool m_IsBeingDestroyed;
+
+        // Active collectibles for this run
+        private List<ICollectible> m_ActiveBonuses = new List<ICollectible>();
+        private List<ICollectible> m_ActiveDangers = new List<ICollectible>();
+        private ICollectible m_CurrentBonus;
+        private ICollectible m_CurrentDanger;
+        private int m_BonusCounter;
+        private int m_DangerCounter;
         #endregion
 
         #region Game State
@@ -277,9 +286,6 @@ namespace Patchwork.Gameplay
                 // Reset stage-specific bonuses
                 m_StageScoreBonus = 0;
                 
-                // Add stage progress collectibles before resetting deck
-                AddStageProgressCollectibles();
-                
                 if (m_CollectiblesDeck != null)
                 {
                     m_CollectiblesDeck.ResetForNewStage();
@@ -355,99 +361,83 @@ namespace Patchwork.Gameplay
             }
         }
 
-        private ICollectible CreateRandomSparkCollectible()
-        {
-            // Randomly choose spark type (0 = regular, 1 = ghost, 2 = jumping)
-            int sparkType = Random.Range(0, 3);
-            
-            GameObject sparkObj = new GameObject("SparkPrototype");
-            sparkObj.SetActive(false);  // Hide the prototype
-            
-            ICollectible spark = null;
-            switch (sparkType)
-            {
-                case 0:
-                    spark = sparkObj.AddComponent<SparkCollectible>();
-                    break;
-                case 1:
-                    spark = sparkObj.AddComponent<GhostSparkCollectible>();
-                    break;
-                case 2:
-                    spark = sparkObj.AddComponent<JumpingSparkCollectible>();
-                    break;
-            }
-            
-            return spark;
-        }
-
         private void InitializeCollectibles()
         {
-            // Add base number of random sparks
-            for (int i = 0; i < m_BaseSparkCount; i++)
-            {
-                var spark = CreateRandomSparkCollectible();
-                m_CollectiblesDeck.AddCollectibleToDeck(spark);
-                Destroy(((MonoBehaviour)spark).gameObject);
-            }
+            // Create prototype collectibles
+            var newSquare = CreateCollectible<NewSquareCollectible>("NewSquarePrototype");
+            var drawGem = CreateCollectible<DrawGemCollectible>("DrawGemPrototype");
+            var heartPiece = CreateCollectible<HeartPieceCollectible>("HeartPiecePrototype");
+            var pristinePaint = CreateCollectible<PristinePaintCollectible>("PristineUpgradePrototype");
+            var lenientPaint = CreateCollectible<LenientPaintCollectible>("LenientUpgradePrototype");
+            var spark = CreateCollectible<SparkCollectible>("SparkPrototype");
+            var ghostSpark = CreateCollectible<GhostSparkCollectible>("GhostSparkPrototype");
+            var jumpingSpark = CreateCollectible<JumpingSparkCollectible>("JumpingSparkPrototype");
+            var flame = CreateCollectible<FlameCollectible>("FlamePrototype");
 
-            // Add base number of flames
-            for (int i = 0; i < m_BaseFlameCount; i++)
-            {
-                var flameObj = new GameObject("FlamePrototype");
-                flameObj.SetActive(false);
-                var flame = flameObj.AddComponent<FlameCollectible>();
-                m_CollectiblesDeck.AddCollectibleToDeck(flame);
-                Destroy(flameObj);
-            }
+            // Select 3 random bonuses and 2 random dangers for this run
+            var allBonuses = new List<ICollectible> { newSquare, drawGem, heartPiece, pristinePaint, lenientPaint };
+            var allDangers = new List<ICollectible> { spark, ghostSpark, jumpingSpark, flame };
 
-            var heartContainerObj = new GameObject("HeartContainerPrototype");
-            heartContainerObj.SetActive(false);
-            var heartContainer = heartContainerObj.AddComponent<HeartPieceCollectible>();
-            m_CollectiblesDeck.AddCollectibleToDeck(heartContainer);
-            Destroy(heartContainerObj);
+            m_ActiveBonuses = allBonuses.OrderBy(x => Random.value).Take(3).ToList();
+            m_ActiveDangers = allDangers.OrderBy(x => Random.value).Take(2).ToList();
 
-            // Add upgrade collectibles
-            var pristineObj = new GameObject("PristineUpgradePrototype");
-            pristineObj.SetActive(false);
-            m_CollectiblesDeck.AddCollectibleToDeck(pristineObj.AddComponent<PristinePaintCollectible>());
-            Destroy(pristineObj);
-
-            var lenientObj = new GameObject("LenientUpgradePrototype");
-            lenientObj.SetActive(false);
-            m_CollectiblesDeck.AddCollectibleToDeck(lenientObj.AddComponent<LenientPaintCollectible>());
-            Destroy(lenientObj);
-
-            // Add new square collectible
-            var newSquareObj = new GameObject("NewSquarePrototype");
-            newSquareObj.SetActive(false);
-            m_CollectiblesDeck.AddCollectibleToDeck(newSquareObj.AddComponent<NewSquareCollectible>());
-            Destroy(newSquareObj);
+            // Select initial collectibles
+            SelectNextBonus();
+            SelectNextDanger();
         }
 
-        private void AddStageProgressCollectibles()
+        private ICollectible CreateCollectible<T>(string name) where T : BaseCollectible
         {
-            // Add new random spark if it's time
-            if (m_CurrentStage > 0 && m_CurrentStage % m_StagesPerSpark == 0)
+            var obj = new GameObject(name);
+            obj.SetActive(false);
+            return obj.AddComponent<T>();
+        }
+
+        private void SelectNextBonus()
+        {
+            if (m_ActiveBonuses.Count > 0)
             {
-                var spark = CreateRandomSparkCollectible();
-                m_CollectiblesDeck.AddCollectibleToDeck(spark);
-                Destroy(((MonoBehaviour)spark).gameObject);
+                m_CurrentBonus = m_ActiveBonuses[Random.Range(0, m_ActiveBonuses.Count)];
+                m_BonusCounter = 0;
+            }
+        }
+
+        private void SelectNextDanger()
+        {
+            if (m_ActiveDangers.Count > 0)
+            {
+                m_CurrentDanger = m_ActiveDangers[Random.Range(0, m_ActiveDangers.Count)];
+                m_DangerCounter = 0;
+            }
+        }
+
+        private void UpdateCollectibles()
+        {
+            // Update bonus counter
+            if (m_CurrentBonus != null)
+            {
+                m_BonusCounter++;
+                if (m_BonusCounter >= m_CurrentBonus.Power)
+                {
+                    // Add to deck and select new bonus
+                    m_CollectiblesDeck.AddCollectibleToDeck(m_CurrentBonus);
+                    SelectNextBonus();
+                }
             }
 
-            // Add new draw gem if it's time
-            if (m_CurrentStage > 0 && m_CurrentStage % c_StagesPerGem == 0 && (m_CurrentStage / c_StagesPerGem) <= c_MaxGemCount)
+            // Update danger counter
+            if (m_CurrentDanger != null)
             {
-                var gemObj = new GameObject("DrawGemPrototype");
-                gemObj.SetActive(false);  // Hide the prototype
-                var gem = gemObj.AddComponent<DrawGemCollectible>();
-                m_CollectiblesDeck.AddCollectibleToDeck(gem);
-                Destroy(gemObj);  // Destroy after adding to deck
-
-                // Update the board's gem count by adding one
-                Board board = FindFirstObjectByType<Board>();
-                if (board != null)
+                m_DangerCounter++;
+                if (m_DangerCounter >= m_CurrentDanger.Power)
                 {
-                    board.SetGemCount(board.GetGemCount() + 1);
+                    // Add to deck and apply effect if needed
+                    m_CollectiblesDeck.AddCollectibleToDeck(m_CurrentDanger);
+                    if (m_CurrentDanger is SparkCollectible || m_CurrentDanger is FlameCollectible)
+                    {
+                        DecreaseLives();
+                    }
+                    SelectNextDanger();
                 }
             }
         }
@@ -539,6 +529,12 @@ namespace Patchwork.Gameplay
             
             // Reset the bonus for next stage
             m_StageScoreBonus = 0;
+
+            // Only update collectibles on non-boss stages
+            if (!IsBossStage(m_CurrentStage))
+            {
+                UpdateCollectibles();
+            }
         }
 
         private int GetTotalTilesPlaced()
