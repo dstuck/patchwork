@@ -431,12 +431,8 @@ namespace Patchwork.Gameplay
                 m_DangerCounter++;
                 if (m_DangerCounter >= m_CurrentDanger.Power)
                 {
-                    // Add to deck and apply effect if needed
+                    // Add to deck and select new danger
                     m_CollectiblesDeck.AddCollectibleToDeck(m_CurrentDanger);
-                    if (m_CurrentDanger is SparkCollectible || m_CurrentDanger is FlameCollectible)
-                    {
-                        DecreaseLives();
-                    }
                     SelectNextDanger();
                 }
             }
