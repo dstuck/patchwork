@@ -375,7 +375,7 @@ namespace Patchwork.Gameplay
             var flame = CreateCollectible<FlameCollectible>("FlamePrototype");
 
             // Select 3 random bonuses and 2 random dangers for this run
-            var allBonuses = new List<ICollectible> { newSquare, drawGem, heartPiece, pristinePaint, lenientPaint };
+            var allBonuses = new List<ICollectible> { newSquare, drawGem, heartPiece, pristinePaint };
             var allDangers = new List<ICollectible> { spark, ghostSpark, jumpingSpark, flame };
 
             m_ActiveBonuses = allBonuses.OrderBy(x => Random.value).Take(3).ToList();
