@@ -37,9 +37,37 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 - [x] Add boss rewards
 
 ### 0.7: Danger
-- [ ] Add spark tiles that must be covered
-- [ ] Keep track of "danger" and trigger game over
-- [ ] Add fire that spreads after each placement
+- [x] Add spark tiles that must be covered
+- [x] Keep track of "danger" and trigger game over
+- [x] Add fire that spreads after each placement
+
+### 0.8: Collectible Modifiers
+- [x] Add additional dangers that can be used for upgrades
+- [x] Add additional benefits that can be used for upgrades
+- [x] Refactor time and multiplier bonuses to be collectibles
+- [x] Restructure upgrades to be randomized on each new stage
+- [x] Collectible tooltip shows up on button press
+
+### 0.9: Collectible Upgrades
+- [ ] Create upgraded versions for collectibles (modify sprite with + and ++)
+- [ ] Create recipes for combining collectibles into higher level
+- [ ] Create upgrade screen providing upgrade options
+
+### 0.10: SFX
+- [ ] Add SFX for tile placement
+- [ ] Add SFX for cursor movement
+- [ ] Add SFX for collectible pickup
+
+<!-- ### 0.9: CEOs
+- [ ] Add boss stage upgrades that come with costs
+- [ ] Generate these bonuses randomly
+- [ ] Create CEOs that choose bonuses for you based on preferences
+- [ ] Add CEO selection screen at start of each run
+
+### 0.10: Badges (rename when we understand how it fits in story better)
+- [ ] Implement a badge system that can be equipped on new runs
+- [ ] CEOs define badge limits
+- [ ] Create 10 initial badges (start with upgraded tiles, allow dropping tiles, extra time...) -->
 
 
 ## Design
@@ -47,11 +75,14 @@ Core feeling to capture: "I am so good at my job but it doesn't matter due to th
 
 You only control your own work and upgrades tied to your deck of patches and limited in scope while large scale upgrade decisions that manage your ability to scale score up and that will add more dangers to the board are chosen by the CEOs that will be determined at the start of each run/company you join.
 
+The CEO will add the collectibles present on your board, but what you can control is how you place them and then how you combine collectibles in a crafting-like step between stages. The recipes for how they combine will be revealed as you make them and will be persistent between runs providing a sense of growth at the outer loop
+
 Main structures
 - Tiles: A tiles shape is composed of connected unit squares and it maybe have modifiers that will be accounted for in scoring and be displayed visually
 - Deck: The deck is a collection of tiles that will persist in a given run
 - Hand: A hand is a selection of tiles from the players deck
 - Board: The board is a grid that players will place tiles on, each square of the grid can have properties that effect scoring. At baseline a hole will score a base number of points if it's covered by a tile and a solid space will penalize points if covered
+- Collectibles: Items on the board that you can pick up by placing a tile on them. Provide benefits for picking up or penalties for missing them
 
 
 ### Game overview
@@ -101,6 +132,9 @@ It's hard to increase the challenge by making the board more complex or smaller
     - Maybe we start with one and build them up til there are lots of them
 - Could have little moving things/enemies that move around and lose you points
     - There could be upgrades that squash them and give bonus points
+
+### Collectible management
+If all major upgrades are collectible based and chosen by CEOs we have two problems, one we'll have too many for the board eventually and two we won't have control over them. To handle both cases, we should have a collectible combining/upgrading system where you can take say some weaker collectibles and combine them into one stronger one (beneficial and detrimental). That way you're encouraged to reduce the number of them and also have some input in what they are. So combine 2 bad to make a single but stronger bad pickup and maybe add in one good pickup to modify what the outcome is...
 
 ### Upgrade Routes
 - Higher multipliers but lose precision somehow?

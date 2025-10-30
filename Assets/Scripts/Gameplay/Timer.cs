@@ -7,6 +7,7 @@ namespace Patchwork.Gameplay
     {
         #region Events
         public UnityEvent<float> OnTimerTick = new UnityEvent<float>();  // Sends normalized time (0-1)
+        public System.Action<float> OnMultiplierChanged;
         #endregion
 
         #region Private Fields
@@ -51,6 +52,12 @@ namespace Patchwork.Gameplay
             float rawMultiplier = Mathf.Lerp(m_MinMultiplier, m_MaxMultiplier, GetNormalizedTimeRemaining());
             return Mathf.Round(rawMultiplier * 2f) / 2f;  // Round to nearest 0.5
         }
+
+        public void IncreaseCurrentMultiplier(float amount)
+        {
+            m_MaxMultiplier += amount;
+            OnMultiplierChanged?.Invoke(GetCurrentMultiplier());
+        }
         #endregion
 
         #region Unity Lifecycle
@@ -70,6 +77,7 @@ namespace Patchwork.Gameplay
 
             m_CurrentTime -= Time.deltaTime;
             OnTimerTick.Invoke(GetNormalizedTimeRemaining());
+            OnMultiplierChanged?.Invoke(GetCurrentMultiplier());
 
             if (m_CurrentTime <= 0)
             {

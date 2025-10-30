@@ -16,7 +16,6 @@ namespace Patchwork.UI
         {
             m_Controls = new GameControls();
             m_Controls.Movement.Place.performed += OnAnyInput;
-            m_Controls.Movement.SelectTile.performed += OnAnyInput;
         }
 
         private void OnEnable()

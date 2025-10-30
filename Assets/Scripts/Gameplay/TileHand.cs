@@ -14,7 +14,7 @@ namespace Patchwork.Gameplay
 
         #region Private Fields
         [SerializeField] private List<TileData> m_AvailableTiles = new List<TileData>();
-        [SerializeField] private TileData m_CurrentTile;
+        private TileData m_CurrentTile;
         private int m_CurrentTileIndex;
         [SerializeField] private int m_HandSize = 3;
         private Deck m_Deck;  // Reference to Deck
@@ -46,6 +46,8 @@ namespace Patchwork.Gameplay
                         return;
                     }
                 }
+                
+                InitializeTileHand();
             }
         }
 
@@ -116,16 +118,6 @@ namespace Patchwork.Gameplay
             
             m_CurrentTile = m_AvailableTiles[m_CurrentTileIndex];
             OnTileChanged?.Invoke();
-        }
-
-        public bool SelectTile(int _index)
-        {
-            if (_index < 0 || _index >= m_AvailableTiles.Count) return false;
-            
-            m_CurrentTileIndex = _index;
-            m_CurrentTile = m_AvailableTiles[m_CurrentTileIndex];
-            OnTileChanged?.Invoke();
-            return true;
         }
 
         public int GetTileCount()

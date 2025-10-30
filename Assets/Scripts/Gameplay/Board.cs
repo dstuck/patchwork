@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using Patchwork.Data;
+using Patchwork.UI;
 using Patchwork.Gameplay;
 
 namespace Patchwork.Gameplay
@@ -28,6 +29,11 @@ namespace Patchwork.Gameplay
         private int m_TotalColumns;
         private int m_VisibleStartColumn;
         private Dictionary<Vector2Int, GameObject> m_AllHoles = new Dictionary<Vector2Int, GameObject>(); // Stores all holes including off-screen
+        private int m_CurrentTooltipIndex = -1;
+
+        // Add these fields to the Private Fields region
+        private List<string> m_AvailableTileNames;
+        private HashSet<string> m_UsedTileNames = new HashSet<string>();
         #endregion
 
         #region Unity Lifecycle
@@ -42,6 +48,9 @@ namespace Patchwork.Gameplay
             }
 
             m_GemCount = c_DefaultGemCount;  // Initialize with default value
+            
+            // Initialize available tile names
+            m_AvailableTileNames = TileFactory.AvailableTileNames.ToList();
         }
 
         private void Start()
@@ -205,62 +214,22 @@ namespace Patchwork.Gameplay
 
             var availableHoles = m_Holes.Keys.ToList();
 
-            // Place draw gems at random hole positions
-            for (int i = 0; i < m_GemCount; i++)
+            // Get collectibles from the deck via GameManager
+            var collectibles = GameManager.Instance.GetCollectiblesForStage();
+            foreach (var collectible in collectibles)
             {
+                // Find an empty hole position
                 if (availableHoles.Count > 0)
                 {
                     int randomIndex = Random.Range(0, availableHoles.Count);
-                    Vector2Int gemPos = availableHoles[randomIndex];
+                    Vector2Int pos = availableHoles[randomIndex];
                     
-                    GameObject gemObj = new GameObject("DrawGem");
-                    gemObj.transform.SetParent(collectiblesParent.transform);
+                    GameObject collectibleObj = new GameObject(collectible.DisplayName);
+                    collectibleObj.transform.SetParent(collectiblesParent.transform);
                     
-                    DrawGem gem = gemObj.AddComponent<DrawGem>();
-                    gem.Initialize(gemPos);
-                    m_Collectibles.Add(gem);
-                    
-                    availableHoles.RemoveAt(randomIndex);
-                }
-            }
-
-            // Calculate spark and flame counts from GameManager
-            int sparkCount = GameManager.Instance.SparkCount;
-            int flameCount = GameManager.Instance.FlameCount;
-
-            // Place sparks at random hole positions
-            for (int i = 0; i < sparkCount; i++)
-            {
-                if (availableHoles.Count > 0)
-                {
-                    int randomIndex = Random.Range(0, availableHoles.Count);
-                    Vector2Int sparkPos = availableHoles[randomIndex];
-                    
-                    GameObject sparkObj = new GameObject("SparkCollectible");
-                    sparkObj.transform.SetParent(collectiblesParent.transform);
-                    
-                    SparkCollectible spark = sparkObj.AddComponent<SparkCollectible>();
-                    spark.Initialize(sparkPos);
-                    m_Collectibles.Add(spark);
-                    
-                    availableHoles.RemoveAt(randomIndex);
-                }
-            }
-
-            // Place flames at random hole positions
-            for (int i = 0; i < flameCount; i++)
-            {
-                if (availableHoles.Count > 0)
-                {
-                    int randomIndex = Random.Range(0, availableHoles.Count);
-                    Vector2Int flamePos = availableHoles[randomIndex];
-                    
-                    GameObject flameObj = new GameObject("FlameCollectible");
-                    flameObj.transform.SetParent(collectiblesParent.transform);
-                    
-                    FlameCollectible flame = flameObj.AddComponent<FlameCollectible>();
-                    flame.Initialize(flamePos);
-                    m_Collectibles.Add(flame);
+                    var newCollectible = collectibleObj.AddComponent(((MonoBehaviour)collectible).GetType()) as ICollectible;
+                    newCollectible.Initialize(pos);
+                    m_Collectibles.Add(newCollectible);
                     
                     availableHoles.RemoveAt(randomIndex);
                 }
@@ -341,7 +310,7 @@ namespace Patchwork.Gameplay
             GameObject hole = new GameObject($"Hole_{_position.x}_{_position.y}");
             hole.transform.SetParent(_parent.transform);
             
-            // Set position
+            // Set positionin
             hole.transform.position = new Vector3(
                 (_position.x + 0.5f) * m_GridSettings.CellSize,
                 (_position.y + 0.5f) * m_GridSettings.CellSize,
@@ -456,13 +425,35 @@ namespace Patchwork.Gameplay
             }
         }
 
+        // Add this new method to manage tile selection
+        private string GetNextAvailableTileName()
+        {
+            // If we've used all tiles, reset the used set
+            if (m_UsedTileNames.Count >= m_AvailableTileNames.Count)
+            {
+                m_UsedTileNames.Clear();
+            }
+
+            // Get a random unused tile
+            var unusedTiles = m_AvailableTileNames.Where(name => !m_UsedTileNames.Contains(name)).ToList();
+            string nextTile = unusedTiles[Random.Range(0, unusedTiles.Count)];
+            m_UsedTileNames.Add(nextTile);
+            return nextTile;
+        }
+
+        // Update TriggerGemCollection to use the factory
         private void TriggerGemCollection()
         {
-            // Find the GameManager to access the deck
             var gameManager = FindFirstObjectByType<GameManager>();
             if (gameManager != null && gameManager.Deck != null)
             {
-                gameManager.Deck.DrawTile();
+                // Create a new tile using the factory
+                string tileName = GetNextAvailableTileName();
+                TileData newTile = TileFactory.CreateTile(tileName);
+                if (newTile != null)
+                {
+                    gameManager.Deck.AddTile(newTile);
+                }
             }
         }
         #endregion
@@ -509,32 +500,6 @@ namespace Patchwork.Gameplay
             }
 
             return totalScore;
-        }
-
-        public bool TryCollectDrawGem(Vector2Int _position)
-        {
-            if (m_IsMovingBossBoard)
-            {
-                // For moving boss board, position is already in world coordinates
-                Vector2Int worldPos = _position;
-                DrawGem gem = m_Collectibles.OfType<DrawGem>().FirstOrDefault(g => g.GridPosition == worldPos);
-                if (gem != null && gem.TryCollect())
-                {
-                    TriggerGemCollection();
-                    return true;
-                }
-            }
-            else
-            {
-                // For regular board, check the regular draw gems list
-                DrawGem gem = m_Collectibles.OfType<DrawGem>().FirstOrDefault(g => g.GridPosition == _position);
-                if (gem != null && gem.TryCollect())
-                {
-                    TriggerGemCollection();
-                    return true;
-                }
-            }
-            return false;
         }
 
         #if UNITY_INCLUDE_TESTS
@@ -675,7 +640,7 @@ namespace Patchwork.Gameplay
                 GameObject gemObj = new GameObject("DrawGem");
                 gemObj.transform.SetParent(collectiblesParent.transform);
                 
-                DrawGem gem = gemObj.AddComponent<DrawGem>();
+                DrawGemCollectible gem = gemObj.AddComponent<DrawGemCollectible>();
                 gem.Initialize(gemPos);
                 m_Collectibles.Add(gem);
                 
@@ -700,16 +665,6 @@ namespace Patchwork.Gameplay
             return m_PlacedTiles.Count;
         }
 
-        public void AddSparkCollectible(Vector2Int position)
-        {
-            GameObject collectibleObj = new GameObject("Spark");
-            collectibleObj.transform.SetParent(transform);
-            
-            SparkCollectible spark = collectibleObj.AddComponent<SparkCollectible>();
-            spark.Initialize(position);
-            m_Collectibles.Add(spark);
-        }
-
         public void AddFlameCollectible(Vector2Int position)
         {
             GameObject collectibleObj = new GameObject("Flame");
@@ -720,12 +675,11 @@ namespace Patchwork.Gameplay
             m_Collectibles.Add(flame);
         }
 
-        public void CheckCollectibles(Vector2Int position)
+        public void CheckCollectibles(Vector2Int position, PlacedTile collectingTile)
         {
             Vector2Int checkPosition = position;
             if (m_IsMovingBossBoard)
             {
-                // For moving boss board, position is already in world coordinates
                 checkPosition = position;
             }
             
@@ -735,7 +689,7 @@ namespace Patchwork.Gameplay
                 
             foreach (var collectible in collectiblesAtPosition)
             {
-                if (collectible.TryCollect())
+                if (collectible.TryCollect(collectingTile))
                 {
                     m_Collectibles.Remove(collectible);
                 }
@@ -769,6 +723,62 @@ namespace Patchwork.Gameplay
         public bool IsPlacedTileAtPosition(Vector2Int _position)
         {
             return m_PlacedTiles.Any(tile => tile.OccupiesPosition(_position));
+        }
+
+        public int GetGemCount()
+        {
+            return m_GemCount;
+        }
+
+        public List<ICollectible> GetActiveCollectibles()
+        {
+            var collectibles = m_Collectibles.Where(c => c.IsVisible).ToList();
+            return collectibles;
+        }
+
+        public void ToggleCollectibleTooltips(bool show)
+        {
+            if (m_IsMovingBossBoard) return;  // Skip tooltips on moving boss levels
+            
+            if (!show)
+            {
+                TooltipSystem.Instance.Hide();
+                m_CurrentTooltipIndex = -1;
+                return;
+            }
+
+            var collectibles = GetActiveCollectibles();
+            if (collectibles.Count == 0) return;
+
+            m_CurrentTooltipIndex = 0;
+            ShowCurrentCollectibleTooltip(collectibles);
+        }
+
+        public bool CycleToNextCollectibleTooltip()
+        {
+            if (m_IsMovingBossBoard) return false;  // Skip tooltips on moving boss levels
+            
+            var collectibles = GetActiveCollectibles();
+            if (collectibles.Count == 0) return false;
+
+            m_CurrentTooltipIndex++;
+            if (m_CurrentTooltipIndex >= collectibles.Count)
+            {
+                TooltipSystem.Instance.Hide();
+                m_CurrentTooltipIndex = -1;
+                return false;
+            }
+
+            ShowCurrentCollectibleTooltip(collectibles);
+            return true;
+        }
+
+        private void ShowCurrentCollectibleTooltip(List<ICollectible> collectibles)
+        {
+            var collectible = collectibles[m_CurrentTooltipIndex];
+            Vector3 worldPos = ((MonoBehaviour)collectible).transform.position;
+            Vector2 screenPos = Camera.main.WorldToScreenPoint(worldPos);
+            TooltipSystem.Instance.Show(collectible.DisplayName, collectible.Description, screenPos);
         }
         #endregion
 

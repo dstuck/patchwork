@@ -23,13 +23,8 @@ namespace Tests
             m_BoardObject = new GameObject("TestBoard");
             m_Board = m_BoardObject.AddComponent<Board>();
             
-            // Create test tile
-            m_TestTile = ScriptableObject.CreateInstance<TileData>();
-            var so = new SerializedObject(m_TestTile);
-            var squaresProp = so.FindProperty("m_Squares");
-            squaresProp.arraySize = 1;
-            squaresProp.GetArrayElementAtIndex(0).vector2IntValue = Vector2Int.zero;
-            so.ApplyModifiedProperties();
+            // Create test tile using factory
+            m_TestTile = TileFactory.CreateTile("L");
 
             // Create hole at (0,0)
             var holes = new Dictionary<Vector2Int, GameObject>();
@@ -46,40 +41,37 @@ namespace Tests
         public void Teardown()
         {
             Object.DestroyImmediate(m_BoardObject);
-            Object.DestroyImmediate(m_TestTile);
+            // Remove m_TestTile destruction since it's no longer a ScriptableObject
         }
 
         [Test]
-        public void SingleSquare_OverHole_Scores2Points()
+        public void CalculateScore_SingleTileOverHole_ReturnsTwo()
         {
             // Arrange
-            GameObject tileObj = new GameObject("TestPlacedTile");
-            PlacedTile placedTile = tileObj.AddComponent<PlacedTile>();
+            var tileData = TileFactory.CreateTile("L"); // Use factory instead of CreateInstance
+            var board = CreateTestBoard();
+            var tile = CreateTestTile(tileData, new Vector2Int(1, 1));
             
-            // Manually set the occupied squares since we can't call Initialize
-            var occupiedSquaresField = typeof(PlacedTile).GetField("m_OccupiedSquares", 
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            occupiedSquaresField.SetValue(placedTile, new Vector2Int[] { Vector2Int.zero });
-            
-            // Set TileData
-            var tileDataField = typeof(PlacedTile).GetField("m_TileData", 
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            tileDataField.SetValue(placedTile, m_TestTile);
-
-            // Create TextMeshPro component for score display
-            GameObject textObj = new GameObject("ScoreText");
-            textObj.transform.SetParent(tileObj.transform);
-            var scoreText = textObj.AddComponent<TextMeshPro>();
-            var scoreTextField = typeof(PlacedTile).GetField("m_ScoreText", 
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            scoreTextField.SetValue(placedTile, scoreText);
-
             // Act
-            int score = placedTile.CalculateScore(m_Board, new List<PlacedTile>());
-
+            int score = tile.CalculateScore(board, new List<PlacedTile>());
+            
             // Assert
             Assert.AreEqual(2, score);
-            Object.DestroyImmediate(tileObj);
+        }
+
+        private PlacedTile CreateTestTile(TileData tileData, Vector2Int position)
+        {
+            GameObject tileObj = new GameObject("TestTile");
+            var placedTile = tileObj.AddComponent<PlacedTile>();
+            placedTile.Initialize(tileData, position, 0);
+            return placedTile;
+        }
+
+        private Board CreateTestBoard()
+        {
+            // Implementation of CreateTestBoard method
+            // This is a placeholder and should be replaced with the actual implementation
+            return m_Board;
         }
     }
 } 

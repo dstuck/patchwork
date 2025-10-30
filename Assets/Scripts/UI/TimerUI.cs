@@ -21,6 +21,7 @@ namespace Patchwork.UI
             if (m_Timer != null)
             {
                 m_Timer.OnTimerTick.AddListener(UpdateTimer);
+                m_Timer.OnMultiplierChanged += UpdateMultiplier;
                 UpdateTimer(m_Timer.GetNormalizedTimeRemaining());
             }
         }
@@ -30,19 +31,22 @@ namespace Patchwork.UI
             if (m_Timer != null)
             {
                 m_Timer.OnTimerTick.RemoveListener(UpdateTimer);
+                m_Timer.OnMultiplierChanged -= UpdateMultiplier;
+            }
+        }
+
+        private void UpdateMultiplier(float multiplier)
+        {
+            if (m_MultiplierText != null)
+            {
+                string multiplierText = multiplier.ToString("0.##");
+                m_MultiplierText.text = $"×{multiplierText}";
             }
         }
 
         public void UpdateTimer(float normalizedTime)
         {
             m_TimerFillImage.fillAmount = normalizedTime;
-
-            if (m_MultiplierText != null)
-            {
-                float multiplier = m_Timer.GetCurrentMultiplier();
-                string multiplierText = multiplier.ToString("0.##");
-                m_MultiplierText.text = $"×{multiplierText}";
-            }
         }
     }
 } 

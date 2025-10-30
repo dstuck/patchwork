@@ -20,6 +20,7 @@ namespace Patchwork.UI
         [Header("Reward UI")]
         [SerializeField] private RectTransform m_RewardTileContainer;
         [SerializeField] private GameObject m_TilePreviewPrefab;
+        [SerializeField] private GameObject m_CollectiblePreviewPrefab;
         [SerializeField] private TextMeshProUGUI m_RewardPromptText;
         [SerializeField] private float m_TileSpacing = 10f;
         
@@ -31,8 +32,9 @@ namespace Patchwork.UI
         private float m_InputCooldown = 0.15f;  // Prevent double-inputs
         private float m_LastInputTime;
 
-        private List<TilePreview> m_RewardPreviews = new List<TilePreview>();
-        private List<TileData> m_RewardOptions = new List<TileData>();
+        private List<MonoBehaviour> m_RewardPreviews = new List<MonoBehaviour>();
+        private List<TileData> m_TileRewardOptions = new List<TileData>();
+        private List<ICollectible> m_CollectibleRewardOptions = new List<ICollectible>();
         private int m_SelectedRewardIndex = 0;
         private const string c_TilesPath = "Data/BaseTiles";
         private GameControls m_Controls;
@@ -115,9 +117,11 @@ namespace Patchwork.UI
             if (Time.time - m_LastInputTime < m_InputCooldown) return;
             
             Vector2 navigation = context.ReadValue<Vector2>();
+            int maxIndex = m_IsBossReward ? m_CollectibleRewardOptions.Count - 1 : m_TileRewardOptions.Count - 1;
+            
             if (navigation.x > 0)
             {
-                m_SelectedRewardIndex = Mathf.Min(m_RewardOptions.Count - 1, m_SelectedRewardIndex + 1);
+                m_SelectedRewardIndex = Mathf.Min(maxIndex, m_SelectedRewardIndex + 1);
                 UpdateRewardSelection();
                 m_LastInputTime = Time.time;
             }
@@ -150,56 +154,19 @@ namespace Patchwork.UI
 
         private void GenerateBossRewardOptions()
         {
-            m_RewardOptions.Clear();
-            
-            // Load boss reward tiles from Resources
-            TileData[] bossRewards = Resources.LoadAll<TileData>("Data/BossRewards");
-            
-            if (bossRewards == null || bossRewards.Length == 0)
-            {
-                Debug.LogError($"No boss reward tiles found in Resources/Data/BossRewards");
-                return;
-            }
-
-            // Add both reward options
-            foreach (var rewardTile in bossRewards)
-            {
-                // Create a copy of the tile data to modify
-                TileData rewardCopy = Instantiate(rewardTile);
-                
-                // Update the name and add upgrade based on reward type
-                if (rewardCopy.name.Contains("Multiplier"))
-                {
-                    rewardCopy.name = $"x{GameManager.Instance.BaseMultiplier + 0.5f} Multiplier";
-                    rewardCopy.AddUpgrade(new MultiplierBonus());
-                }
-                else if (rewardCopy.name.Contains("Points"))
-                {
-                    rewardCopy.name = "+2 Points";
-                    rewardCopy.AddUpgrade(new PointsBonus());
-                }
-                
-                m_RewardOptions.Add(rewardCopy);
-            }
+            m_CollectibleRewardOptions.Clear();
+            m_CollectibleRewardOptions.Add(new MultiplierBonusCollectible());
+            m_CollectibleRewardOptions.Add(new ScoreBonusCollectible());
         }
 
         private void GenerateRewardOptions()
         {
-            TileData[] allTiles = Resources.LoadAll<TileData>(c_TilesPath);
-            m_RewardOptions.Clear();
+            m_TileRewardOptions.Clear();
             
-            if (allTiles == null || allTiles.Length == 0)
-            {
-                Debug.LogError($"No tiles found in Resources/{c_TilesPath}");
-                return;
-            }
-
-            // Get two random tiles
+            // Get three random tiles using TileFactory
             for (int i = 0; i < 3; i++)
             {
-                int randomIndex = Random.Range(0, allTiles.Length);
-                // Create a copy of the tile data to modify
-                TileData rewardTile = Instantiate(allTiles[randomIndex]);
+                TileData rewardTile = TileFactory.CreateRandomTile();
                 
                 // Apply appropriate upgrade based on index
                 if (i == 0)
@@ -211,18 +178,12 @@ namespace Patchwork.UI
                     rewardTile.AddUpgrade(new LenientBonus());
                 }
                 
-                m_RewardOptions.Add(rewardTile);
+                m_TileRewardOptions.Add(rewardTile);
             }
         }
 
         private void CreateRewardPreviews()
         {
-            if (m_RewardOptions.Count == 0)
-            {
-                Debug.LogError("No reward options available to create previews");
-                return;
-            }
-
             // Clean up existing previews
             foreach (Transform child in m_RewardTileContainer)
             {
@@ -230,35 +191,48 @@ namespace Patchwork.UI
             }
             m_RewardPreviews.Clear();
 
-            // Create new previews
-            foreach (var tileData in m_RewardOptions)
+            if (m_IsBossReward)
             {
-                GameObject previewObj = Instantiate(m_TilePreviewPrefab, m_RewardTileContainer);
-                RectTransform rectTransform = previewObj.GetComponent<RectTransform>();
-                
-                if (rectTransform != null)
+                if (m_CollectibleRewardOptions.Count == 0)
                 {
-                    rectTransform.sizeDelta = new Vector2(100f, 100f);
+                    Debug.LogError("No collectible reward options available");
+                    return;
                 }
 
-                TilePreview preview = previewObj.GetComponent<TilePreview>();
-                if (preview != null)
+                // Create collectible previews
+                foreach (var collectible in m_CollectibleRewardOptions)
                 {
-                    preview.Initialize(tileData);
-                    m_RewardPreviews.Add(preview);
-
-                    // Add tooltip trigger if tile has upgrades
-                    if (tileData.Upgrades.Count > 0)
+                    GameObject previewObj = Instantiate(m_CollectiblePreviewPrefab, m_RewardTileContainer);
+                    CollectiblePreview preview = previewObj.GetComponent<CollectiblePreview>();
+                    if (preview != null)
                     {
-                        var tooltipTrigger = previewObj.AddComponent<TooltipTrigger>();
-                        tooltipTrigger.Initialize(tileData.Upgrades[0]);
-                        
-                        // Add a Box Collider 2D for UI raycasting if not already present
-                        if (!previewObj.TryGetComponent<BoxCollider2D>(out _))
+                        preview.Initialize(collectible);
+                        m_RewardPreviews.Add(preview);
+                    }
+                }
+            }
+            else
+            {
+                if (m_TileRewardOptions.Count == 0)
+                {
+                    Debug.LogError("No tile reward options available");
+                    return;
+                }
+
+                // Create tile previews
+                foreach (var tileData in m_TileRewardOptions)
+                {
+                    GameObject previewObj = Instantiate(m_TilePreviewPrefab, m_RewardTileContainer);
+                    TilePreview preview = previewObj.GetComponent<TilePreview>();
+                    if (preview != null)
+                    {
+                        preview.Initialize(tileData);
+                        m_RewardPreviews.Add(preview);
+
+                        if (tileData.Upgrades.Count > 0)
                         {
-                            var collider = previewObj.AddComponent<BoxCollider2D>();
-                            collider.isTrigger = true;
-                            collider.size = rectTransform.sizeDelta;
+                            var tooltipTrigger = previewObj.AddComponent<TooltipTrigger>();
+                            tooltipTrigger.Initialize(tileData.Upgrades[0]);
                         }
                     }
                 }
@@ -271,7 +245,14 @@ namespace Patchwork.UI
         {
             for (int i = 0; i < m_RewardPreviews.Count; i++)
             {
-                m_RewardPreviews[i].SetSelected(i == m_SelectedRewardIndex);
+                if (m_IsBossReward)
+                {
+                    ((CollectiblePreview)m_RewardPreviews[i]).SetSelected(i == m_SelectedRewardIndex);
+                }
+                else
+                {
+                    ((TilePreview)m_RewardPreviews[i]).SetSelected(i == m_SelectedRewardIndex);
+                }
             }
         }
 
@@ -279,23 +260,24 @@ namespace Patchwork.UI
         {
             if (m_IsBossReward)
             {
-                // Apply boss reward based on the selected tile's name
-                TileData selectedTile = m_RewardOptions[m_SelectedRewardIndex];
-                if (selectedTile.name.Contains("Multiplier"))
+                if (m_SelectedRewardIndex >= 0 && m_SelectedRewardIndex < m_CollectibleRewardOptions.Count)
                 {
-                    GameManager.Instance.IncreaseMultiplier();
-                }
-                else if (selectedTile.name.Contains("Points"))
-                {
-                    GameManager.Instance.IncreaseTilePoints();
+                    var deck = GameManager.Instance?.CollectiblesDeck;
+                    if (deck != null)
+                    {
+                        deck.AddCollectibleToDeck(m_CollectibleRewardOptions[m_SelectedRewardIndex]);
+                    }
+                    else
+                    {
+                        Debug.LogError("CollectiblesDeck not found!");
+                    }
                 }
             }
             else
             {
-                // Regular tile reward
-                if (m_SelectedRewardIndex >= 0 && m_SelectedRewardIndex < m_RewardOptions.Count)
+                if (m_SelectedRewardIndex >= 0 && m_SelectedRewardIndex < m_TileRewardOptions.Count)
                 {
-                    GameManager.Instance.Deck.AddTileToDeck(m_RewardOptions[m_SelectedRewardIndex]);
+                    GameManager.Instance.Deck.AddTileToDeck(m_TileRewardOptions[m_SelectedRewardIndex]);
                 }
             }
             StartCoroutine(FadeOutAndContinue());
@@ -337,32 +319,5 @@ namespace Patchwork.UI
             return _stageNumber % GameManager.Instance.BossStageInterval == 0;
         }
         #endregion
-    }
-
-    // Move upgrade classes outside TransitionUI but inside namespace
-    public class MultiplierBonus : ITileUpgrade
-    {
-        public string DisplayName => "Multiplier Boost";
-        public string Description => "Increases score multiplier by 0.5x\nFaster scoring but less precise";
-        public Color DisplayColor => Color.yellow;
-        
-        public int ModifyScore(int _baseScore, PlacedTile _tile, Board _board, List<PlacedTile> _otherTiles)
-        {
-            // This is just a visual upgrade for the reward choice, actual multiplier is handled by GameManager
-            return _baseScore;
-        }
-    }
-
-    public class PointsBonus : ITileUpgrade
-    {
-        public string DisplayName => "Points Boost";
-        public string Description => "Increases base points by 2\nMore points per tile";
-        public Color DisplayColor => Color.green;
-        
-        public int ModifyScore(int _baseScore, PlacedTile _tile, Board _board, List<PlacedTile> _otherTiles)
-        {
-            // This is just a visual upgrade for the reward choice, actual points bonus is handled by GameManager
-            return _baseScore;
-        }
     }
 } 

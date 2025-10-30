@@ -2,6 +2,11 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using Patchwork.UI;
+using System.Collections.Generic;
+using UnityEngine.InputSystem;
+using Patchwork.Input;
+using Patchwork.Data;
+using System.Linq;
 
 namespace Patchwork.Gameplay
 {
@@ -19,6 +24,7 @@ namespace Patchwork.Gameplay
         
         [Header("References")]
         [SerializeField] private Deck m_Deck;
+        [SerializeField] private CollectiblesDeck m_CollectiblesDeck;
         
         [Header("Timer Settings")]
         [SerializeField] private float m_BaseTimerDuration = 30f;
@@ -47,11 +53,10 @@ namespace Patchwork.Gameplay
         private bool m_IsInitialized;
         
         private Timer m_Timer;
-        private int m_TilePointsBonus = 0;
 
         [Header("Life Settings")]
-        [SerializeField] private int m_MaxLives = 3;  // Starting max lives
-        private int m_CurrentLives;
+        [SerializeField] private float m_MaxLives = 3f;  // Changed to float
+        private float m_CurrentLives;  // Changed to float
         private PlayerResourceUI m_ResourceUI;
 
         [Header("Collectible Settings")]
@@ -59,6 +64,22 @@ namespace Patchwork.Gameplay
         [SerializeField] private int m_BaseFlameCount = 0;    // Start with 1 flame
         [SerializeField] private int m_StagesPerSpark = 2;    // Add 1 spark every 2 stages
         [SerializeField] private int m_StagesPerFlame = 3;    // Add 1 flame every 3 stages
+
+        private int m_StageScoreBonus = 0;
+
+        private bool m_ShowingTooltips = false;
+
+        private GameControls m_Controls;
+
+        private bool m_IsBeingDestroyed;
+
+        // Active collectibles for this run
+        private List<ICollectible> m_ActiveBonuses = new List<ICollectible>();
+        private List<ICollectible> m_ActiveDangers = new List<ICollectible>();
+        private ICollectible m_CurrentBonus;
+        private ICollectible m_CurrentDanger;
+        private int m_BonusCounter;
+        private int m_DangerCounter;
         #endregion
 
         #region Game State
@@ -85,9 +106,10 @@ namespace Patchwork.Gameplay
         public float BaseMultiplier => m_BaseMultiplier;
         public int BossStageInterval => m_BossStageInterval;
         public bool IsPostBossStage => IsBossStage(m_CurrentStage - 1);
-        public int MaxLives => m_MaxLives;
+        public int MaxLives => c_MaxLives;
         public int SparkCount => m_BaseSparkCount + ((m_CurrentStage - 1) / m_StagesPerSpark);
         public int FlameCount => m_BaseFlameCount + ((m_CurrentStage - 1) / m_StagesPerFlame);
+        public CollectiblesDeck CollectiblesDeck => m_CollectiblesDeck;
         #endregion
 
         #region Unity Lifecycle
@@ -95,21 +117,48 @@ namespace Patchwork.Gameplay
         {
             if (s_Instance != null && s_Instance != this)
             {
+                m_IsBeingDestroyed = true; // Flag that we're being destroyed
                 Destroy(gameObject);
                 return;
             }
+            
             s_Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            // Try to find CollectiblesDeck if not assigned
+            if (m_CollectiblesDeck == null)
+            {
+                m_CollectiblesDeck = FindFirstObjectByType<CollectiblesDeck>();
+                if (m_CollectiblesDeck == null)
+                {
+                    Debug.LogError("[GameManager] CollectiblesDeck not found in scene!");
+                    return;
+                }
+            }
+
             Initialize();
+
+            m_Controls = new GameControls();
+            m_Controls.Movement.ShowTooltips.started += ctx => OnShowTooltip(true);
+            m_Controls.Movement.ShowTooltips.canceled += ctx => OnShowTooltip(false);
         }
 
         private void OnEnable()
         {
             SceneManager.sceneLoaded += OnSceneLoaded;
+            m_Controls.Enable();
         }
 
         private void OnDisable()
         {
+            // Skip cleanup if we're the duplicate being destroyed
+            if (m_IsBeingDestroyed) return;
+
+            if (m_Controls != null)
+            {
+                m_Controls.Disable();
+            }
+            
             SceneManager.sceneLoaded -= OnSceneLoaded;
         }
 
@@ -130,19 +179,30 @@ namespace Patchwork.Gameplay
         {
             if (m_IsInitialized) return;
             
-            if (m_Deck == null)
-            {
-                Debug.LogError("[GameManager] Deck reference is missing!");
-                return;
-            }
-
-            if (!m_Deck.IsInitialized)
+            m_CurrentStage = 1;
+            m_CumulativeScore = 0;
+            m_CurrentLives = m_MaxLives;
+            
+            if (m_Deck != null)
             {
                 m_Deck.Initialize();
             }
 
+            if (m_CollectiblesDeck == null)
+            {
+                Debug.LogError("[GameManager] CollectiblesDeck reference is missing!");
+                return;
+            }
+
             m_CurrentStage = 1;
             m_CumulativeScore = 0;
+            InitializeCollectibles();
+
+            if (!m_CollectiblesDeck.IsInitialized)
+            {
+                m_CollectiblesDeck.Initialize();
+            }
+
             m_IsInitialized = true;
         }
 
@@ -223,6 +283,14 @@ namespace Patchwork.Gameplay
         {
             if (_scene.name == m_GameplaySceneName)
             {
+                // Reset stage-specific bonuses
+                m_StageScoreBonus = 0;
+                
+                if (m_CollectiblesDeck != null)
+                {
+                    m_CollectiblesDeck.ResetForNewStage();
+                }
+                
                 // Initialize UI
                 m_ResourceUI = FindFirstObjectByType<PlayerResourceUI>();
                 if (m_ResourceUI != null)
@@ -292,21 +360,123 @@ namespace Patchwork.Gameplay
                 }
             }
         }
+
+        private void InitializeCollectibles()
+        {
+            // Create prototype collectibles
+            var newSquare = CreateCollectible<NewSquareCollectible>("NewSquarePrototype");
+            var drawGem = CreateCollectible<DrawGemCollectible>("DrawGemPrototype");
+            var heartPiece = CreateCollectible<HeartPieceCollectible>("HeartPiecePrototype");
+            var pristinePaint = CreateCollectible<PristinePaintCollectible>("PristineUpgradePrototype");
+            var lenientPaint = CreateCollectible<LenientPaintCollectible>("LenientUpgradePrototype");
+            var spark = CreateCollectible<SparkCollectible>("SparkPrototype");
+            var ghostSpark = CreateCollectible<GhostSparkCollectible>("GhostSparkPrototype");
+            var jumpingSpark = CreateCollectible<JumpingSparkCollectible>("JumpingSparkPrototype");
+            var flame = CreateCollectible<FlameCollectible>("FlamePrototype");
+
+            // Select 3 random bonuses and 2 random dangers for this run
+            var allBonuses = new List<ICollectible> { newSquare, drawGem, heartPiece, pristinePaint };
+            var allDangers = new List<ICollectible> { spark, ghostSpark, jumpingSpark, flame };
+
+            m_ActiveBonuses = allBonuses.OrderBy(x => Random.value).Take(3).ToList();
+            m_ActiveDangers = allDangers.OrderBy(x => Random.value).Take(2).ToList();
+
+            // Select initial collectibles
+            SelectNextBonus();
+            SelectNextDanger();
+        }
+
+        private ICollectible CreateCollectible<T>(string name) where T : BaseCollectible
+        {
+            var obj = new GameObject(name);
+            obj.SetActive(false);
+            return obj.AddComponent<T>();
+        }
+
+        private void SelectNextBonus()
+        {
+            if (m_ActiveBonuses.Count > 0)
+            {
+                m_CurrentBonus = m_ActiveBonuses[Random.Range(0, m_ActiveBonuses.Count)];
+                m_BonusCounter = 0;
+            }
+        }
+
+        private void SelectNextDanger()
+        {
+            if (m_ActiveDangers.Count > 0)
+            {
+                m_CurrentDanger = m_ActiveDangers[Random.Range(0, m_ActiveDangers.Count)];
+                m_DangerCounter = 0;
+            }
+        }
+
+        private void UpdateCollectibles()
+        {
+            // Update bonus counter
+            if (m_CurrentBonus != null)
+            {
+                m_BonusCounter++;
+                if (m_BonusCounter >= m_CurrentBonus.Power)
+                {
+                    // Add to deck and select new bonus
+                    m_CollectiblesDeck.AddCollectibleToDeck(m_CurrentBonus);
+                    SelectNextBonus();
+                }
+            }
+
+            // Update danger counter
+            if (m_CurrentDanger != null)
+            {
+                m_DangerCounter++;
+                if (m_DangerCounter >= m_CurrentDanger.Power)
+                {
+                    // Add to deck and select new danger
+                    m_CollectiblesDeck.AddCollectibleToDeck(m_CurrentDanger);
+                    SelectNextDanger();
+                }
+            }
+        }
         #endregion
 
         #region Public Methods
         public void StartNewGame()
         {
+            // Reset game state
+            m_CurrentStage = 1;
             m_CumulativeScore = 0;
+            m_CurrentLives = m_MaxLives;
+            m_StageScoreBonus = 0;
             
+            // Force deck to reinitialize by resetting initialized flag
             if (m_Deck != null)
             {
-                m_Deck.ResetDeck();
+                m_Deck.IsInitialized = false;  // Need to make this property settable
+                m_Deck.Initialize();
             }
             else
             {
                 Debug.LogError("[GameManager] Cannot start game - Deck is null");
                 return;
+            }
+            
+            // Reset collectibles deck by clearing and reinitializing
+            if (m_CollectiblesDeck != null)
+            {
+                m_CollectiblesDeck.ClearDeck();
+                InitializeCollectibles();
+            }
+            else
+            {
+                Debug.LogError("[GameManager] Cannot start game - CollectiblesDeck is null");
+                return;
+            }
+
+            // Reset UI if it exists
+            if (m_ResourceUI != null)
+            {
+                m_ResourceUI.Initialize(m_MaxLives);
+                m_ResourceUI.UpdateLives(m_CurrentLives);
             }
 
             SceneManager.LoadScene(m_GameplaySceneName);
@@ -337,7 +507,9 @@ namespace Patchwork.Gameplay
                 m_Timer.StopTimer();
             }
             
-            int stageScore = Mathf.RoundToInt(_baseScore * multiplier);
+            // Add bonus to base score before multiplier
+            int scoreWithBonus = _baseScore + m_StageScoreBonus;
+            int stageScore = Mathf.RoundToInt(scoreWithBonus * multiplier);
             m_CumulativeScore += stageScore;
             
             var scoringPopup = FindFirstObjectByType<ScoringPopupUI>();
@@ -348,7 +520,16 @@ namespace Patchwork.Gameplay
                     SceneManager.LoadScene(m_TransitionSceneName);
                 });
                 
-                scoringPopup.ShowScoring(_baseScore, multiplier, stageScore, m_CumulativeScore);
+                scoringPopup.ShowScoring(scoreWithBonus, multiplier, stageScore, m_CumulativeScore);
+            }
+            
+            // Reset the bonus for next stage
+            m_StageScoreBonus = 0;
+
+            // Only update collectibles on non-boss stages
+            if (!IsBossStage(m_CurrentStage))
+            {
+                UpdateCollectibles();
             }
         }
 
@@ -375,19 +556,17 @@ namespace Patchwork.Gameplay
             SceneManager.LoadScene(m_MainMenuSceneName);
         }
 
-        public void IncreaseMultiplier()
+        public void IncreaseMultiplier(float amount)
         {
-            m_BaseMultiplier += 0.5f;
+            if (m_Timer != null)
+            {
+                m_Timer.IncreaseCurrentMultiplier(amount);
+            }
         }
 
-        public void IncreaseTilePoints()
+        public void IncreaseScoreBonus(int amount)
         {
-            m_TilePointsBonus += 2;
-        }
-
-        public int GetTilePointsBonus()
-        {
-            return m_TilePointsBonus;
+            m_StageScoreBonus += amount;
         }
 
         public void DecreaseLives(int amount = 1)
@@ -398,7 +577,7 @@ namespace Patchwork.Gameplay
                 m_ResourceUI.UpdateLives(m_CurrentLives);
             }
             
-            if (m_CurrentLives <= 0)
+            if (m_CurrentLives < 1)  // Changed from <= 0
             {
                 SceneManager.LoadScene("GameOver");
             }
@@ -423,6 +602,48 @@ namespace Patchwork.Gameplay
                 m_ResourceUI.UpdateLives(m_CurrentLives);
             }
         }
+
+        public void IncreaseMaxLivesByAmount(float amount)
+        {
+            m_MaxLives += amount;
+            m_CurrentLives += amount;
+            if (m_ResourceUI != null)
+            {
+                m_ResourceUI.Initialize(m_MaxLives);
+                m_ResourceUI.UpdateLives(m_CurrentLives);
+            }
+        }
+
+        public List<ICollectible> GetCollectiblesForStage()
+        {
+            // Reset the deck for the new stage
+            m_CollectiblesDeck.ResetForNewStage();
+            return m_CollectiblesDeck.GetCollectibles();
+        }
+
+        private void OnShowTooltip(bool show)
+        {
+            if (!show) return; // Ignore key release
+                        
+            var board = FindFirstObjectByType<Board>();
+            if (board == null) return;
+
+            if (!m_ShowingTooltips)
+            {
+                // First press - show first collectible
+                m_ShowingTooltips = true;
+                board.ToggleCollectibleTooltips(true);
+            }
+            else
+            {
+                // Already showing - try to cycle to next
+                bool hasMore = board.CycleToNextCollectibleTooltip();
+                if (!hasMore)
+                {
+                    m_ShowingTooltips = false;
+                }
+            }
+        }
         #endregion
 
         #if UNITY_EDITOR
@@ -433,4 +654,4 @@ namespace Patchwork.Gameplay
         }
         #endif
     }
-} 
+}

@@ -20,7 +20,11 @@ namespace Patchwork.Gameplay
 
         #region Public Properties
         public static Deck Instance => s_Instance;
-        public bool IsInitialized => m_IsInitialized;
+        public bool IsInitialized 
+        { 
+            get => m_IsInitialized;
+            set => m_IsInitialized = value;
+        }
         #endregion
 
         #region Unity Lifecycle
@@ -56,34 +60,13 @@ namespace Patchwork.Gameplay
         #region Private Methods
         private void LoadTilesFromResources()
         {
-            TileData[] tiles = Resources.LoadAll<TileData>(c_TilesPath);
-            if (tiles != null && tiles.Length > 0)
+            m_DeckTiles.Clear();
+            
+            // Create initial tiles using factory
+            for (int i = 0; i < m_InitialTileCount; i++)
             {
-                m_DeckTiles.Clear();
-                // Take random subset of tiles
-                List<TileData> shuffledTiles = new List<TileData>(tiles);
-                for (int i = shuffledTiles.Count - 1; i > 0; i--)
-                {
-                    int j = Random.Range(0, i + 1);
-                    TileData temp = shuffledTiles[i];
-                    shuffledTiles[i] = shuffledTiles[j];
-                    shuffledTiles[j] = temp;
-                }
-
-                // Take first N tiles
-                var selectedTiles = shuffledTiles.Take(m_InitialTileCount).ToList();
-                
-                // Create copies of tiles
-                for (int i = 0; i < selectedTiles.Count; i++)
-                {
-                    TileData tileCopy = Instantiate(selectedTiles[i]);
-                                        
-                    m_DeckTiles.Add(tileCopy);
-                }
-            }
-            else
-            {
-                Debug.LogError($"No tiles found in Resources/{c_TilesPath}");
+                var newTile = TileFactory.CreateRandomTile();
+                m_DeckTiles.Add(newTile);
             }
         }
 
@@ -165,6 +148,16 @@ namespace Patchwork.Gameplay
         }
 
         public void AddTileToDeck(TileData _tileData)
+        {
+            if (_tileData != null)
+            {
+                m_DeckTiles.Add(_tileData);
+                m_DrawPile.Add(_tileData);
+                ShuffleDeck();
+            }
+        }
+
+        public void AddTile(TileData _tileData)
         {
             if (_tileData != null)
             {

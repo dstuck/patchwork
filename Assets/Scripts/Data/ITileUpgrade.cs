@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Patchwork.Data
 {
-    public interface ITileUpgrade
+    public interface ITileUpgrade : ITooltipContent
     {
         string DisplayName { get; }
         string Description { get; }

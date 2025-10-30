@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 namespace Patchwork.UI
 {
@@ -127,6 +128,21 @@ namespace Patchwork.UI
                 m_CanvasGroup.blocksRaycasts = true;
                 m_TooltipPanel.position = m_TargetPosition;
             }
+        }
+
+        private void OnEnable()
+        {
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+
+        private void OnDisable()
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            Hide();
         }
     }
 } 

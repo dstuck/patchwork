@@ -186,6 +186,50 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!1 &386836861
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 386836863}
+  - component: {fileID: 386836862}
+  m_Layer: 0
+  m_Name: CollectiblesDeck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &386836862
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 386836861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4743080a155944e3a4c5a4792df5168, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &386836863
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 386836861}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6.49954, y: 6.500154, z: -0.000022499546}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &496148055
 GameObject:
   m_ObjectHideFlags: 0
@@ -250,6 +294,7 @@ GameObject:
   - component: {fileID: 519420029}
   - component: {fileID: 519420030}
   - component: {fileID: 519420033}
+  - component: {fileID: 519420034}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -389,6 +434,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_GridSettings: {fileID: 11400000, guid: b6ced014a13cb43f7814725b79443b2b, type: 2}
   m_CameraPadding: 1
+--- !u!114 &519420034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56666c5a40171f54783dd416a44f42bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EventMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_MaxRayIntersections: 0
 --- !u!114 &528798290 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7944800592559451149, guid: 763aba295bfd24b84961aa194bb96e50, type: 3}
@@ -1177,7 +1238,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AvailableTiles: []
-  m_CurrentTile: {fileID: 0}
   m_HandSize: 4
 --- !u!4 &1468285572
 Transform:
@@ -1922,6 +1982,10 @@ PrefabInstance:
       value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 3651296259285992534, guid: bce4a06aa34be418a821729dbada66fc, type: 3}
+      propertyPath: m_CollectiblesDeck
+      value: 
+      objectReference: {fileID: 386836862}
+    - target: {fileID: 3651296259285992534, guid: bce4a06aa34be418a821729dbada66fc, type: 3}
       propertyPath: m_BaseTimerDuration
       value: 30
       objectReference: {fileID: 0}
@@ -2296,3 +2360,4 @@ SceneRoots:
   - {fileID: 7768766161366026931}
   - {fileID: 2671623655339439156}
   - {fileID: 1281414240}
+  - {fileID: 386836863}

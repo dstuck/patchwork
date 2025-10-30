@@ -1,0 +1,624 @@
+fileFormatVersion: 2
+guid: 074623dea4bb449fabd1b4fd21bda81a
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 867286535294357645
+    second: jumpingSpark_0
+  - first:
+      213: 9214449709456439999
+    second: jumpingSpark_1
+  - first:
+      213: 7760009947165929723
+    second: jumpingSpark_2
+  - first:
+      213: 3838971580002326369
+    second: jumpingSpark_3
+  - first:
+      213: 5876082396883288563
+    second: jumpingSpark_4
+  - first:
+      213: 5227980540161125435
+    second: jumpingSpark_5
+  - first:
+      213: -5725682770763527733
+    second: jumpingSpark_6
+  - first:
+      213: 8283268105259486526
+    second: jumpingSpark_7
+  - first:
+      213: 3563983965340766491
+    second: jumpingSpark_8
+  - first:
+      213: -7528143126813337228
+    second: jumpingSpark_9
+  - first:
+      213: -7673872461723618967
+    second: jumpingSpark_10
+  - first:
+      213: -527172437170752267
+    second: jumpingSpark_11
+  - first:
+      213: -2847569450809416601
+    second: jumpingSpark_12
+  - first:
+      213: -9097214995181685399
+    second: jumpingSpark_13
+  - first:
+      213: -2780971374107921209
+    second: jumpingSpark_14
+  - first:
+      213: 8755847990793869141
+    second: jumpingSpark_15
+  - first:
+      213: 1286426362828555551
+    second: jumpingSpark_16
+  - first:
+      213: 8211586488320949318
+    second: jumpingSpark_17
+  - first:
+      213: -153141973693484750
+    second: jumpingSpark_18
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: jumpingSpark_0
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 53
+        width: 10
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d8013be3288390c00800000000000000
+      internalID: 867286535294357645
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jumpingSpark_1
+      rect:
+        serializedVersion: 2
+        x: 22
+        y: 65
+        width: 17
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fba3ad4c03d40ef70800000000000000
+      internalID: 9214449709456439999
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jumpingSpark_2
+      rect:
+        serializedVersion: 2
+        x: 26
+        y: 57
+        width: 9
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bf0b252cee711bb60800000000000000
+      internalID: 7760009947165929723
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jumpingSpark_3
+      rect:
+        serializedVersion: 2
+        x: 37
+        y: 61
+        width: 12
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 167dbd0ff44c64530800000000000000
+      internalID: 3838971580002326369
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jumpingSpark_4
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 74
+        width: 16
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3f18721aec90c8150800000000000000
+      internalID: 5876082396883288563
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jumpingSpark_5
+      rect:
+        serializedVersion: 2
+        x: 49
+        y: 58
+        width: 28
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b3c65fc2a948d8840800000000000000
+      internalID: 5227980540161125435
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jumpingSpark_6
+      rect:
+        serializedVersion: 2
+        x: 55
+        y: 37
+        width: 40
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bc9c0102bd94a80b0800000000000000
+      internalID: -5725682770763527733
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jumpingSpark_7
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 16
+        width: 47
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3d8051847414f270800000000000000
+      internalID: 8283268105259486526
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jumpingSpark_8
+      rect:
+        serializedVersion: 2
+        x: 5
+        y: 47
+        width: 11
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b11135f9880d57130800000000000000
+      internalID: 3563983965340766491
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jumpingSpark_9
+      rect:
+        serializedVersion: 2
+        x: 26
+        y: 46
+        width: 8
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4791ef346b9a68790800000000000000
+      internalID: -7528143126813337228
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jumpingSpark_10
+      rect:
+        serializedVersion: 2
+        x: 34
+        y: 55
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 961bf4b67ade08590800000000000000
+      internalID: -7673872461723618967
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jumpingSpark_11
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 40
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f47f03267b1fa8f0800000000000000
+      internalID: -527172437170752267
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jumpingSpark_12
+      rect:
+        serializedVersion: 2
+        x: 42
+        y: 33
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 764204beba66b78d0800000000000000
+      internalID: -2847569450809416601
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jumpingSpark_13
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 20
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 965b6d6392330c180800000000000000
+      internalID: -9097214995181685399
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jumpingSpark_14
+      rect:
+        serializedVersion: 2
+        x: 42
+        y: 17
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c474cbf4410869d0800000000000000
+      internalID: -2780971374107921209
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jumpingSpark_15
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 23
+        width: 9
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 557169e6b55038970800000000000000
+      internalID: 8755847990793869141
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jumpingSpark_16
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 12
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f15081216fd4ad110800000000000000
+      internalID: 1286426362828555551
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jumpingSpark_17
+      rect:
+        serializedVersion: 2
+        x: 19
+        y: 6
+        width: 17
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 64c74ce776a65f170800000000000000
+      internalID: 8211586488320949318
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: jumpingSpark_18
+      rect:
+        serializedVersion: 2
+        x: 31
+        y: 13
+        width: 9
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2313cc1bf2eefddf0800000000000000
+      internalID: -153141973693484750
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      jumpingSpark_0: 867286535294357645
+      jumpingSpark_1: 9214449709456439999
+      jumpingSpark_10: -7673872461723618967
+      jumpingSpark_11: -527172437170752267
+      jumpingSpark_12: -2847569450809416601
+      jumpingSpark_13: -9097214995181685399
+      jumpingSpark_14: -2780971374107921209
+      jumpingSpark_15: 8755847990793869141
+      jumpingSpark_16: 1286426362828555551
+      jumpingSpark_17: 8211586488320949318
+      jumpingSpark_18: -153141973693484750
+      jumpingSpark_2: 7760009947165929723
+      jumpingSpark_3: 3838971580002326369
+      jumpingSpark_4: 5876082396883288563
+      jumpingSpark_5: 5227980540161125435
+      jumpingSpark_6: -5725682770763527733
+      jumpingSpark_7: 8283268105259486526
+      jumpingSpark_8: 3563983965340766491
+      jumpingSpark_9: -7528143126813337228
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

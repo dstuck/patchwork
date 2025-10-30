@@ -42,13 +42,13 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "SelectTile",
-                    "type": "Value",
-                    "id": "4203f0f8-1b1c-4783-b7d2-3dafd1c948bf",
+                    "name": "ShowTooltips",
+                    "type": "Button",
+                    "id": "484bc23e-7233-43a8-bdda-ea771d2e56ac",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": true
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -340,45 +340,23 @@
                 },
                 {
                     "name": "",
-                    "id": "7576bbca-feef-4927-9141-19c58d286de0",
-                    "path": "<Keyboard>/1",
+                    "id": "c1b795bf-cd47-4517-8227-2119f1627c90",
+                    "path": "<Keyboard>/f",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SelectTile",
+                    "action": "ShowTooltips",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "12a07673-f4bf-4247-8325-83cdb0222cca",
-                    "path": "<Keyboard>/2",
+                    "id": "6a77367e-4a4e-4aee-b3e4-eb9f1b69b6e7",
+                    "path": "<Gamepad>/buttonNorth",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SelectTile",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "4f566fa8-c4f4-42c8-9e14-1b90cb96902d",
-                    "path": "<Keyboard>/3",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "SelectTile",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "fb56a74f-ccb6-456a-8709-72c840ec50b7",
-                    "path": "<Keyboard>/4",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "SelectTile",
+                    "action": "ShowTooltips",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
