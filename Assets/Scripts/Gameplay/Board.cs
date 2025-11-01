@@ -228,6 +228,7 @@ namespace Patchwork.Gameplay
                     collectibleObj.transform.SetParent(collectiblesParent.transform);
                     
                     var newCollectible = collectibleObj.AddComponent(((MonoBehaviour)collectible).GetType()) as ICollectible;
+                    newCollectible.SetLevel(collectible.Level);
                     newCollectible.Initialize(pos);
                     m_Collectibles.Add(newCollectible);
                     
@@ -665,12 +666,14 @@ namespace Patchwork.Gameplay
             return m_PlacedTiles.Count;
         }
 
-        public void AddFlameCollectible(Vector2Int position)
+        //  Required to allow the collectible to add new collectibles when it spreads
+        public void AddFlameCollectible(Vector2Int position, int level)
         {
             GameObject collectibleObj = new GameObject("Flame");
             collectibleObj.transform.SetParent(transform);
             
             FlameCollectible flame = collectibleObj.AddComponent<FlameCollectible>();
+            flame.SetLevel(level);
             flame.Initialize(position);
             m_Collectibles.Add(flame);
         }

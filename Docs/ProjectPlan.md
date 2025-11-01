@@ -58,6 +58,11 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 - [ ] Add SFX for cursor movement
 - [ ] Add SFX for collectible pickup
 
+### 0.11: Game Goals
+- [ ] Add score-based game over condition
+- [ ] Make clearer score UI
+- [ ] Figure out what to do with boss levels
+
 <!-- ### 0.9: CEOs
 - [ ] Add boss stage upgrades that come with costs
 - [ ] Generate these bonuses randomly

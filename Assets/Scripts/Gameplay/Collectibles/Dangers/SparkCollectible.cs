@@ -15,7 +15,8 @@ namespace Patchwork.Gameplay
         {
             if (!m_IsCollected)
             {
-                GameManager.Instance.DecreaseLives();
+                int damage = m_Level switch { 1 => 1, 2 => 2, _ => 4 };
+                GameManager.Instance.DecreaseLives(damage);
             }
         }
     }

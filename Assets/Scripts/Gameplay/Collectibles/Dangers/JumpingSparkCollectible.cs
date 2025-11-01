@@ -6,7 +6,7 @@ namespace Patchwork.Gameplay
 {
     public class JumpingSparkCollectible : BaseCollectible
     {
-        private const int c_JumpDistance = 1;
+        private int GetJumpDistance() => m_Level switch { 1 => 1, 2 => 2, _ => 4 };
 
         public override string DisplayName => "Jumping Spark";
         public override string Description => "Moves after each tile placement; dangerous";
@@ -18,7 +18,8 @@ namespace Patchwork.Gameplay
         {
             if (!m_IsCollected)
             {
-                GameManager.Instance.DecreaseLives();
+                int damage = m_Level switch { 1 => 1, 2 => 2, _ => 3 };
+                GameManager.Instance.DecreaseLives(damage);
             }
         }
 
@@ -48,7 +49,7 @@ namespace Patchwork.Gameplay
             // Try each direction until we find a valid spot
             foreach (Vector2Int dir in directions)
             {
-                Vector2Int newPos = m_GridPosition + (dir * c_JumpDistance);
+                Vector2Int newPos = m_GridPosition + (dir * GetJumpDistance());
                 
                 // Check if the new position is valid and has a hole
                 if (board.IsHoleAt(newPos) && 

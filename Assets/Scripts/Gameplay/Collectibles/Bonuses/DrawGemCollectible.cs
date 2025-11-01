@@ -20,7 +20,11 @@ namespace Patchwork.Gameplay
                 var gameManager = Object.FindFirstObjectByType<GameManager>();
                 if (gameManager != null && gameManager.Deck != null)
                 {
-                    gameManager.Deck.DrawTile();
+                    int draws = m_Level switch { 1 => 1, 2 => 2, _ => 4 };
+                    for (int i = 0; i < draws; i++)
+                    {
+                        gameManager.Deck.DrawTile();
+                    }
                 }
                 return true;
             }

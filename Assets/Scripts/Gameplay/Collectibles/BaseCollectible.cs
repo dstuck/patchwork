@@ -11,6 +11,7 @@ namespace Patchwork.Gameplay
         protected SpriteRenderer m_SpriteRenderer;
         protected GridSettings m_GridSettings;
         protected int m_Power = 2;  // Default power value
+        [SerializeField] protected int m_Level = 1;
         #endregion
 
         #region Public Properties
@@ -19,11 +20,13 @@ namespace Patchwork.Gameplay
         public abstract string Description { get; }
         public virtual bool IsVisible => !m_IsCollected;
         public virtual int Power => m_Power;  // New property implementation
+        public virtual int Level => m_Level;
         #endregion
 
         #region Protected Abstract Methods
         protected abstract Sprite GetSprite();
         protected virtual float GetScale() => 1f;  // Default scale of 1, override if needed
+        protected virtual void OnLevelChanged() {}
         #endregion
 
         #region Unity Lifecycle
@@ -86,6 +89,14 @@ namespace Patchwork.Gameplay
         }
 
         public Sprite GetDisplaySprite() => GetSprite();
+
+        public virtual void SetLevel(int level)
+        {
+            int clamped = Mathf.Clamp(level, 1, 3);
+            if (m_Level == clamped) return;
+            m_Level = clamped;
+            OnLevelChanged();
+        }
         #endregion
     }
 } 
