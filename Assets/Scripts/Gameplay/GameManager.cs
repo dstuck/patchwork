@@ -45,9 +45,7 @@ namespace Patchwork.Gameplay
         private bool m_MovingBossComplete;
         
         [Header("Gem Settings")]
-        [SerializeField] private float m_TimePerGem = 8f;  // Time bonus per gem
-        private const int c_MaxGemCount = 3;
-        private const int c_StagesPerGem = 2;
+        [SerializeField] private float m_TimePerGem = 8f;  // Time bonus per gem draw value
         
         private static GameManager s_Instance;
         private bool m_IsInitialized;
@@ -306,14 +304,9 @@ namespace Patchwork.Gameplay
                 else
                 {
                     // Existing normal stage setup code
-                    int gemCount = Mathf.Min((m_CurrentStage - 1) / c_StagesPerGem, c_MaxGemCount);
-                    float totalTime = m_BaseTimerDuration + (gemCount * m_TimePerGem);
-                    
-                    Board board = FindFirstObjectByType<Board>();
-                    if (board != null)
-                    {
-                        board.SetGemCount(gemCount);
-                    }
+                    // Calculate total draw value for timer (gems contribute time based on their draw value)
+                    int totalDrawValue = CalculateTotalDrawValueForTimer();
+                    float totalTime = m_BaseTimerDuration + (totalDrawValue * m_TimePerGem);
                     
                     m_Timer = FindFirstObjectByType<Timer>();
                     if (m_Timer != null)
@@ -436,6 +429,22 @@ namespace Patchwork.Gameplay
                     SelectNextDanger();
                 }
             }
+        }
+
+        private int CalculateTotalDrawValueForTimer()
+        {
+            int totalDrawValue = 0;
+            var collectibles = GetCollectiblesForStage();
+            
+            foreach (var collectible in collectibles)
+            {
+                if (collectible is DrawGemCollectible drawGem)
+                {
+                    totalDrawValue += drawGem.GetDrawCount();
+                }
+            }
+            
+            return totalDrawValue;
         }
         #endregion
 

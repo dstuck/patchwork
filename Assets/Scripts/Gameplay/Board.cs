@@ -19,9 +19,7 @@ namespace Patchwork.Gameplay
         private List<PlacedTile> m_PlacedTiles = new List<PlacedTile>();
         private List<ICollectible> m_Collectibles = new List<ICollectible>();
         private const int c_BaseHoleCount = 28;     // Base number of holes
-        private const int c_HolesPerGem = 6;        // Additional holes per draw gem
-        private const int c_DefaultGemCount = 2;     // Default starting gems
-        private int m_GemCount;                      // Actual gem count, can be modified
+        private const int c_HolesPerGem = 6;        // Additional holes per draw gem draw value
         public const int NonHolePenalty = -2;       // Made public for upgrade reference
 
         // Moving boss specific fields
@@ -47,8 +45,6 @@ namespace Patchwork.Gameplay
                 return;
             }
 
-            m_GemCount = c_DefaultGemCount;  // Initialize with default value
-            
             // Initialize available tile names
             m_AvailableTileNames = TileFactory.AvailableTileNames.ToList();
         }
@@ -83,10 +79,26 @@ namespace Patchwork.Gameplay
         #endregion
 
         #region Private Methods
-        private Vector2Int[] GetHolePattern()
+        private int CalculateTotalDrawValueFromCollectibles()
         {
-            // Calculate total holes based on current gem count
-            int totalHoles = c_BaseHoleCount + (c_HolesPerGem * m_GemCount);
+            int totalDrawValue = 0;
+            var collectibles = GameManager.Instance.GetCollectiblesForStage();
+            
+            foreach (var collectible in collectibles)
+            {
+                if (collectible is DrawGemCollectible drawGem)
+                {
+                    totalDrawValue += drawGem.GetDrawCount();
+                }
+            }
+            
+            return totalDrawValue;
+        }
+
+        private Vector2Int[] GetHolePattern(int totalDrawValue)
+        {
+            // Calculate total holes based on total draw value from gems
+            int totalHoles = c_BaseHoleCount + (c_HolesPerGem * totalDrawValue);
             return GenerateRandomWalkPattern(totalHoles);
         }
 
@@ -192,12 +204,15 @@ namespace Patchwork.Gameplay
                 return;
             }
 
+            // Calculate total draw value from collectibles that will be placed
+            int totalDrawValue = CalculateTotalDrawValueFromCollectibles();
+            
             // Create parent object for holes
             GameObject holesParent = new GameObject("Holes");
             holesParent.transform.SetParent(transform);
 
-            // Get hole pattern
-            Vector2Int[] holePattern = GetHolePattern();
+            // Get hole pattern based on total draw value
+            Vector2Int[] holePattern = GetHolePattern(totalDrawValue);
             
             // Create holes
             foreach (Vector2Int pos in holePattern)
@@ -516,10 +531,6 @@ namespace Patchwork.Gameplay
         }
         #endif
 
-        public void SetGemCount(int _count)
-        {
-            m_GemCount = Mathf.Max(0, _count);  // Ensure non-negative
-        }
 
         public void SetupMovingBossBoard(int _totalColumns)
         {
@@ -728,10 +739,6 @@ namespace Patchwork.Gameplay
             return m_PlacedTiles.Any(tile => tile.OccupiesPosition(_position));
         }
 
-        public int GetGemCount()
-        {
-            return m_GemCount;
-        }
 
         public List<ICollectible> GetActiveCollectibles()
         {

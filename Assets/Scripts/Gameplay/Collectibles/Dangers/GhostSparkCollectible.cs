@@ -5,8 +5,11 @@ namespace Patchwork.Gameplay
 {
     public class GhostSparkCollectible : BaseCollectible
     {
+        private int GetRevealThreshold() => m_Level switch { 1 => 1, 2 => 2, _ => 3 };
+        private int GetDamage() => m_Level switch { 1 => 1, 2 => 2, _ => 2 };
+        
         public override string DisplayName => "Ghost Spark";
-        public override string Description => "Invisible until a tile is placed; dangerous";
+        public override string Description => $"Invisible until {GetRevealThreshold()} tile{(GetRevealThreshold() > 1 ? "s are" : " is")} placed; costs {GetDamage()} life{(GetDamage() > 1 ? "s" : "")} if not cleaned up";
 
         private bool m_IsVisible = false;
         private int m_TilesPlacedSinceSpawn = 0;
@@ -28,9 +31,7 @@ namespace Patchwork.Gameplay
         {
             if (!m_IsCollected)
             {
-                // Level mapping (Sneaky Spark): 1=>1 danger, 2=>2 danger, 3=>2 danger
-                int damage = m_Level switch { 1 => 1, 2 => 2, _ => 2 };
-                GameManager.Instance.DecreaseLives(damage);
+                GameManager.Instance.DecreaseLives(GetDamage());
             }
         }
 
@@ -38,12 +39,10 @@ namespace Patchwork.Gameplay
         {
             if (m_IsCollected) return;
 
-            // Reveal after N tiles placed based on level: 1, 2, 3
-            int threshold = m_Level switch { 1 => 1, 2 => 2, _ => 3 };
             if (!m_IsVisible)
             {
                 m_TilesPlacedSinceSpawn++;
-                if (m_TilesPlacedSinceSpawn >= threshold)
+                if (m_TilesPlacedSinceSpawn >= GetRevealThreshold())
                 {
                     m_IsVisible = true;
                     if (m_SpriteRenderer != null)

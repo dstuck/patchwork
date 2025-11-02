@@ -7,9 +7,10 @@ namespace Patchwork.Gameplay
     public class JumpingSparkCollectible : BaseCollectible
     {
         private int GetJumpDistance() => m_Level switch { 1 => 1, 2 => 2, _ => 4 };
+        private int GetDamage() => m_Level switch { 1 => 1, 2 => 2, _ => 3 };
 
         public override string DisplayName => "Jumping Spark";
-        public override string Description => "Moves after each tile placement; dangerous";
+        public override string Description => $"Moves {GetJumpDistance()} square{(GetJumpDistance() > 1 ? "s" : "")} after each tile placement; costs {GetDamage()} life{(GetDamage() > 1 ? "s" : "")} if not cleaned up";
 
         protected override Sprite GetSprite() => GameResources.Instance.JumpingSparkSprite;
         protected override float GetScale() => GameResources.Instance.JumpingSparkScale;
@@ -18,8 +19,7 @@ namespace Patchwork.Gameplay
         {
             if (!m_IsCollected)
             {
-                int damage = m_Level switch { 1 => 1, 2 => 2, _ => 3 };
-                GameManager.Instance.DecreaseLives(damage);
+                GameManager.Instance.DecreaseLives(GetDamage());
             }
         }
 

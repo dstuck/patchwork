@@ -7,12 +7,19 @@ namespace Patchwork.Gameplay
     {
         #region Public Properties
         public override string DisplayName => "New Square";
-        public override string Description => "Adds a new square to the tile";
+        public override string Description => $"Adds {GetSquareCount()} new square{(GetSquareCount() > 1 ? "s" : "")} to the tile";
         #endregion
 
         #region Protected Methods
         protected override Sprite GetSprite() => GameResources.Instance.NewSquareSprite;
         protected override float GetScale() => GameResources.Instance.NewSquareScale;
+        #endregion
+
+        #region Private Methods
+        private int GetSquareCount()
+        {
+            return m_Level switch { 1 => 1, 2 => 2, _ => 3 };
+        }
         #endregion
 
         #region Public Methods
@@ -22,7 +29,11 @@ namespace Patchwork.Gameplay
             {
                 if (collectingTile != null)
                 {
-                    collectingTile.AddSquare();
+                    int squareCount = GetSquareCount();
+                    for (int i = 0; i < squareCount; i++)
+                    {
+                        collectingTile.AddSquare();
+                    }
                 }
                 return true;
             }
