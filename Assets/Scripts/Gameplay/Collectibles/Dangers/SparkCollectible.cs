@@ -3,7 +3,7 @@ using Patchwork.Data;
 
 namespace Patchwork.Gameplay
 {
-    public class SparkCollectible : BaseCollectible
+    public class SparkCollectible : BaseDangerCollectible
     {
         private int GetDamage() => m_Level switch { 1 => 1, 2 => 2, _ => 4 };
         

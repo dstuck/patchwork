@@ -107,6 +107,25 @@ namespace Patchwork.Gameplay
             m_DeckCollectibles.Clear();
             m_DrawPile.Clear();
         }
+
+        public bool RemoveCollectible(ICollectible collectible)
+        {
+            bool removed = false;
+            
+            // Remove from deck collectibles (permanent pool)
+            if (m_DeckCollectibles.Remove(collectible))
+            {
+                removed = true;
+            }
+            
+            // Remove from draw pile (current available)
+            if (m_DrawPile.Remove(collectible))
+            {
+                removed = true;
+            }
+            
+            return removed;
+        }
         #endregion
     }
 } 

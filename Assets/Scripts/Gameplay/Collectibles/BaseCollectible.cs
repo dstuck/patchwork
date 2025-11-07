@@ -139,13 +139,19 @@ namespace Patchwork.Gameplay
             }
             return s_PlusSprite;
         }
+        
+        // Public method to access the plus sprite for UI elements
+        public static Sprite GetPlusSpriteForUI()
+        {
+            return GetPlusSprite();
+        }
 
         private void UpdateMainSprite()
         {
             m_SpriteRenderer.sprite = GetSpriteForLevel(m_Level);
         }
 
-        private void UpdateVisualLevel()
+        protected void UpdateVisualLevel()
         {
             // Update main sprite
             UpdateMainSprite();
@@ -288,7 +294,157 @@ namespace Patchwork.Gameplay
             // Base implementation does nothing
         }
 
-        public Sprite GetDisplaySprite() => GetSprite();
+        public virtual Sprite GetDisplaySprite()
+        {
+            Sprite mainSprite = GetSpriteForLevel(m_Level);
+            
+            // If no level indicators needed, just return the main sprite
+            if (m_Level <= 1 || !ShouldShowLevelIndicators())
+            {
+                return mainSprite;
+            }
+            
+            // Generate composite sprite with level indicators
+            return GenerateCompositeSprite(mainSprite);
+        }
+        
+        protected Sprite GenerateCompositeSprite(Sprite mainSprite)
+        {
+            if (mainSprite == null) return null;
+            
+            // Get sprite texture bounds
+            Rect spriteRect = mainSprite.rect;
+            int width = (int)spriteRect.width;
+            int height = (int)spriteRect.height;
+            
+            // Create readable copy of main sprite texture
+            Texture2D mainTextureReadable = GetReadableTexture(mainSprite.texture, (int)spriteRect.x, (int)spriteRect.y, width, height);
+            
+            // Create texture with padding for indicators (top-right)
+            int padding = Mathf.Max(width, height) / 3; // 33% padding for indicators
+            int compositeWidth = width + padding;
+            int compositeHeight = height + padding;
+            
+            Texture2D compositeTexture = new Texture2D(compositeWidth, compositeHeight, TextureFormat.RGBA32, false);
+            
+            // Fill with transparent
+            Color[] pixels = new Color[compositeWidth * compositeHeight];
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                pixels[i] = Color.clear;
+            }
+            
+            // Copy main sprite to center-left
+            Color[] mainSpritePixels = mainTextureReadable.GetPixels();
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    int srcIndex = y * width + x;
+                    int dstIndex = (y + padding / 2) * compositeWidth + x;
+                    if (dstIndex >= 0 && dstIndex < pixels.Length)
+                    {
+                        pixels[dstIndex] = mainSpritePixels[srcIndex];
+                    }
+                }
+            }
+            
+            // Add level indicators in top-right
+            Sprite plusSprite = GetPlusSprite();
+            int indicatorCount = m_Level - 1;
+            float indicatorSize = Mathf.Min(width, height) * 0.3f;
+            float spacing = indicatorSize * 1.2f;
+            
+            // Create readable copy of plus sprite texture
+            Texture2D plusTextureReadable = GetReadableTexture(plusSprite.texture, (int)plusSprite.rect.x, (int)plusSprite.rect.y, 
+                (int)plusSprite.rect.width, (int)plusSprite.rect.height);
+            
+            for (int i = 0; i < indicatorCount; i++)
+            {
+                int indicatorWidth = (int)indicatorSize;
+                int indicatorHeight = (int)indicatorSize;
+                
+                // Position in top-right, moving down
+                int offsetX = width + padding / 2 - indicatorWidth / 2;
+                int offsetY = height + padding / 2 - indicatorHeight / 2 - (int)(spacing * i);
+                
+                // Get plus sprite pixels
+                Color[] plusPixels = plusTextureReadable.GetPixels();
+                
+                // Scale plus sprite to indicator size
+                for (int y = 0; y < indicatorHeight && (offsetY + y) < compositeHeight; y++)
+                {
+                    for (int x = 0; x < indicatorWidth && (offsetX + x) < compositeWidth; x++)
+                    {
+                        int srcY = (int)((float)y / indicatorHeight * plusSprite.rect.height);
+                        int srcX = (int)((float)x / indicatorWidth * plusSprite.rect.width);
+                        int srcIndex = srcY * (int)plusSprite.rect.width + srcX;
+                        
+                        if (srcIndex >= 0 && srcIndex < plusPixels.Length)
+                        {
+                            int dstIndex = (offsetY + y) * compositeWidth + (offsetX + x);
+                            if (dstIndex >= 0 && dstIndex < pixels.Length)
+                            {
+                                Color plusColor = plusPixels[srcIndex];
+                                if (plusColor.a > 0)
+                                {
+                                    pixels[dstIndex] = plusColor;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            compositeTexture.SetPixels(pixels);
+            compositeTexture.Apply();
+            
+            // Clean up temporary textures
+            Destroy(mainTextureReadable);
+            Destroy(plusTextureReadable);
+            
+            // Create sprite with pivot at center (adjust for padding)
+            float pivotX = (width / 2f + padding / 2f) / compositeWidth;
+            float pivotY = (height / 2f + padding / 2f) / compositeHeight;
+            
+            return Sprite.Create(compositeTexture, new Rect(0, 0, compositeWidth, compositeHeight), 
+                new Vector2(pivotX, pivotY), mainSprite.pixelsPerUnit);
+        }
+        
+        private Texture2D GetReadableTexture(Texture2D source, int x, int y, int width, int height)
+        {
+            // Check if texture is already readable
+            try
+            {
+                source.GetPixels(x, y, width, height);
+                // If we get here, texture is readable - create a copy
+                Color[] pixels = source.GetPixels(x, y, width, height);
+                Texture2D readableTexture = new Texture2D(width, height);
+                readableTexture.SetPixels(pixels);
+                readableTexture.Apply();
+                return readableTexture;
+            }
+            catch
+            {
+                // Texture is not readable, use RenderTexture approach
+                RenderTexture renderTexture = RenderTexture.GetTemporary(
+                    source.width, source.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
+                
+                Graphics.Blit(source, renderTexture);
+                
+                RenderTexture previous = RenderTexture.active;
+                RenderTexture.active = renderTexture;
+                
+                Texture2D readableTexture = new Texture2D(width, height);
+                readableTexture.ReadPixels(new Rect(x, source.height - y - height, width, height), 0, 0);
+                readableTexture.Apply();
+                
+                RenderTexture.active = previous;
+                RenderTexture.ReleaseTemporary(renderTexture);
+                
+                return readableTexture;
+            }
+        }
 
         public virtual void SetLevel(int level)
         {

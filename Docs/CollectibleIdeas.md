@@ -1,5 +1,16 @@
 # Collectible Upgrades
 
+## Crafting rules
+
+Crafting will require 3 collectibles, 2 as sources that will be removed and 1 as a target
+that will persist after the upgrade. All upgrades have a sign (negative or positive) and a level. Here are the rules:
+
+1. All three inputs must be the same sign (for now, in the future maybe we'll have rules about targets off the opposite sign)
+2. Both sources must have the same level, either both 1 or 2
+3. The output will be one level higher than the sources and of the same sign
+4. If the target is the same type as one of the sources, the output will be that same type (i.e. fire + spark + fire = fire)
+5. Otherwise, the output will match one of the 3 inputs chosen at random
+
 
 ## Brainstorming
 ### Costs
@@ -71,6 +82,11 @@ Collect to increase multiplier by N
 1. x0.5
 2. x1
 3. x2
+
+### Extra square (+2)
+1. Add 1 square to the tile
+2. Add 2
+3. Add 4 (!?)
 
 ### Point Bonus (+2)
 Collect to increase tile points by N

@@ -73,6 +73,15 @@ namespace Patchwork.Input
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Pause"",
+                    ""type"": ""Button"",
+                    ""id"": ""1494af71-d22e-4d32-8759-cd507f089ba2"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -381,6 +390,28 @@ namespace Patchwork.Input
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""ShowTooltips"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""898c3576-3028-4481-bfee-e96dab9b0188"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""20310296-14ef-4229-8f2e-26961689d1c4"",
+                    ""path"": ""<Gamepad>/start"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Pause"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -984,6 +1015,7 @@ namespace Patchwork.Input
             m_Movement_Rotate = m_Movement.FindAction("Rotate", throwIfNotFound: true);
             m_Movement_CycleTile = m_Movement.FindAction("CycleTile", throwIfNotFound: true);
             m_Movement_ShowTooltips = m_Movement.FindAction("ShowTooltips", throwIfNotFound: true);
+            m_Movement_Pause = m_Movement.FindAction("Pause", throwIfNotFound: true);
             // UI
             m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
             m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1068,6 +1100,7 @@ namespace Patchwork.Input
         private readonly InputAction m_Movement_Rotate;
         private readonly InputAction m_Movement_CycleTile;
         private readonly InputAction m_Movement_ShowTooltips;
+        private readonly InputAction m_Movement_Pause;
         public struct MovementActions
         {
             private @GameControls m_Wrapper;
@@ -1077,6 +1110,7 @@ namespace Patchwork.Input
             public InputAction @Rotate => m_Wrapper.m_Movement_Rotate;
             public InputAction @CycleTile => m_Wrapper.m_Movement_CycleTile;
             public InputAction @ShowTooltips => m_Wrapper.m_Movement_ShowTooltips;
+            public InputAction @Pause => m_Wrapper.m_Movement_Pause;
             public InputActionMap Get() { return m_Wrapper.m_Movement; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -1101,6 +1135,9 @@ namespace Patchwork.Input
                 @ShowTooltips.started += instance.OnShowTooltips;
                 @ShowTooltips.performed += instance.OnShowTooltips;
                 @ShowTooltips.canceled += instance.OnShowTooltips;
+                @Pause.started += instance.OnPause;
+                @Pause.performed += instance.OnPause;
+                @Pause.canceled += instance.OnPause;
             }
 
             private void UnregisterCallbacks(IMovementActions instance)
@@ -1120,6 +1157,9 @@ namespace Patchwork.Input
                 @ShowTooltips.started -= instance.OnShowTooltips;
                 @ShowTooltips.performed -= instance.OnShowTooltips;
                 @ShowTooltips.canceled -= instance.OnShowTooltips;
+                @Pause.started -= instance.OnPause;
+                @Pause.performed -= instance.OnPause;
+                @Pause.canceled -= instance.OnPause;
             }
 
             public void RemoveCallbacks(IMovementActions instance)
@@ -1307,6 +1347,7 @@ namespace Patchwork.Input
             void OnRotate(InputAction.CallbackContext context);
             void OnCycleTile(InputAction.CallbackContext context);
             void OnShowTooltips(InputAction.CallbackContext context);
+            void OnPause(InputAction.CallbackContext context);
         }
         public interface IUIActions
         {

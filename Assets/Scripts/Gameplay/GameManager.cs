@@ -68,6 +68,7 @@ namespace Patchwork.Gameplay
         private bool m_ShowingTooltips = false;
 
         private GameControls m_Controls;
+        private CraftingUI m_CraftingUI;
 
         private bool m_IsBeingDestroyed;
 
@@ -139,6 +140,7 @@ namespace Patchwork.Gameplay
             m_Controls = new GameControls();
             m_Controls.Movement.ShowTooltips.started += ctx => OnShowTooltip(true);
             m_Controls.Movement.ShowTooltips.canceled += ctx => OnShowTooltip(false);
+            m_Controls.Movement.Pause.performed += OnPausePressed;
         }
 
         private void OnEnable()
@@ -154,6 +156,7 @@ namespace Patchwork.Gameplay
 
             if (m_Controls != null)
             {
+                m_Controls.Movement.Pause.performed -= OnPausePressed;
                 m_Controls.Disable();
             }
             
@@ -651,6 +654,33 @@ namespace Patchwork.Gameplay
                 {
                     m_ShowingTooltips = false;
                 }
+            }
+        }
+
+        private void OnPausePressed(UnityEngine.InputSystem.InputAction.CallbackContext context)
+        {
+            // Find CraftingUI if not cached (include inactive objects)
+            if (m_CraftingUI == null)
+            {
+                m_CraftingUI = FindFirstObjectByType<CraftingUI>(FindObjectsInactive.Include);
+            }
+
+            if (m_CraftingUI != null)
+            {
+                // Toggle visibility
+                bool isVisible = m_CraftingUI.gameObject.activeSelf;
+                if (isVisible)
+                {
+                    m_CraftingUI.HideUI();
+                }
+                else
+                {
+                    m_CraftingUI.ShowUI();
+                }
+            }
+            else
+            {
+                Debug.LogWarning("CraftingUI not found in scene!");
             }
         }
         #endregion

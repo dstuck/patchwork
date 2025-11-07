@@ -3,7 +3,7 @@ using Patchwork.Data;
 
 namespace Patchwork.Gameplay
 {
-    public class GhostSparkCollectible : BaseCollectible
+    public class GhostSparkCollectible : BaseDangerCollectible
     {
         private int GetRevealThreshold() => m_Level switch { 1 => 1, 2 => 2, _ => 3 };
         private int GetDamage() => m_Level switch { 1 => 1, 2 => 2, _ => 2 };
@@ -49,10 +49,29 @@ namespace Patchwork.Gameplay
                     {
                         m_SpriteRenderer.enabled = true;
                     }
+                    // Update level indicators now that we're visible
+                    UpdateVisualLevel();
                 }
             }
         }
 
         public override bool IsVisible => m_IsVisible && !m_IsCollected;
+        
+        protected override bool ShouldShowLevelIndicators() => IsVisible;
+        
+        // Override GetDisplaySprite to always show level indicators in UI, regardless of visibility
+        public override Sprite GetDisplaySprite()
+        {
+            Sprite mainSprite = GetSpriteForLevel(m_Level);
+            
+            // Always show level indicators in UI previews, even if not visible in game world
+            if (m_Level <= 1)
+            {
+                return mainSprite;
+            }
+            
+            // Generate composite sprite with level indicators
+            return GenerateCompositeSprite(mainSprite);
+        }
     }
 } 

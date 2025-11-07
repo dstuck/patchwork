@@ -3,7 +3,7 @@ using Patchwork.Data;
 
 namespace Patchwork.Gameplay
 {
-    public class FlameCollectible : BaseCollectible
+    public class FlameCollectible : BaseDangerCollectible
     {
         private int GetSpreadCountPerPlacement() => m_Level switch { 1 => 1, 2 => 2, _ => 4 };
         
