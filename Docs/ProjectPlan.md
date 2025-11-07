@@ -50,8 +50,8 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 
 ### 0.9: Collectible Upgrades
 - [x] Create upgraded versions for collectibles (modify sprite with + and ++)
-- [ ] Create recipes for combining collectibles into higher level
-- [ ] Create upgrade screen providing upgrade options
+- [x] Create recipes for combining collectibles into higher level
+- [x] Create upgrade screen providing upgrade options
 
 ### 0.10: SFX
 - [ ] Add SFX for tile placement

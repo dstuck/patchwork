@@ -53,6 +53,9 @@ namespace Patchwork.UI
             }
             
             InitializeCraftingSlots();
+            
+            // Deactivate by default (will be activated by ShowUI)
+            // Note: If ShowUI is called before Awake completes, it will reactivate us
             gameObject.SetActive(false);
         }
 
@@ -501,13 +504,24 @@ namespace Patchwork.UI
 
         public void ShowUI()
         {
-            gameObject.SetActive(true);
-            if (m_CanvasGroup != null)
+            // Ensure CanvasGroup exists before activating
+            if (m_CanvasGroup == null)
             {
-                m_CanvasGroup.alpha = 1f;
-                m_CanvasGroup.interactable = true;
-                m_CanvasGroup.blocksRaycasts = true;
+                m_CanvasGroup = GetComponent<CanvasGroup>();
+                if (m_CanvasGroup == null)
+                {
+                    m_CanvasGroup = gameObject.AddComponent<CanvasGroup>();
+                }
             }
+            
+            // Activate GameObject (this will trigger Awake if not already called)
+            gameObject.SetActive(true);
+            
+            // Ensure it stays active and is visible (Awake might have deactivated it)
+            gameObject.SetActive(true);
+            m_CanvasGroup.alpha = 1f;
+            m_CanvasGroup.interactable = true;
+            m_CanvasGroup.blocksRaycasts = true;
         }
 
         public void HideUI()
