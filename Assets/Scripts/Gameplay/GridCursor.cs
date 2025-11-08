@@ -14,6 +14,8 @@ namespace Patchwork.Gameplay
         private float m_RotateCooldown = 0.2f;
         [SerializeField] private Board m_Board;
         
+        [SerializeField] private AudioClip[] m_PlaceTileSoundFX;
+        
         private Vector2Int m_CurrentGridPosition;
         private float m_LastMoveTime;
         private float m_LastRotateTime;
@@ -247,6 +249,7 @@ namespace Patchwork.Gameplay
                 m_Board.AddPlacedTile(tile);  // Add the tile first
                 m_Board.OnTilePlaced(tile);   // Then notify collectibles
                 m_Board.CalculateTotalScore(); // Temporarily display score
+                SoundFXManager.instance.PlayRandomSoundFXClip(m_PlaceTileSoundFX, transform);
             }
         }
 
