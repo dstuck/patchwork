@@ -113,6 +113,7 @@ namespace Patchwork.Gameplay
         #region Private Methods
         private void OnMove(InputAction.CallbackContext context)
         {
+            if (GameManager.Instance != null && GameManager.Instance.IsPaused) return;
             if (Time.time - m_LastMoveTime < m_MoveCooldown) return;
             
             Vector2 input = context.ReadValue<Vector2>();
@@ -126,6 +127,7 @@ namespace Patchwork.Gameplay
 
         private void OnRotate(InputAction.CallbackContext context)
         {
+            if (GameManager.Instance != null && GameManager.Instance.IsPaused) return;
             if (Time.time - m_LastRotateTime < m_RotateCooldown) 
             {
                 return;
@@ -141,6 +143,7 @@ namespace Patchwork.Gameplay
 
         private void OnPlace(InputAction.CallbackContext context)
         {
+            if (GameManager.Instance != null && GameManager.Instance.IsPaused) return;
             if (m_TileHand.CurrentTile != null)
             {
                 PlaceTile();
@@ -162,6 +165,7 @@ namespace Patchwork.Gameplay
 
         private void OnCycleTile(InputAction.CallbackContext context)
         {
+            if (GameManager.Instance != null && GameManager.Instance.IsPaused) return;
             float direction = context.ReadValue<float>();
             if (direction > 0)
             {

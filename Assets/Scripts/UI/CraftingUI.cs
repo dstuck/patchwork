@@ -522,6 +522,12 @@ namespace Patchwork.UI
             m_CanvasGroup.alpha = 1f;
             m_CanvasGroup.interactable = true;
             m_CanvasGroup.blocksRaycasts = true;
+            
+            // Pause the game
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.PauseGame();
+            }
         }
 
         public void HideUI()
@@ -540,6 +546,12 @@ namespace Patchwork.UI
                 m_CanvasGroup.blocksRaycasts = false;
             }
             gameObject.SetActive(false);
+            
+            // Resume the game
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.ResumeGame();
+            }
         }
         #endregion
     }
