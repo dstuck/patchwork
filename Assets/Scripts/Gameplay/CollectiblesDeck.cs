@@ -17,6 +17,22 @@ namespace Patchwork.Gameplay
         #region Public Properties
         public static CollectiblesDeck Instance => s_Instance;
         public bool IsInitialized => m_IsInitialized;
+        
+        #if UNITY_EDITOR
+        // Debug access to deck collectibles (the pool available for stages)
+        public List<ICollectible> DeckCollectibles
+        {
+            get => m_DeckCollectibles;
+            set => m_DeckCollectibles = value ?? new List<ICollectible>();
+        }
+        
+        // Debug access to current draw pile
+        public List<ICollectible> DrawPile
+        {
+            get => m_DrawPile;
+            set => m_DrawPile = value ?? new List<ICollectible>();
+        }
+        #endif
         #endregion
 
         #region Unity Lifecycle
@@ -90,6 +106,25 @@ namespace Patchwork.Gameplay
         {
             m_DeckCollectibles.Clear();
             m_DrawPile.Clear();
+        }
+
+        public bool RemoveCollectible(ICollectible collectible)
+        {
+            bool removed = false;
+            
+            // Remove from deck collectibles (permanent pool)
+            if (m_DeckCollectibles.Remove(collectible))
+            {
+                removed = true;
+            }
+            
+            // Remove from draw pile (current available)
+            if (m_DrawPile.Remove(collectible))
+            {
+                removed = true;
+            }
+            
+            return removed;
         }
         #endregion
     }

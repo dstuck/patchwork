@@ -3,14 +3,17 @@ using Patchwork.Data;
 
 namespace Patchwork.Gameplay
 {
-    public class FlameCollectible : BaseCollectible
+    public class FlameCollectible : BaseDangerCollectible
     {
+        private int GetSpreadCountPerPlacement() => m_Level switch { 1 => 1, 2 => 2, _ => 4 };
+        
         public override string DisplayName => "Flame";
-        public override string Description => "Spreads if ignored; dangerous";
+        public override string Description => $"Spreads to {GetSpreadCountPerPlacement()} square{(GetSpreadCountPerPlacement() > 1 ? "s" : "")} on each tile placement; costs 1 life if not cleaned up";
+        
+        private const int c_SpreadDistance = 1;
 
         protected override Sprite GetSprite() => GameResources.Instance.FlameSprite;
         protected override float GetScale() => GameResources.Instance.FlameScale;
-        private const int c_SpreadDistance = 1;
 
 
         public override void OnLevelEnd()
@@ -35,6 +38,7 @@ namespace Patchwork.Gameplay
             };
             
             int spreadCount = 0;
+            int maxSpreads = GetSpreadCountPerPlacement();
             foreach (Vector2Int dir in directions)
             {
                 Vector2Int newPos = m_GridPosition + (dir * c_SpreadDistance);
@@ -42,9 +46,9 @@ namespace Patchwork.Gameplay
                 // Check if the new position is valid and has a hole
                 if (board.IsHoleAt(newPos) && !board.IsCollectibleAtPosition(newPos) && !board.IsPlacedTileAtPosition(newPos))
                 {
-                    board.AddFlameCollectible(newPos);
+                    board.AddFlameCollectible(newPos, m_Level);
                     spreadCount++;
-                    if (spreadCount >= 2)
+                    if (spreadCount >= maxSpreads)
                     {
                         break;
                     }

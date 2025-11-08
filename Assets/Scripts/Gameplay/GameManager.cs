@@ -45,9 +45,7 @@ namespace Patchwork.Gameplay
         private bool m_MovingBossComplete;
         
         [Header("Gem Settings")]
-        [SerializeField] private float m_TimePerGem = 8f;  // Time bonus per gem
-        private const int c_MaxGemCount = 3;
-        private const int c_StagesPerGem = 2;
+        [SerializeField] private float m_TimePerGem = 8f;  // Time bonus per gem draw value
         
         private static GameManager s_Instance;
         private bool m_IsInitialized;
@@ -70,6 +68,7 @@ namespace Patchwork.Gameplay
         private bool m_ShowingTooltips = false;
 
         private GameControls m_Controls;
+        private CraftingUI m_CraftingUI;
 
         private bool m_IsBeingDestroyed;
 
@@ -141,6 +140,7 @@ namespace Patchwork.Gameplay
             m_Controls = new GameControls();
             m_Controls.Movement.ShowTooltips.started += ctx => OnShowTooltip(true);
             m_Controls.Movement.ShowTooltips.canceled += ctx => OnShowTooltip(false);
+            m_Controls.Movement.Pause.performed += OnPausePressed;
         }
 
         private void OnEnable()
@@ -156,6 +156,7 @@ namespace Patchwork.Gameplay
 
             if (m_Controls != null)
             {
+                m_Controls.Movement.Pause.performed -= OnPausePressed;
                 m_Controls.Disable();
             }
             
@@ -306,14 +307,9 @@ namespace Patchwork.Gameplay
                 else
                 {
                     // Existing normal stage setup code
-                    int gemCount = Mathf.Min((m_CurrentStage - 1) / c_StagesPerGem, c_MaxGemCount);
-                    float totalTime = m_BaseTimerDuration + (gemCount * m_TimePerGem);
-                    
-                    Board board = FindFirstObjectByType<Board>();
-                    if (board != null)
-                    {
-                        board.SetGemCount(gemCount);
-                    }
+                    // Calculate total draw value for timer (gems contribute time based on their draw value)
+                    int totalDrawValue = CalculateTotalDrawValueForTimer();
+                    float totalTime = m_BaseTimerDuration + (totalDrawValue * m_TimePerGem);
                     
                     m_Timer = FindFirstObjectByType<Timer>();
                     if (m_Timer != null)
@@ -436,6 +432,22 @@ namespace Patchwork.Gameplay
                     SelectNextDanger();
                 }
             }
+        }
+
+        private int CalculateTotalDrawValueForTimer()
+        {
+            int totalDrawValue = 0;
+            var collectibles = GetCollectiblesForStage();
+            
+            foreach (var collectible in collectibles)
+            {
+                if (collectible is DrawGemCollectible drawGem)
+                {
+                    totalDrawValue += drawGem.GetDrawCount();
+                }
+            }
+            
+            return totalDrawValue;
         }
         #endregion
 
@@ -642,6 +654,33 @@ namespace Patchwork.Gameplay
                 {
                     m_ShowingTooltips = false;
                 }
+            }
+        }
+
+        private void OnPausePressed(UnityEngine.InputSystem.InputAction.CallbackContext context)
+        {
+            // Find CraftingUI if not cached (include inactive objects)
+            if (m_CraftingUI == null)
+            {
+                m_CraftingUI = FindFirstObjectByType<CraftingUI>(FindObjectsInactive.Include);
+            }
+
+            if (m_CraftingUI != null)
+            {
+                // Toggle visibility
+                bool isVisible = m_CraftingUI.gameObject.activeSelf;
+                if (isVisible)
+                {
+                    m_CraftingUI.HideUI();
+                }
+                else
+                {
+                    m_CraftingUI.ShowUI();
+                }
+            }
+            else
+            {
+                Debug.LogWarning("CraftingUI not found in scene!");
             }
         }
         #endregion
