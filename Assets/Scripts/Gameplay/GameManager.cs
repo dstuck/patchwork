@@ -251,7 +251,7 @@ namespace Patchwork.Gameplay
 
         private void UpdateMovingBoss()
         {
-            if (m_MovingBossComplete) return;
+            if (m_MovingBossComplete || m_IsPaused) return;
 
             if (Time.time >= m_MovingBossNextMoveTime)
             {
