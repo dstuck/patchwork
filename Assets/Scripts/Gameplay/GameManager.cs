@@ -457,6 +457,7 @@ namespace Patchwork.Gameplay
             // Reset game state
             m_CurrentStage = 1;
             m_CumulativeScore = 0;
+            m_MaxLives = c_MaxLives;  // Reset max lives to constant value
             m_CurrentLives = m_MaxLives;
             m_StageScoreBonus = 0;
             
