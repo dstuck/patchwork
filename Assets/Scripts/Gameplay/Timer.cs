@@ -15,6 +15,7 @@ namespace Patchwork.Gameplay
         private float m_StartDelay;
         private float m_CurrentTime;
         private bool m_IsRunning;
+        private bool m_IsPaused;
         private bool m_IsDelaying;
         private float m_MinMultiplier = 1f;
         private float m_MaxMultiplier = 2f;
@@ -35,6 +36,16 @@ namespace Patchwork.Gameplay
         public void StopTimer()
         {
             m_IsRunning = false;
+        }
+
+        public void PauseTimer()
+        {
+            m_IsPaused = true;
+        }
+
+        public void ResumeTimer()
+        {
+            m_IsPaused = false;
         }
 
         public float GetTimeRemaining()
@@ -63,7 +74,7 @@ namespace Patchwork.Gameplay
         #region Unity Lifecycle
         private void Update()
         {
-            if (!m_IsRunning) return;
+            if (!m_IsRunning || m_IsPaused) return;
 
             if (m_IsDelaying)
             {

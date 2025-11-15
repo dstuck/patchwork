@@ -14,6 +14,8 @@ namespace Patchwork.Gameplay
         private float m_RotateCooldown = 0.2f;
         [SerializeField] private Board m_Board;
         
+        [SerializeField] private AudioClip[] m_PlaceTileSoundFX;
+        
         private Vector2Int m_CurrentGridPosition;
         private float m_LastMoveTime;
         private float m_LastRotateTime;
@@ -111,6 +113,7 @@ namespace Patchwork.Gameplay
         #region Private Methods
         private void OnMove(InputAction.CallbackContext context)
         {
+            if (GameManager.Instance != null && GameManager.Instance.IsPaused) return;
             if (Time.time - m_LastMoveTime < m_MoveCooldown) return;
             
             Vector2 input = context.ReadValue<Vector2>();
@@ -124,6 +127,7 @@ namespace Patchwork.Gameplay
 
         private void OnRotate(InputAction.CallbackContext context)
         {
+            if (GameManager.Instance != null && GameManager.Instance.IsPaused) return;
             if (Time.time - m_LastRotateTime < m_RotateCooldown) 
             {
                 return;
@@ -139,6 +143,7 @@ namespace Patchwork.Gameplay
 
         private void OnPlace(InputAction.CallbackContext context)
         {
+            if (GameManager.Instance != null && GameManager.Instance.IsPaused) return;
             if (m_TileHand.CurrentTile != null)
             {
                 PlaceTile();
@@ -160,6 +165,7 @@ namespace Patchwork.Gameplay
 
         private void OnCycleTile(InputAction.CallbackContext context)
         {
+            if (GameManager.Instance != null && GameManager.Instance.IsPaused) return;
             float direction = context.ReadValue<float>();
             if (direction > 0)
             {
@@ -247,6 +253,7 @@ namespace Patchwork.Gameplay
                 m_Board.AddPlacedTile(tile);  // Add the tile first
                 m_Board.OnTilePlaced(tile);   // Then notify collectibles
                 m_Board.CalculateTotalScore(); // Temporarily display score
+                SoundFXManager.instance.PlayRandomSoundFXClip(m_PlaceTileSoundFX, transform);
             }
         }
 

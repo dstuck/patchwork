@@ -71,6 +71,7 @@ namespace Patchwork.Gameplay
         private CraftingUI m_CraftingUI;
 
         private bool m_IsBeingDestroyed;
+        private bool m_IsPaused;
 
         // Active collectibles for this run
         private List<ICollectible> m_ActiveBonuses = new List<ICollectible>();
@@ -109,6 +110,7 @@ namespace Patchwork.Gameplay
         public int SparkCount => m_BaseSparkCount + ((m_CurrentStage - 1) / m_StagesPerSpark);
         public int FlameCount => m_BaseFlameCount + ((m_CurrentStage - 1) / m_StagesPerFlame);
         public CollectiblesDeck CollectiblesDeck => m_CollectiblesDeck;
+        public bool IsPaused => m_IsPaused;
         #endregion
 
         #region Unity Lifecycle
@@ -249,7 +251,7 @@ namespace Patchwork.Gameplay
 
         private void UpdateMovingBoss()
         {
-            if (m_MovingBossComplete) return;
+            if (m_MovingBossComplete || m_IsPaused) return;
 
             if (Time.time >= m_MovingBossNextMoveTime)
             {
@@ -457,6 +459,7 @@ namespace Patchwork.Gameplay
             // Reset game state
             m_CurrentStage = 1;
             m_CumulativeScore = 0;
+            m_MaxLives = c_MaxLives;  // Reset max lives to constant value
             m_CurrentLives = m_MaxLives;
             m_StageScoreBonus = 0;
             
@@ -633,6 +636,32 @@ namespace Patchwork.Gameplay
             return m_CollectiblesDeck.GetCollectibles();
         }
 
+        public void PauseGame()
+        {
+            if (m_IsPaused) return;
+            
+            m_IsPaused = true;
+            
+            // Pause timer
+            if (m_Timer != null)
+            {
+                m_Timer.PauseTimer();
+            }
+        }
+
+        public void ResumeGame()
+        {
+            if (!m_IsPaused) return;
+            
+            m_IsPaused = false;
+            
+            // Resume timer
+            if (m_Timer != null)
+            {
+                m_Timer.ResumeTimer();
+            }
+        }
+
         private void OnShowTooltip(bool show)
         {
             if (!show) return; // Ignore key release
@@ -667,7 +696,7 @@ namespace Patchwork.Gameplay
 
             if (m_CraftingUI != null)
             {
-                // Toggle visibility
+                // Toggle visibility (ShowUI/HideUI will handle pause/resume)
                 bool isVisible = m_CraftingUI.gameObject.activeSelf;
                 if (isVisible)
                 {
