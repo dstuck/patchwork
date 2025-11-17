@@ -19,6 +19,10 @@ namespace Patchwork.UI
         [SerializeField] private Button m_CloseButton;
         [SerializeField] private GameObject m_CollectiblePreviewPrefab;
         
+        // UNITY EDITOR NOTE: The CollectiblePreview prefab needs a SelectionOutline Image component
+        // to provide visual feedback for controller/keyboard navigation.
+        // See CONTROLLER_SUPPORT_NOTES.md for detailed setup instructions.
+        
         [Header("Visual Settings")]
         [SerializeField] private Color m_DisabledColor = new Color(0.5f, 0.5f, 0.5f, 0.5f);
         [SerializeField] private Color m_NormalColor = Color.white;
@@ -541,6 +545,13 @@ namespace Patchwork.UI
         }
         
         #region Controller Navigation
+        // Controller/keyboard navigation system:
+        // - Navigate with arrow keys/WASD/D-pad/analog stick
+        // - Submit with Space/Enter/Gamepad A button
+        // - Cancel with Escape/Gamepad B button
+        // - Two areas: collectibles (top) and slots/buttons (bottom)
+        // - Horizontal navigation within area, vertical to switch areas
+        
         private void InitializeSelection()
         {
             // Start with first available collectible selected
