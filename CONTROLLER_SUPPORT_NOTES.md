@@ -1,5 +1,7 @@
 # Controller Support for Crafting UI - Implementation Notes
 
+This document describes the controller and keyboard support implementation for the Crafting UI.
+
 ## Code Changes
 The CraftingUI.cs script has been updated to support controller and keyboard navigation in addition to mouse input.
 
