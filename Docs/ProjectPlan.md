@@ -54,7 +54,7 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 - [x] Create upgrade screen providing upgrade options
 
 ### 0.10: SFX
-- [ ] Add SFX for tile placement
+- [x] Add SFX for tile placement
 - [ ] Add SFX for cursor movement
 - [ ] Add SFX for collectible pickup
 
