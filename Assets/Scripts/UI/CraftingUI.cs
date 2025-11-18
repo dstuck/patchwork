@@ -381,6 +381,15 @@ namespace Patchwork.UI
             m_NextSlotIndex++;
             
             RefreshUI();
+            
+            // Auto-move to slots area if all 3 collectibles are now selected
+            if (m_NextSlotIndex >= 3 && m_IsInCollectiblesArea)
+            {
+                m_IsInCollectiblesArea = false;
+                m_SelectedCollectibleIndex = -1;
+                m_SelectedSlotIndex = 2; // Select the last slot (just filled)
+                UpdateSelectionVisuals();
+            }
         }
 
         private void OnSlotClicked(int slotIndex)
@@ -716,24 +725,38 @@ namespace Patchwork.UI
         {
             if (m_IsInCollectiblesArea)
             {
+                // Don't allow moving to slots if no slots are filled
+                if (m_NextSlotIndex <= 0)
+                {
+                    return; // Can't move to empty slots area
+                }
+                
                 // Move from collectibles area to slots/buttons area
                 m_IsInCollectiblesArea = false;
                 m_SelectedCollectibleIndex = -1;
                 
                 // Automatically select the last filled slot (m_NextSlotIndex - 1)
-                // If no slots are filled, select slot 0
-                m_SelectedSlotIndex = m_NextSlotIndex > 0 ? m_NextSlotIndex - 1 : 0;
+                m_SelectedSlotIndex = m_NextSlotIndex - 1;
                 
                 UpdateSelectionVisuals();
             }
             else
             {
                 // Navigate down through slots and buttons
-                // From slot -> craft button -> close button
+                // From slot -> craft button (if available) -> close button
                 if (m_SelectedSlotIndex >= 0)
                 {
-                    // Move to craft button
-                    m_SelectedSlotIndex = -2;
+                    // Check if craft button is available
+                    if (CanCraft())
+                    {
+                        // Move to craft button
+                        m_SelectedSlotIndex = -2;
+                    }
+                    else
+                    {
+                        // Skip craft button, go straight to close button
+                        m_SelectedSlotIndex = -3;
+                    }
                 }
                 else if (m_SelectedSlotIndex == -2)
                 {
@@ -758,12 +781,13 @@ namespace Patchwork.UI
                 slot.SetSelected(false);
             }
             
-            // Clear button highlights
+            // Reset button visual states
             if (m_CraftButton != null)
             {
                 var craftColors = m_CraftButton.colors;
                 craftColors.normalColor = Color.white;
                 m_CraftButton.colors = craftColors;
+                m_CraftButton.transform.localScale = Vector3.one;
             }
             
             if (m_CloseButton != null)
@@ -771,6 +795,7 @@ namespace Patchwork.UI
                 var closeColors = m_CloseButton.colors;
                 closeColors.normalColor = Color.white;
                 m_CloseButton.colors = closeColors;
+                m_CloseButton.transform.localScale = Vector3.one;
             }
             
             // Highlight selected item
@@ -789,17 +814,19 @@ namespace Patchwork.UI
                 }
                 else if (m_SelectedSlotIndex == -2 && m_CraftButton != null)
                 {
-                    // Highlight craft button with yellow tint
+                    // Highlight craft button with subtle scale and brightness
                     var craftColors = m_CraftButton.colors;
-                    craftColors.normalColor = new Color(1f, 1f, 0.5f, 1f); // Yellow highlight
+                    craftColors.normalColor = new Color(1.2f, 1.2f, 1.2f, 1f); // Slightly brighter
                     m_CraftButton.colors = craftColors;
+                    m_CraftButton.transform.localScale = Vector3.one * 1.1f; // Slight scale up
                 }
                 else if (m_SelectedSlotIndex == -3 && m_CloseButton != null)
                 {
-                    // Highlight close button with yellow tint
+                    // Highlight close button with subtle scale and brightness
                     var closeColors = m_CloseButton.colors;
-                    closeColors.normalColor = new Color(1f, 1f, 0.5f, 1f); // Yellow highlight
+                    closeColors.normalColor = new Color(1.2f, 1.2f, 1.2f, 1f); // Slightly brighter
                     m_CloseButton.colors = closeColors;
+                    m_CloseButton.transform.localScale = Vector3.one * 1.1f; // Slight scale up
                 }
             }
         }
