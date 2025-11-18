@@ -15,6 +15,9 @@ namespace Patchwork.Gameplay
         [SerializeField] private Board m_Board;
         
         [SerializeField] private AudioClip[] m_PlaceTileSoundFX;
+        [SerializeField] private AudioClip[] m_MoveSoundFX;
+        [SerializeField] private AudioClip m_RotateLeftSoundFX;
+        [SerializeField] private AudioClip m_RotateRightSoundFX;
         
         private Vector2Int m_CurrentGridPosition;
         private float m_LastMoveTime;
@@ -203,6 +206,12 @@ namespace Patchwork.Gameplay
                 m_CurrentGridPosition = newPosition;
                 m_LastMoveTime = Time.time;
                 UpdatePosition();
+                
+                // Play movement sound
+                if (SoundFXManager.instance != null && m_MoveSoundFX != null && m_MoveSoundFX.Length > 0)
+                {
+                    SoundFXManager.instance.PlayRandomSoundFXClip(m_MoveSoundFX, transform);
+                }
             }
         }
 
@@ -231,6 +240,16 @@ namespace Patchwork.Gameplay
             if (m_PreviewTile != null)
             {
                 m_PreviewTile.UpdateRotation(m_CurrentRotation);
+            }
+            
+            // Play rotation sound
+            if (SoundFXManager.instance != null)
+            {
+                AudioClip rotationClip = _clockwise ? m_RotateRightSoundFX : m_RotateLeftSoundFX;
+                if (rotationClip != null)
+                {
+                    SoundFXManager.instance.PlaySoundFXClip(rotationClip, transform);
+                }
             }
         }
 
