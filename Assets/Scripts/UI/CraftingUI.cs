@@ -664,15 +664,7 @@ namespace Patchwork.UI
                     nextIndex++;
                 }
             }
-            else
-            {
-                // Navigate through slots/buttons
-                if (m_SelectedSlotIndex < 2 && m_SelectedSlotIndex >= 0)
-                {
-                    m_SelectedSlotIndex++;
-                    UpdateSelectionVisuals();
-                }
-            }
+            // No left/right navigation in slots area - only navigate in collectibles area
         }
         
         private void NavigateLeft()
@@ -692,15 +684,7 @@ namespace Patchwork.UI
                     prevIndex--;
                 }
             }
-            else
-            {
-                // Navigate through slots/buttons
-                if (m_SelectedSlotIndex > 0)
-                {
-                    m_SelectedSlotIndex--;
-                    UpdateSelectionVisuals();
-                }
-            }
+            // No left/right navigation in slots area - only navigate in collectibles area
         }
         
         private void NavigateUp()
@@ -735,23 +719,18 @@ namespace Patchwork.UI
                 // Move from collectibles area to slots/buttons area
                 m_IsInCollectiblesArea = false;
                 m_SelectedCollectibleIndex = -1;
-                m_SelectedSlotIndex = 0;  // Start at first crafting slot
+                
+                // Automatically select the last filled slot (m_NextSlotIndex - 1)
+                // If no slots are filled, select slot 0
+                m_SelectedSlotIndex = m_NextSlotIndex > 0 ? m_NextSlotIndex - 1 : 0;
                 
                 UpdateSelectionVisuals();
             }
             else
             {
                 // Navigate down through slots and buttons
-                if (m_SelectedSlotIndex >= 0 && m_SelectedSlotIndex < 2)
-                {
-                    // Currently on a crafting slot, stay in slots or move to buttons
-                    // For simplicity, cycle through: slot0 -> slot1 -> slot2 -> craft button -> close button
-                    if (m_SelectedSlotIndex < 2)
-                    {
-                        m_SelectedSlotIndex++;
-                    }
-                }
-                else if (m_SelectedSlotIndex == 2)
+                // From slot -> craft button -> close button
+                if (m_SelectedSlotIndex >= 0)
                 {
                     // Move to craft button
                     m_SelectedSlotIndex = -2;
@@ -779,6 +758,21 @@ namespace Patchwork.UI
                 slot.SetSelected(false);
             }
             
+            // Clear button highlights
+            if (m_CraftButton != null)
+            {
+                var craftColors = m_CraftButton.colors;
+                craftColors.normalColor = Color.white;
+                m_CraftButton.colors = craftColors;
+            }
+            
+            if (m_CloseButton != null)
+            {
+                var closeColors = m_CloseButton.colors;
+                closeColors.normalColor = Color.white;
+                m_CloseButton.colors = closeColors;
+            }
+            
             // Highlight selected item
             if (m_IsInCollectiblesArea)
             {
@@ -793,8 +787,20 @@ namespace Patchwork.UI
                 {
                     m_CraftingSlots[m_SelectedSlotIndex].SetSelected(true);
                 }
-                // Note: We could add visual feedback for buttons here if needed
-                // For now, buttons will use their normal hover states
+                else if (m_SelectedSlotIndex == -2 && m_CraftButton != null)
+                {
+                    // Highlight craft button with yellow tint
+                    var craftColors = m_CraftButton.colors;
+                    craftColors.normalColor = new Color(1f, 1f, 0.5f, 1f); // Yellow highlight
+                    m_CraftButton.colors = craftColors;
+                }
+                else if (m_SelectedSlotIndex == -3 && m_CloseButton != null)
+                {
+                    // Highlight close button with yellow tint
+                    var closeColors = m_CloseButton.colors;
+                    closeColors.normalColor = new Color(1f, 1f, 0.5f, 1f); // Yellow highlight
+                    m_CloseButton.colors = closeColors;
+                }
             }
         }
         #endregion
