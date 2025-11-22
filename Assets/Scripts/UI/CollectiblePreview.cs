@@ -104,7 +104,6 @@ namespace Patchwork.UI
             m_IsEnabled = enabled;
             // Don't modify button interactability here - it's controlled in Initialize() based on collectible presence.
             // This design ensures tooltip hover events work even for disabled items.
-            // Button interactability: controlled by Initialize() method
             // Visual feedback: SetDarkened() grays out disabled items
             // Click validation: handled by click handlers (e.g., CraftingUI.OnCollectibleClicked)
             UpdateVisuals();
