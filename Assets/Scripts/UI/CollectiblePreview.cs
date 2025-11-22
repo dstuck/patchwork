@@ -55,13 +55,13 @@ namespace Patchwork.UI
                     ICollectible capturedCollectible = collectible;
                     System.Action<ICollectible> capturedOnClicked = onClicked;
                     m_Button.onClick.AddListener(() => capturedOnClicked?.Invoke(capturedCollectible));
-                    m_Button.interactable = true;
                 }
                 else
                 {
                     m_OnClicked = null;
-                    m_Button.interactable = false;
                 }
+                // Keep button interactable to allow tooltip pointer events
+                m_Button.interactable = (collectible != null);
             }
             
             // Add tooltip only if collectible exists
