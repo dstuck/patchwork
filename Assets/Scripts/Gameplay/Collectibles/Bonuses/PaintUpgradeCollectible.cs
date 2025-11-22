@@ -89,6 +89,10 @@ namespace Patchwork.Gameplay
             // Clean up temporary texture immediately since it's no longer needed
             DestroyImmediate(mainTextureReadable);
             
+            // Note: coloredTexture is not destroyed here as it's owned by the returned Sprite.
+            // Unity's sprite system will manage the texture lifecycle and clean it up when
+            // the sprite is no longer referenced.
+            
             // Create sprite with same settings as original
             return Sprite.Create(coloredTexture, new Rect(0, 0, width, height), 
                 new Vector2(0.5f, 0.5f), mainSprite.pixelsPerUnit);

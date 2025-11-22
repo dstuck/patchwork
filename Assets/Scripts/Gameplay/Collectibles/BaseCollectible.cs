@@ -410,6 +410,10 @@ namespace Patchwork.Gameplay
             DestroyImmediate(mainTextureReadable);
             DestroyImmediate(plusTextureReadable);
             
+            // Note: compositeTexture is not destroyed here as it's owned by the returned Sprite.
+            // Unity's sprite system will manage the texture lifecycle and clean it up when
+            // the sprite is no longer referenced.
+            
             // Create sprite with pivot at center (adjust for padding)
             float pivotX = (width / 2f + padding / 2f) / compositeWidth;
             float pivotY = (height / 2f + padding / 2f) / compositeHeight;
