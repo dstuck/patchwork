@@ -305,10 +305,10 @@ namespace Patchwork.Gameplay
             }
             
             // Generate composite sprite with level indicators
-            return GenerateCompositeSprite(mainSprite);
+            return GenerateCompositeSprite(mainSprite, Color.white);
         }
         
-        protected Sprite GenerateCompositeSprite(Sprite mainSprite)
+        protected Sprite GenerateCompositeSprite(Sprite mainSprite, Color tintColor)
         {
             if (mainSprite == null) return null;
             
@@ -334,7 +334,7 @@ namespace Patchwork.Gameplay
                 pixels[i] = Color.clear;
             }
             
-            // Copy main sprite to center-left
+            // Copy main sprite to center-left and apply tint color
             Color[] mainSpritePixels = mainTextureReadable.GetPixels();
             for (int y = 0; y < height; y++)
             {
@@ -344,7 +344,14 @@ namespace Patchwork.Gameplay
                     int dstIndex = (y + padding / 2) * compositeWidth + x;
                     if (dstIndex >= 0 && dstIndex < pixels.Length)
                     {
-                        pixels[dstIndex] = mainSpritePixels[srcIndex];
+                        // Apply tint color to the sprite pixel
+                        Color spritePixel = mainSpritePixels[srcIndex];
+                        pixels[dstIndex] = new Color(
+                            spritePixel.r * tintColor.r,
+                            spritePixel.g * tintColor.g,
+                            spritePixel.b * tintColor.b,
+                            spritePixel.a * tintColor.a
+                        );
                     }
                 }
             }
@@ -399,9 +406,13 @@ namespace Patchwork.Gameplay
             compositeTexture.SetPixels(pixels);
             compositeTexture.Apply();
             
-            // Clean up temporary textures
-            Destroy(mainTextureReadable);
-            Destroy(plusTextureReadable);
+            // Clean up temporary textures immediately since they're no longer needed
+            DestroyImmediate(mainTextureReadable);
+            DestroyImmediate(plusTextureReadable);
+            
+            // Note: compositeTexture is not destroyed here as it's owned by the returned Sprite.
+            // Unity's sprite system will manage the texture lifecycle and clean it up when
+            // the sprite is no longer referenced.
             
             // Create sprite with pivot at center (adjust for padding)
             float pivotX = (width / 2f + padding / 2f) / compositeWidth;
@@ -411,14 +422,13 @@ namespace Patchwork.Gameplay
                 new Vector2(pivotX, pivotY), mainSprite.pixelsPerUnit);
         }
         
-        private Texture2D GetReadableTexture(Texture2D source, int x, int y, int width, int height)
+        protected Texture2D GetReadableTexture(Texture2D source, int x, int y, int width, int height)
         {
             // Check if texture is already readable
             try
             {
-                source.GetPixels(x, y, width, height);
-                // If we get here, texture is readable - create a copy
                 Color[] pixels = source.GetPixels(x, y, width, height);
+                // If we get here, texture is readable - create a copy
                 Texture2D readableTexture = new Texture2D(width, height);
                 readableTexture.SetPixels(pixels);
                 readableTexture.Apply();
