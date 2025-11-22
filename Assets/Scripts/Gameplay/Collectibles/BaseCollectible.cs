@@ -418,14 +418,13 @@ namespace Patchwork.Gameplay
                 new Vector2(pivotX, pivotY), mainSprite.pixelsPerUnit);
         }
         
-        private Texture2D GetReadableTexture(Texture2D source, int x, int y, int width, int height)
+        protected Texture2D GetReadableTexture(Texture2D source, int x, int y, int width, int height)
         {
             // Check if texture is already readable
             try
             {
-                source.GetPixels(x, y, width, height);
-                // If we get here, texture is readable - create a copy
                 Color[] pixels = source.GetPixels(x, y, width, height);
+                // If we get here, texture is readable - create a copy
                 Texture2D readableTexture = new Texture2D(width, height);
                 readableTexture.SetPixels(pixels);
                 readableTexture.Apply();

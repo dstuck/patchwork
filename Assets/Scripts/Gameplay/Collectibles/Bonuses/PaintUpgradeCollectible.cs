@@ -94,41 +94,6 @@ namespace Patchwork.Gameplay
                 new Vector2(0.5f, 0.5f), mainSprite.pixelsPerUnit);
         }
 
-        private Texture2D GetReadableTexture(Texture2D source, int x, int y, int width, int height)
-        {
-            // Check if texture is already readable
-            try
-            {
-                source.GetPixels(x, y, width, height);
-                // If we get here, texture is readable - create a copy
-                Color[] pixels = source.GetPixels(x, y, width, height);
-                Texture2D readableTexture = new Texture2D(width, height);
-                readableTexture.SetPixels(pixels);
-                readableTexture.Apply();
-                return readableTexture;
-            }
-            catch
-            {
-                // Texture is not readable, use RenderTexture approach
-                RenderTexture renderTexture = RenderTexture.GetTemporary(
-                    source.width, source.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
-                
-                Graphics.Blit(source, renderTexture);
-                
-                RenderTexture previous = RenderTexture.active;
-                RenderTexture.active = renderTexture;
-                
-                Texture2D readableTexture = new Texture2D(width, height);
-                readableTexture.ReadPixels(new Rect(x, source.height - y - height, width, height), 0, 0);
-                readableTexture.Apply();
-                
-                RenderTexture.active = previous;
-                RenderTexture.ReleaseTemporary(renderTexture);
-                
-                return readableTexture;
-            }
-        }
-
         public override bool TryCollect(PlacedTile collectingTile)
         {
             if (base.TryCollect(collectingTile))
