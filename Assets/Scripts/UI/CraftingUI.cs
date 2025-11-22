@@ -128,6 +128,13 @@ namespace Patchwork.UI
                 m_AvailableCollectibles = new List<ICollectible>();
             }
             
+            // Sort collectibles: first by level (asc), then by sign, then by name (alphabetically)
+            m_AvailableCollectibles = m_AvailableCollectibles
+                .OrderBy(c => c.Level)
+                .ThenBy(c => GetSign(c))
+                .ThenBy(c => c.DisplayName)
+                .ToList();
+            
             // Create preview for each collectible
             for (int i = 0; i < m_AvailableCollectibles.Count; i++)
             {
