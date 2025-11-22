@@ -99,12 +99,8 @@ namespace Patchwork.UI
         public void SetEnabled(bool enabled)
         {
             m_IsEnabled = enabled;
-            // Only update button interactability if we have a click handler
-            // (for slots with click handlers, we want them always clickable)
-            if (m_Button != null && m_OnClicked == null)
-            {
-                m_Button.interactable = enabled;
-            }
+            // Don't modify button interactability here - it's set in Initialize based on collectible presence
+            // This ensures tooltip hover events continue to work
             UpdateVisuals();
         }
 
