@@ -76,6 +76,7 @@ namespace Tests
                 CreateTestCollectible("Dog", 2, -1),       // Level 2, Sign -1, Name "Dog"
                 CreateTestCollectible("Ant", 1, 2),        // Level 1, Sign +1, Name "Ant"
                 CreateTestCollectible("Ball", 2, 3),       // Level 2, Sign +1, Name "Ball"
+                CreateTestCollectible("Cat", 2, 0),        // Level 2, Sign -1 (zero power treated as negative), Name "Cat"
             };
             
             // Add collectibles to deck
@@ -97,11 +98,11 @@ namespace Tests
             // Expected order:
             // Level 1, Sign -1: Apple
             // Level 1, Sign +1: Ant, Banana
-            // Level 2, Sign -1: Dog
+            // Level 2, Sign -1: Cat (zero power), Dog
             // Level 2, Sign +1: Ball, Zebra
             // Level 3, Sign -1: Cherry
             
-            Assert.AreEqual(7, result.Count, "Should have 7 collectibles");
+            Assert.AreEqual(8, result.Count, "Should have 8 collectibles");
             
             Assert.AreEqual("Apple", result[0].DisplayName, "First should be Apple (Level 1, Sign -1)");
             Assert.AreEqual(1, result[0].Level);
@@ -115,21 +116,25 @@ namespace Tests
             Assert.AreEqual(1, result[2].Level);
             Assert.IsTrue(result[2].Power > 0);
             
-            Assert.AreEqual("Dog", result[3].DisplayName, "Fourth should be Dog (Level 2, Sign -1)");
+            Assert.AreEqual("Cat", result[3].DisplayName, "Fourth should be Cat (Level 2, Sign -1, zero power, alphabetically first)");
             Assert.AreEqual(2, result[3].Level);
-            Assert.IsTrue(result[3].Power < 0);
+            Assert.AreEqual(0, result[3].Power);
             
-            Assert.AreEqual("Ball", result[4].DisplayName, "Fifth should be Ball (Level 2, Sign +1, alphabetically first)");
+            Assert.AreEqual("Dog", result[4].DisplayName, "Fifth should be Dog (Level 2, Sign -1)");
             Assert.AreEqual(2, result[4].Level);
-            Assert.IsTrue(result[4].Power > 0);
+            Assert.IsTrue(result[4].Power < 0);
             
-            Assert.AreEqual("Zebra", result[5].DisplayName, "Sixth should be Zebra (Level 2, Sign +1)");
+            Assert.AreEqual("Ball", result[5].DisplayName, "Sixth should be Ball (Level 2, Sign +1, alphabetically first)");
             Assert.AreEqual(2, result[5].Level);
             Assert.IsTrue(result[5].Power > 0);
             
-            Assert.AreEqual("Cherry", result[6].DisplayName, "Seventh should be Cherry (Level 3, Sign -1)");
-            Assert.AreEqual(3, result[6].Level);
-            Assert.IsTrue(result[6].Power < 0);
+            Assert.AreEqual("Zebra", result[6].DisplayName, "Seventh should be Zebra (Level 2, Sign +1)");
+            Assert.AreEqual(2, result[6].Level);
+            Assert.IsTrue(result[6].Power > 0);
+            
+            Assert.AreEqual("Cherry", result[7].DisplayName, "Eighth should be Cherry (Level 3, Sign -1)");
+            Assert.AreEqual(3, result[7].Level);
+            Assert.IsTrue(result[7].Power < 0);
         }
 
         private ICollectible CreateTestCollectible(string name, int level, int power)
