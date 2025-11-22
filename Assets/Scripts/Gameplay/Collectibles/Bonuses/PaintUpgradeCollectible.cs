@@ -86,8 +86,8 @@ namespace Patchwork.Gameplay
             coloredTexture.SetPixels(pixels);
             coloredTexture.Apply();
             
-            // Clean up temporary texture
-            Destroy(mainTextureReadable);
+            // Clean up temporary texture immediately since it's no longer needed
+            DestroyImmediate(mainTextureReadable);
             
             // Create sprite with same settings as original
             return Sprite.Create(coloredTexture, new Rect(0, 0, width, height), 

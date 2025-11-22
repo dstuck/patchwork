@@ -406,9 +406,9 @@ namespace Patchwork.Gameplay
             compositeTexture.SetPixels(pixels);
             compositeTexture.Apply();
             
-            // Clean up temporary textures
-            Destroy(mainTextureReadable);
-            Destroy(plusTextureReadable);
+            // Clean up temporary textures immediately since they're no longer needed
+            DestroyImmediate(mainTextureReadable);
+            DestroyImmediate(plusTextureReadable);
             
             // Create sprite with pivot at center (adjust for padding)
             float pivotX = (width / 2f + padding / 2f) / compositeWidth;
