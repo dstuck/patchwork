@@ -305,10 +305,10 @@ namespace Patchwork.Gameplay
             }
             
             // Generate composite sprite with level indicators
-            return GenerateCompositeSprite(mainSprite);
+            return GenerateCompositeSprite(mainSprite, Color.white);
         }
         
-        protected Sprite GenerateCompositeSprite(Sprite mainSprite)
+        protected Sprite GenerateCompositeSprite(Sprite mainSprite, Color tintColor)
         {
             if (mainSprite == null) return null;
             
@@ -334,7 +334,7 @@ namespace Patchwork.Gameplay
                 pixels[i] = Color.clear;
             }
             
-            // Copy main sprite to center-left
+            // Copy main sprite to center-left and apply tint color
             Color[] mainSpritePixels = mainTextureReadable.GetPixels();
             for (int y = 0; y < height; y++)
             {
@@ -344,7 +344,14 @@ namespace Patchwork.Gameplay
                     int dstIndex = (y + padding / 2) * compositeWidth + x;
                     if (dstIndex >= 0 && dstIndex < pixels.Length)
                     {
-                        pixels[dstIndex] = mainSpritePixels[srcIndex];
+                        // Apply tint color to the sprite pixel
+                        Color spritePixel = mainSpritePixels[srcIndex];
+                        pixels[dstIndex] = new Color(
+                            spritePixel.r * tintColor.r,
+                            spritePixel.g * tintColor.g,
+                            spritePixel.b * tintColor.b,
+                            spritePixel.a * tintColor.a
+                        );
                     }
                 }
             }
