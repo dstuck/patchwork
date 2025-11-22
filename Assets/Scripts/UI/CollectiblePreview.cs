@@ -60,7 +60,10 @@ namespace Patchwork.UI
                 {
                     m_OnClicked = null;
                 }
-                // Keep button interactable to allow tooltip pointer events
+                // Keep button interactable when collectible exists to allow tooltip hover events.
+                // Button interactability is based on collectible presence, not the enabled state.
+                // Visual feedback for disabled items is provided via SetDarkened().
+                // Click validation is handled by the click handler (e.g., CraftingUI.OnCollectibleClicked).
                 m_Button.interactable = (collectible != null);
             }
             
@@ -99,8 +102,11 @@ namespace Patchwork.UI
         public void SetEnabled(bool enabled)
         {
             m_IsEnabled = enabled;
-            // Don't modify button interactability here - it's set in Initialize based on collectible presence
-            // This ensures tooltip hover events continue to work
+            // Don't modify button interactability here - it's controlled in Initialize() based on collectible presence.
+            // This design ensures tooltip hover events work even for disabled items.
+            // Button interactability: controlled by Initialize() (line 64)
+            // Visual feedback: SetDarkened() grays out disabled items
+            // Click validation: handled by click handlers (e.g., CraftingUI.OnCollectibleClicked)
             UpdateVisuals();
         }
 
