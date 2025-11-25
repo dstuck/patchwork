@@ -308,9 +308,15 @@ namespace Patchwork.Gameplay
             return GenerateCompositeSprite(mainSprite, Color.white);
         }
         
-        protected Sprite GenerateCompositeSprite(Sprite mainSprite, Color tintColor)
+        protected Sprite GenerateCompositeSprite(Sprite mainSprite, Color tintColor = default)
         {
             if (mainSprite == null) return null;
+            
+            // If default color (black/transparent), use white instead
+            if (tintColor == default(Color))
+            {
+                tintColor = Color.white;
+            }
             
             // Get sprite texture bounds
             Rect spriteRect = mainSprite.rect;
@@ -420,6 +426,97 @@ namespace Patchwork.Gameplay
             
             return Sprite.Create(compositeTexture, new Rect(0, 0, compositeWidth, compositeHeight), 
                 new Vector2(pivotX, pivotY), mainSprite.pixelsPerUnit);
+        }
+
+        /// <summary>
+        /// Applies a tint color to a sprite, creating a new tinted sprite.
+        /// Returns the original sprite if tintColor is white (no tint needed).
+        /// </summary>
+        protected Sprite ApplyTintToSprite(Sprite sprite, Color tintColor)
+        {
+            if (sprite == null) return null;
+            
+            // If tint is white (or very close to white), no need to create a new sprite
+            // Use approximate comparison to handle floating point precision
+            if (Mathf.Approximately(tintColor.r, 1f) && 
+                Mathf.Approximately(tintColor.g, 1f) && 
+                Mathf.Approximately(tintColor.b, 1f) && 
+                Mathf.Approximately(tintColor.a, 1f))
+            {
+                return sprite;
+            }
+            
+            // Get sprite texture bounds
+            Rect spriteRect = sprite.rect;
+            int spriteWidth = (int)spriteRect.width;
+            int spriteHeight = (int)spriteRect.height;
+            int rectX = (int)spriteRect.x;
+            int rectY = (int)spriteRect.y;
+            
+            // Get the full source texture dimensions to preserve padding
+            int fullTextureWidth = sprite.texture.width;
+            int fullTextureHeight = sprite.texture.height;
+            
+            // Create readable copy of the FULL source texture
+            Texture2D sourceTextureReadable = GetReadableTexture(sprite.texture, 0, 0, fullTextureWidth, fullTextureHeight);
+            
+            // Create new texture with same FULL dimensions
+            Texture2D tintedTexture = new Texture2D(fullTextureWidth, fullTextureHeight, TextureFormat.RGBA32, false);
+            
+            // Fill with transparent
+            Color[] fullPixels = new Color[fullTextureWidth * fullTextureHeight];
+            for (int i = 0; i < fullPixels.Length; i++)
+            {
+                fullPixels[i] = Color.clear;
+            }
+            
+            // Apply tint only to the sprite rect region
+            Color[] sourcePixels = sourceTextureReadable.GetPixels();
+            for (int y = 0; y < fullTextureHeight; y++)
+            {
+                for (int x = 0; x < fullTextureWidth; x++)
+                {
+                    int index = y * fullTextureWidth + x;
+                    Color pixel = sourcePixels[index];
+                    
+                    // Only tint pixels in the sprite rect region
+                    if (x >= rectX && x < rectX + spriteWidth && y >= rectY && y < rectY + spriteHeight)
+                    {
+                        fullPixels[index] = new Color(
+                            pixel.r * tintColor.r,
+                            pixel.g * tintColor.g,
+                            pixel.b * tintColor.b,
+                            pixel.a * tintColor.a
+                        );
+                    }
+                }
+            }
+            
+            tintedTexture.SetPixels(fullPixels);
+            tintedTexture.Apply();
+            
+            // Clean up temporary texture
+            DestroyImmediate(sourceTextureReadable);
+            
+            // Create sprite with same rect, pivot and pixels per unit as original
+            // The pivot is already in pixel coordinates relative to the rect
+            Vector2 normalizedPivot = new Vector2(
+                sprite.pivot.x / spriteRect.width,
+                sprite.pivot.y / spriteRect.height
+            );
+            
+            // Create the sprite with the SAME rect as the original, preserving all properties
+            Sprite newSprite = Sprite.Create(
+                tintedTexture, 
+                spriteRect,  // Use the same rect as the original sprite
+                normalizedPivot, 
+                sprite.pixelsPerUnit,
+                0,  // extrude
+                SpriteMeshType.FullRect,
+                sprite.border  // Preserve border for proper UI rendering
+            );
+            
+            return newSprite;
         }
         
         protected Texture2D GetReadableTexture(Texture2D source, int x, int y, int width, int height)
