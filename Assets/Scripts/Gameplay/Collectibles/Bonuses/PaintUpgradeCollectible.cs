@@ -21,8 +21,33 @@ namespace Patchwork.Gameplay
 
         public ITileUpgrade CurrentUpgrade => m_Upgrade;
 
-        public override string DisplayName => m_Upgrade?.DisplayName ?? "Upgrade";
-        public override string Description => m_Upgrade?.Description ?? "Upgrades collecting tile";
+        public override string DisplayName
+        {
+            get
+            {
+                // Get the upgrade (call GetUpgrade() directly in case Awake() hasn't run yet)
+                ITileUpgrade upgrade = m_Upgrade ?? GetUpgrade();
+                if (upgrade != null)
+                {
+                    return $"{upgrade.DisplayName} Paint";
+                }
+                return "Paint Upgrade";
+            }
+        }
+
+        public override string Description
+        {
+            get
+            {
+                // Get the upgrade (call GetUpgrade() directly in case Awake() hasn't run yet)
+                ITileUpgrade upgrade = m_Upgrade ?? GetUpgrade();
+                if (upgrade != null)
+                {
+                    return $"Upgrades collecting tile: {upgrade.Description}";
+                }
+                return "Upgrades collecting tile";
+            }
+        }
 
         protected override Sprite GetSprite() => GameResources.Instance.PaintSprite;
         protected override float GetScale() => GameResources.Instance.PaintScale;
