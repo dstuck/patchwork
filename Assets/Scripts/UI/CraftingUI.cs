@@ -44,7 +44,7 @@ namespace Patchwork.UI
         private int m_SelectedSlotIndex = -1;  // -1 means nothing selected, -2 = craft button, -3 = close button
         private bool m_IsInCollectiblesArea = true;  // true = selecting collectibles, false = selecting slots/buttons
         private float m_LastNavigationTime = 0f;
-        private float m_NavigationCooldown = 0.15f;
+        private readonly float m_NavigationCooldown = 0.15f;
         #endregion
 
         #region Unity Lifecycle
@@ -753,17 +753,8 @@ namespace Patchwork.UI
                 // From slot -> craft button (if available) -> close button
                 if (m_SelectedSlotIndex >= 0)
                 {
-                    // Check if craft button is available
-                    if (CanCraft())
-                    {
-                        // Move to craft button
-                        m_SelectedSlotIndex = -2;
-                    }
-                    else
-                    {
-                        // Skip craft button, go straight to close button
-                        m_SelectedSlotIndex = -3;
-                    }
+                    // Move to craft button if available, otherwise go straight to close button
+                    m_SelectedSlotIndex = CanCraft() ? -2 : -3;
                 }
                 else if (m_SelectedSlotIndex == -2)
                 {

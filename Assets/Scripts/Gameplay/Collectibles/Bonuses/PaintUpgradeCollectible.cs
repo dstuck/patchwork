@@ -52,8 +52,6 @@ namespace Patchwork.Gameplay
             
             // Get sprite texture bounds
             Rect spriteRect = mainSprite.rect;
-            int width = (int)spriteRect.width;
-            int height = (int)spriteRect.height;
             
             // Determine if we need level indicators
             bool needsIndicators = m_Level > 1 && ShouldShowLevelIndicators();

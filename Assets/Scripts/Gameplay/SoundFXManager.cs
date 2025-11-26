@@ -27,12 +27,9 @@ namespace Patchwork.Gameplay
             }
 
             AudioSource audioSource = Instantiate(soundFXObject, spawnTransform.position, Quaternion.identity);
-            audioSource.transform.SetParent(null);
             audioSource.clip = audioClip;
             audioSource.volume = volume;
             audioSource.Play();
-
-            DontDestroyOnLoad(audioSource.gameObject);
 
             float clipLength = audioClip.length;
             Destroy(audioSource.gameObject, clipLength);
