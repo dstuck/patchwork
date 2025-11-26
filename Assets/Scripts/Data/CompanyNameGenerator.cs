@@ -79,51 +79,27 @@ namespace Patchwork.Data
 
         #region Public Methods
         /// <summary>
-        /// Generates 3 unique company names with no overlapping words.
+        /// Generates unique company names with no overlapping words.
         /// </summary>
-        /// <returns>A list of 3 company names</returns>
-        public static List<string> GenerateCompanyNames()
+        /// <param name="count">Number of company names to generate</param>
+        /// <returns>A list of company names</returns>
+        public static List<string> GenerateCompanyNames(int count)
         {
             List<string> companyNames = new List<string>();
 
-            // Shuffle and pick 3 first words
-            var shuffledFirstWords = s_FirstWords.OrderBy(x => UnityEngine.Random.value).Take(3).ToList();
-            
-            // Shuffle and pick 3 middle words
-            var shuffledMiddleWords = s_MiddleWords.OrderBy(x => UnityEngine.Random.value).Take(3).ToList();
-            
-            // Shuffle and pick 3 endings (optional)
-            var shuffledEndings = s_Endings.OrderBy(x => UnityEngine.Random.value).Take(3).ToList();
+            // Shuffle and pick the requested number of words from each corpus
+            var shuffledFirstWords = s_FirstWords.OrderBy(x => UnityEngine.Random.value).Take(count).ToList();
+            var shuffledMiddleWords = s_MiddleWords.OrderBy(x => UnityEngine.Random.value).Take(count).ToList();
+            var shuffledEndings = s_Endings.OrderBy(x => UnityEngine.Random.value).Take(count).ToList();
 
-            // Create 3 company names
-            for (int i = 0; i < 3; i++)
+            // Create company names, always including all 3 parts
+            for (int i = 0; i < count; i++)
             {
-                string companyName = BuildCompanyName(shuffledFirstWords[i], shuffledMiddleWords[i], shuffledEndings[i]);
+                string companyName = $"{shuffledFirstWords[i]} {shuffledMiddleWords[i]} {shuffledEndings[i]}";
                 companyNames.Add(companyName);
             }
 
             return companyNames;
-        }
-        #endregion
-
-        #region Private Methods
-        /// <summary>
-        /// Builds a company name from the selected parts.
-        /// Randomly decides whether to include the ending modifier.
-        /// </summary>
-        private static string BuildCompanyName(string first, string middle, string ending)
-        {
-            // Randomly decide if we include the ending (50% chance)
-            bool includeEnding = UnityEngine.Random.value > 0.5f;
-
-            if (includeEnding)
-            {
-                return $"{first} {middle} {ending}";
-            }
-            else
-            {
-                return $"{first} {middle}";
-            }
         }
         #endregion
     }

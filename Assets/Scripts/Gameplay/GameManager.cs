@@ -457,7 +457,7 @@ namespace Patchwork.Gameplay
         public void StartNewGame()
         {
             // Generate and log company names
-            var companyNames = CompanyNameGenerator.GenerateCompanyNames();
+            var companyNames = CompanyNameGenerator.GenerateCompanyNames(3);
             Debug.Log($"[GameManager] Generated Company Names:");
             for (int i = 0; i < companyNames.Count; i++)
             {

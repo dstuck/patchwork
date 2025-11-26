@@ -10,7 +10,7 @@ namespace Tests
         public void GenerateCompanyNames_Returns3Names()
         {
             // Act
-            var companyNames = CompanyNameGenerator.GenerateCompanyNames();
+            var companyNames = CompanyNameGenerator.GenerateCompanyNames(3);
 
             // Assert
             Assert.IsNotNull(companyNames, "Company names list should not be null");
@@ -21,7 +21,7 @@ namespace Tests
         public void GenerateCompanyNames_NamesAreNotEmpty()
         {
             // Act
-            var companyNames = CompanyNameGenerator.GenerateCompanyNames();
+            var companyNames = CompanyNameGenerator.GenerateCompanyNames(3);
 
             // Assert
             foreach (var name in companyNames)
@@ -34,7 +34,7 @@ namespace Tests
         public void GenerateCompanyNames_NoOverlappingWords()
         {
             // Act
-            var companyNames = CompanyNameGenerator.GenerateCompanyNames();
+            var companyNames = CompanyNameGenerator.GenerateCompanyNames(3);
 
             // Assert
             // Extract all words from all company names
@@ -77,15 +77,15 @@ namespace Tests
         public void GenerateCompanyNames_ContainsValidParts()
         {
             // Act
-            var companyNames = CompanyNameGenerator.GenerateCompanyNames();
+            var companyNames = CompanyNameGenerator.GenerateCompanyNames(3);
 
             // Assert
             foreach (var name in companyNames)
             {
-                // Each name should have at least 2 parts (first + middle)
+                // Each name should have exactly 3 parts (first + middle + ending)
                 var parts = name.Split(' ');
-                Assert.IsTrue(parts.Length >= 2, 
-                    $"Company name '{name}' should have at least 2 parts (first + middle)");
+                Assert.IsTrue(parts.Length >= 3, 
+                    $"Company name '{name}' should have at least 3 parts (first + middle + ending)");
             }
         }
 
@@ -96,7 +96,7 @@ namespace Tests
             var allGeneratedNames = new HashSet<string>();
             for (int i = 0; i < 10; i++)
             {
-                var names = CompanyNameGenerator.GenerateCompanyNames();
+                var names = CompanyNameGenerator.GenerateCompanyNames(3);
                 foreach (var name in names)
                 {
                     allGeneratedNames.Add(name);
@@ -107,6 +107,18 @@ namespace Tests
             // (showing randomness is working)
             Assert.IsTrue(allGeneratedNames.Count > 3, 
                 "Generator should produce variety across multiple runs");
+        }
+
+        [Test]
+        public void GenerateCompanyNames_RespectsCountParameter()
+        {
+            // Act
+            var fiveNames = CompanyNameGenerator.GenerateCompanyNames(5);
+            var oneNames = CompanyNameGenerator.GenerateCompanyNames(1);
+
+            // Assert
+            Assert.AreEqual(5, fiveNames.Count, "Should generate exactly 5 company names");
+            Assert.AreEqual(1, oneNames.Count, "Should generate exactly 1 company name");
         }
     }
 }
