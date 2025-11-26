@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using Patchwork.Gameplay;
+using UnityEngine.InputSystem;
+using Patchwork.Input;
 
 namespace Patchwork.UI
 {
@@ -16,6 +18,10 @@ namespace Patchwork.UI
         [SerializeField] private Button m_CraftButton;
         [SerializeField] private Button m_CloseButton;
         [SerializeField] private GameObject m_CollectiblePreviewPrefab;
+        
+        // UNITY EDITOR NOTE: The CollectiblePreview prefab needs a SelectionOutline Image component
+        // to provide visual feedback for controller/keyboard navigation.
+        // See CONTROLLER_SUPPORT_NOTES.md for detailed setup instructions.
         
         [Header("Visual Settings")]
         [SerializeField] private Color m_DisabledColor = new Color(0.5f, 0.5f, 0.5f, 0.5f);
@@ -31,6 +37,14 @@ namespace Patchwork.UI
         private int m_NextSlotIndex = 0;
         
         private CanvasGroup m_CanvasGroup;
+        
+        // Controller/keyboard navigation
+        private GameControls m_Controls;
+        private int m_SelectedCollectibleIndex = -1;  // -1 means nothing selected
+        private int m_SelectedSlotIndex = -1;  // -1 means nothing selected, -2 = craft button, -3 = close button
+        private bool m_IsInCollectiblesArea = true;  // true = selecting collectibles, false = selecting slots/buttons
+        private float m_LastNavigationTime = 0f;
+        private readonly float m_NavigationCooldown = 0.15f;
         #endregion
 
         #region Unity Lifecycle
@@ -52,6 +66,12 @@ namespace Patchwork.UI
                 m_CloseButton.onClick.AddListener(OnCloseClicked);
             }
             
+            // Setup input controls
+            m_Controls = new GameControls();
+            m_Controls.UI.Navigate.performed += OnNavigate;
+            m_Controls.UI.Submit.performed += OnSubmit;
+            m_Controls.UI.Cancel.performed += OnCancel;
+            
             InitializeCraftingSlots();
             
             // Deactivate by default (will be activated by ShowUI)
@@ -61,13 +81,32 @@ namespace Patchwork.UI
 
         private void OnEnable()
         {
+            if (m_Controls != null)
+            {
+                m_Controls.Enable();
+            }
             RefreshCollectiblesList();
             RefreshUI();
+            InitializeSelection();
         }
 
         private void OnDisable()
         {
-            // Cleanup if needed
+            if (m_Controls != null)
+            {
+                m_Controls.Disable();
+            }
+        }
+        
+        private void OnDestroy()
+        {
+            if (m_Controls != null)
+            {
+                m_Controls.UI.Navigate.performed -= OnNavigate;
+                m_Controls.UI.Submit.performed -= OnSubmit;
+                m_Controls.UI.Cancel.performed -= OnCancel;
+                m_Controls.Dispose();
+            }
         }
         #endregion
 
@@ -127,6 +166,13 @@ namespace Patchwork.UI
             {
                 m_AvailableCollectibles = new List<ICollectible>();
             }
+            
+            // Sort collectibles: first by level (asc), then by sign, then by name (alphabetically)
+            m_AvailableCollectibles = m_AvailableCollectibles
+                .OrderBy(c => c.Level)
+                .ThenBy(c => GetSign(c))
+                .ThenBy(c => c.DisplayName)
+                .ToList();
             
             // Create preview for each collectible
             for (int i = 0; i < m_AvailableCollectibles.Count; i++)
@@ -188,6 +234,9 @@ namespace Patchwork.UI
             
             // Update craft button state
             UpdateCraftButtonState();
+            
+            // Update selection visuals to maintain current selection
+            UpdateSelectionVisuals();
         }
 
         private void UpdateCollectibleStates()
@@ -339,6 +388,15 @@ namespace Patchwork.UI
             m_NextSlotIndex++;
             
             RefreshUI();
+            
+            // Auto-move to slots area if all 3 collectibles are now selected
+            if (m_NextSlotIndex >= 3 && m_IsInCollectiblesArea)
+            {
+                m_IsInCollectiblesArea = false;
+                m_SelectedCollectibleIndex = -1;
+                m_SelectedSlotIndex = 2; // Select the last slot (just filled)
+                UpdateSelectionVisuals();
+            }
         }
 
         private void OnSlotClicked(int slotIndex)
@@ -501,6 +559,276 @@ namespace Patchwork.UI
         {
             HideUI();
         }
+        
+        #region Controller Navigation
+        // Controller/keyboard navigation system:
+        // - Navigate with arrow keys/WASD/D-pad/analog stick
+        // - Submit with Space/Enter/Gamepad A button
+        // - Cancel with Escape/Gamepad B button
+        // - Two areas: collectibles (top) and slots/buttons (bottom)
+        // - Horizontal navigation within area, vertical to switch areas
+        
+        private void InitializeSelection()
+        {
+            // Start with first available collectible selected
+            m_IsInCollectiblesArea = true;
+            m_SelectedSlotIndex = -1;
+            
+            // Find first valid collectible
+            m_SelectedCollectibleIndex = -1;
+            for (int i = 0; i < m_CollectiblePreviews.Count; i++)
+            {
+                if (m_CollectiblePreviews[i].Collectible != null)
+                {
+                    m_SelectedCollectibleIndex = i;
+                    break;
+                }
+            }
+            
+            UpdateSelectionVisuals();
+        }
+        
+        private void OnNavigate(InputAction.CallbackContext context)
+        {
+            if (Time.time - m_LastNavigationTime < m_NavigationCooldown) return;
+            
+            Vector2 input = context.ReadValue<Vector2>();
+            
+            // Determine navigation direction
+            if (Mathf.Abs(input.x) > Mathf.Abs(input.y))
+            {
+                // Horizontal navigation
+                if (input.x > 0.5f)
+                {
+                    NavigateRight();
+                }
+                else if (input.x < -0.5f)
+                {
+                    NavigateLeft();
+                }
+            }
+            else
+            {
+                // Vertical navigation
+                if (input.y > 0.5f)
+                {
+                    NavigateUp();
+                }
+                else if (input.y < -0.5f)
+                {
+                    NavigateDown();
+                }
+            }
+            
+            m_LastNavigationTime = Time.time;
+        }
+        
+        private void OnSubmit(InputAction.CallbackContext context)
+        {
+            if (m_IsInCollectiblesArea)
+            {
+                // Submit on collectible - same as clicking it
+                if (m_SelectedCollectibleIndex >= 0 && m_SelectedCollectibleIndex < m_CollectiblePreviews.Count)
+                {
+                    OnCollectibleClicked(m_SelectedCollectibleIndex);
+                }
+            }
+            else
+            {
+                // Submit on slot/button
+                if (m_SelectedSlotIndex >= 0 && m_SelectedSlotIndex < 3)
+                {
+                    // Clicking a crafting slot
+                    OnSlotClicked(m_SelectedSlotIndex);
+                }
+                else if (m_SelectedSlotIndex == -2)
+                {
+                    // Craft button
+                    if (m_CraftButton != null && m_CraftButton.interactable)
+                    {
+                        OnCraftClicked();
+                    }
+                }
+                else if (m_SelectedSlotIndex == -3)
+                {
+                    // Close button
+                    OnCloseClicked();
+                }
+            }
+        }
+        
+        private void OnCancel(InputAction.CallbackContext context)
+        {
+            // Cancel closes the UI
+            OnCloseClicked();
+        }
+        
+        private void NavigateRight()
+        {
+            if (m_IsInCollectiblesArea)
+            {
+                // Move to next collectible in grid (assuming horizontal layout)
+                int nextIndex = m_SelectedCollectibleIndex + 1;
+                while (nextIndex < m_CollectiblePreviews.Count)
+                {
+                    if (m_CollectiblePreviews[nextIndex].Collectible != null)
+                    {
+                        m_SelectedCollectibleIndex = nextIndex;
+                        UpdateSelectionVisuals();
+                        return;
+                    }
+                    nextIndex++;
+                }
+            }
+            // No left/right navigation in slots area - only navigate in collectibles area
+        }
+        
+        private void NavigateLeft()
+        {
+            if (m_IsInCollectiblesArea)
+            {
+                // Move to previous collectible in grid
+                int prevIndex = m_SelectedCollectibleIndex - 1;
+                while (prevIndex >= 0)
+                {
+                    if (m_CollectiblePreviews[prevIndex].Collectible != null)
+                    {
+                        m_SelectedCollectibleIndex = prevIndex;
+                        UpdateSelectionVisuals();
+                        return;
+                    }
+                    prevIndex--;
+                }
+            }
+            // No left/right navigation in slots area - only navigate in collectibles area
+        }
+        
+        private void NavigateUp()
+        {
+            // Move from slots area to collectibles area
+            if (!m_IsInCollectiblesArea)
+            {
+                m_IsInCollectiblesArea = true;
+                m_SelectedSlotIndex = -1;
+                
+                // Select first valid collectible
+                if (m_SelectedCollectibleIndex < 0 || m_SelectedCollectibleIndex >= m_CollectiblePreviews.Count)
+                {
+                    for (int i = 0; i < m_CollectiblePreviews.Count; i++)
+                    {
+                        if (m_CollectiblePreviews[i].Collectible != null)
+                        {
+                            m_SelectedCollectibleIndex = i;
+                            break;
+                        }
+                    }
+                }
+                
+                UpdateSelectionVisuals();
+            }
+        }
+        
+        private void NavigateDown()
+        {
+            if (m_IsInCollectiblesArea)
+            {
+                // Don't allow moving to slots if no slots are filled
+                if (m_NextSlotIndex <= 0)
+                {
+                    return; // Can't move to empty slots area
+                }
+                
+                // Move from collectibles area to slots/buttons area
+                m_IsInCollectiblesArea = false;
+                m_SelectedCollectibleIndex = -1;
+                
+                // Automatically select the last filled slot (m_NextSlotIndex - 1)
+                m_SelectedSlotIndex = m_NextSlotIndex - 1;
+                
+                UpdateSelectionVisuals();
+            }
+            else
+            {
+                // Navigate down through slots and buttons
+                // From slot -> craft button (if available) -> close button
+                if (m_SelectedSlotIndex >= 0)
+                {
+                    // Move to craft button if available, otherwise go straight to close button
+                    m_SelectedSlotIndex = CanCraft() ? -2 : -3;
+                }
+                else if (m_SelectedSlotIndex == -2)
+                {
+                    // Move to close button
+                    m_SelectedSlotIndex = -3;
+                }
+                
+                UpdateSelectionVisuals();
+            }
+        }
+        
+        private void UpdateSelectionVisuals()
+        {
+            // Clear all selections
+            foreach (var preview in m_CollectiblePreviews)
+            {
+                preview.SetSelected(false);
+            }
+            
+            foreach (var slot in m_CraftingSlots)
+            {
+                slot.SetSelected(false);
+            }
+            
+            // Reset button visual states
+            if (m_CraftButton != null)
+            {
+                var craftColors = m_CraftButton.colors;
+                craftColors.normalColor = Color.white;
+                m_CraftButton.colors = craftColors;
+                m_CraftButton.transform.localScale = Vector3.one;
+            }
+            
+            if (m_CloseButton != null)
+            {
+                var closeColors = m_CloseButton.colors;
+                closeColors.normalColor = Color.white;
+                m_CloseButton.colors = closeColors;
+                m_CloseButton.transform.localScale = Vector3.one;
+            }
+            
+            // Highlight selected item
+            if (m_IsInCollectiblesArea)
+            {
+                if (m_SelectedCollectibleIndex >= 0 && m_SelectedCollectibleIndex < m_CollectiblePreviews.Count)
+                {
+                    m_CollectiblePreviews[m_SelectedCollectibleIndex].SetSelected(true);
+                }
+            }
+            else
+            {
+                if (m_SelectedSlotIndex >= 0 && m_SelectedSlotIndex < m_CraftingSlots.Count)
+                {
+                    m_CraftingSlots[m_SelectedSlotIndex].SetSelected(true);
+                }
+                else if (m_SelectedSlotIndex == -2 && m_CraftButton != null)
+                {
+                    // Highlight craft button with subtle scale and brightness
+                    var craftColors = m_CraftButton.colors;
+                    craftColors.normalColor = new Color(1.2f, 1.2f, 1.2f, 1f); // Slightly brighter
+                    m_CraftButton.colors = craftColors;
+                    m_CraftButton.transform.localScale = Vector3.one * 1.1f; // Slight scale up
+                }
+                else if (m_SelectedSlotIndex == -3 && m_CloseButton != null)
+                {
+                    // Highlight close button with subtle scale and brightness
+                    var closeColors = m_CloseButton.colors;
+                    closeColors.normalColor = new Color(1.2f, 1.2f, 1.2f, 1f); // Slightly brighter
+                    m_CloseButton.colors = closeColors;
+                    m_CloseButton.transform.localScale = Vector3.one * 1.1f; // Slight scale up
+                }
+            }
+        }
+        #endregion
 
         public void ShowUI()
         {

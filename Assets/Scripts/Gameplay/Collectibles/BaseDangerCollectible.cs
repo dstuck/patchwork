@@ -10,6 +10,23 @@ namespace Patchwork.Gameplay
         #region Public Properties
         public override int Power => -2;
         #endregion
+
+        #region Protected Methods
+        /// <summary>
+        /// Returns the amount of damage this danger collectible deals if not collected.
+        /// </summary>
+        protected abstract int GetDamage();
+        #endregion
+
+        #region Public Methods
+        public override void OnLevelEnd()
+        {
+            if (!m_IsCollected)
+            {
+                GameManager.Instance.DecreaseLives(GetDamage());
+            }
+        }
+        #endregion
     }
 }
 

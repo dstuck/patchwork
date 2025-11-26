@@ -6,6 +6,7 @@ namespace Patchwork.Gameplay
     public class FlameCollectible : BaseDangerCollectible
     {
         private int GetSpreadCountPerPlacement() => m_Level switch { 1 => 1, 2 => 2, _ => 4 };
+        protected override int GetDamage() => 1;
         
         public override string DisplayName => "Flame";
         public override string Description => $"Spreads to {GetSpreadCountPerPlacement()} square{(GetSpreadCountPerPlacement() > 1 ? "s" : "")} on each tile placement; costs 1 life if not cleaned up";
@@ -14,15 +15,6 @@ namespace Patchwork.Gameplay
 
         protected override Sprite GetSprite() => GameResources.Instance.FlameSprite;
         protected override float GetScale() => GameResources.Instance.FlameScale;
-
-
-        public override void OnLevelEnd()
-        {
-            if (!m_IsCollected)
-            {
-                GameManager.Instance.DecreaseLives();
-            }
-        }
 
         public override void OnTilePlaced(Board board, PlacedTile tile)
         {

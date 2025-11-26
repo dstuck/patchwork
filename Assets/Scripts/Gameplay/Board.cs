@@ -706,6 +706,7 @@ namespace Patchwork.Gameplay
                 if (collectible.TryCollect(collectingTile))
                 {
                     m_Collectibles.Remove(collectible);
+                    SoundFXManager.instance.PlaySoundFXClip(GameResources.Instance.PickupSoundFX, transform);
                 }
             }
         }

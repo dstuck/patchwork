@@ -1,1 +1,0 @@
-- Losing game with partial hearts keeps them around on restart

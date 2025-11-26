@@ -14,8 +14,6 @@ namespace Patchwork.Gameplay
         private float m_RotateCooldown = 0.2f;
         [SerializeField] private Board m_Board;
         
-        [SerializeField] private AudioClip[] m_PlaceTileSoundFX;
-        
         private Vector2Int m_CurrentGridPosition;
         private float m_LastMoveTime;
         private float m_LastRotateTime;
@@ -203,6 +201,12 @@ namespace Patchwork.Gameplay
                 m_CurrentGridPosition = newPosition;
                 m_LastMoveTime = Time.time;
                 UpdatePosition();
+                
+                // Play movement sound
+                if (SoundFXManager.instance != null && GameResources.Instance.MoveSoundFX != null && GameResources.Instance.MoveSoundFX.Length > 0)
+                {
+                    SoundFXManager.instance.PlayRandomSoundFXClip(GameResources.Instance.MoveSoundFX, transform);
+                }
             }
         }
 
@@ -232,6 +236,16 @@ namespace Patchwork.Gameplay
             {
                 m_PreviewTile.UpdateRotation(m_CurrentRotation);
             }
+            
+            // Play rotation sound
+            if (SoundFXManager.instance != null)
+            {
+                AudioClip rotationClip = _clockwise ? GameResources.Instance.RotateRightSoundFX : GameResources.Instance.RotateLeftSoundFX;
+                if (rotationClip != null)
+                {
+                    SoundFXManager.instance.PlaySoundFXClip(rotationClip, transform);
+                }
+            }
         }
 
         private void PlaceTile()
@@ -253,7 +267,7 @@ namespace Patchwork.Gameplay
                 m_Board.AddPlacedTile(tile);  // Add the tile first
                 m_Board.OnTilePlaced(tile);   // Then notify collectibles
                 m_Board.CalculateTotalScore(); // Temporarily display score
-                SoundFXManager.instance.PlayRandomSoundFXClip(m_PlaceTileSoundFX, transform);
+                SoundFXManager.instance.PlayRandomSoundFXClip(GameResources.Instance.PlaceTileSoundFX, transform);
             }
         }
 

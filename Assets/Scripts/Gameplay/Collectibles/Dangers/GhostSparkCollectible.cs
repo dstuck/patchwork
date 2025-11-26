@@ -6,7 +6,7 @@ namespace Patchwork.Gameplay
     public class GhostSparkCollectible : BaseDangerCollectible
     {
         private int GetRevealThreshold() => m_Level switch { 1 => 1, 2 => 2, _ => 3 };
-        private int GetDamage() => m_Level switch { 1 => 1, 2 => 2, _ => 2 };
+        protected override int GetDamage() => m_Level switch { 1 => 1, 2 => 2, _ => 2 };
         
         public override string DisplayName => "Ghost Spark";
         public override string Description => $"Invisible until {GetRevealThreshold()} tile{(GetRevealThreshold() > 1 ? "s are" : " is")} placed; costs {GetDamage()} life{(GetDamage() > 1 ? "s" : "")} if not cleaned up";
@@ -24,14 +24,6 @@ namespace Patchwork.Gameplay
             if (m_SpriteRenderer != null)
             {
                 m_SpriteRenderer.enabled = false;
-            }
-        }
-
-        public override void OnLevelEnd()
-        {
-            if (!m_IsCollected)
-            {
-                GameManager.Instance.DecreaseLives(GetDamage());
             }
         }
 
