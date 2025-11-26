@@ -53,6 +53,15 @@ namespace Patchwork.Data
 
         [Header("UI Elements")]
         [SerializeField] private GameObject m_UpgradeTooltipPrefab;
+        
+        [Header("Sound Effects")]
+        [SerializeField] private AudioClip m_PickupSoundFX;
+        [SerializeField] private AudioClip m_DamageSoundFX;
+        [SerializeField] private AudioClip m_LoseSoundFX;
+        [SerializeField] private AudioClip[] m_PlaceTileSoundFX;
+        [SerializeField] private AudioClip[] m_MoveSoundFX;
+        [SerializeField] private AudioClip m_RotateLeftSoundFX;
+        [SerializeField] private AudioClip m_RotateRightSoundFX;
         #endregion
 
         #region Public Properties
@@ -78,6 +87,13 @@ namespace Patchwork.Data
         public float PaintScale => m_PaintScale;
         public Sprite NewSquareSprite => m_NewSquareSprite;
         public float NewSquareScale => m_NewSquareScale;
+        public AudioClip PickupSoundFX => m_PickupSoundFX;
+        public AudioClip DamageSoundFX => m_DamageSoundFX;
+        public AudioClip LoseSoundFX => m_LoseSoundFX;
+        public AudioClip[] PlaceTileSoundFX => m_PlaceTileSoundFX;
+        public AudioClip[] MoveSoundFX => m_MoveSoundFX;
+        public AudioClip RotateLeftSoundFX => m_RotateLeftSoundFX;
+        public AudioClip RotateRightSoundFX => m_RotateRightSoundFX;
         #endregion
     } 
 }

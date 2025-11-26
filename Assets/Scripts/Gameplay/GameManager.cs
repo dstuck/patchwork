@@ -587,13 +587,18 @@ namespace Patchwork.Gameplay
         public void DecreaseLives(int amount = 1)
         {
             m_CurrentLives -= amount;
+            if (amount > 0)
+            {
+                SoundFXManager.instance.PlaySoundFXClip(GameResources.Instance.DamageSoundFX, transform);
+            }
             if (m_ResourceUI != null)
             {
                 m_ResourceUI.UpdateLives(m_CurrentLives);
             }
             
-            if (m_CurrentLives < 1)  // Changed from <= 0
+            if (m_CurrentLives < 1)
             {
+                SoundFXManager.instance.PlaySoundFXClip(GameResources.Instance.LoseSoundFX, transform);
                 SceneManager.LoadScene("GameOver");
             }
         }
