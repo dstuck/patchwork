@@ -12,8 +12,9 @@ namespace Patchwork.Data
         public CompanyData(string name, List<ICollectible> bonuses, List<ICollectible> dangers)
         {
             Name = name;
-            Bonuses = bonuses;
-            Dangers = dangers;
+            // Create defensive copies to prevent external modification
+            Bonuses = new List<ICollectible>(bonuses);
+            Dangers = new List<ICollectible>(dangers);
         }
     }
 }

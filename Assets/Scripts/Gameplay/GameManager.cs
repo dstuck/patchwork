@@ -494,7 +494,7 @@ namespace Patchwork.Gameplay
                 // Note: Don't call InitializeCollectibles here if company was selected
                 // SetSelectedCompany should have already set up bonuses/dangers
                 // Only initialize if no company was selected (for backward compatibility)
-                if (m_ActiveBonuses.Count == 0 || m_ActiveDangers.Count == 0)
+                if (m_ActiveBonuses.Count == 0 && m_ActiveDangers.Count == 0)
                 {
                     InitializeCollectibles();
                 }
@@ -745,18 +745,18 @@ namespace Patchwork.Gameplay
                 string companyName = Data.CompanyNameGenerator.GenerateCompanyName();
                 
                 // Create prototype collectibles for this company
+                // Using the same collectibles as InitializeCollectibles
                 var newSquare = CreateCollectible<NewSquareCollectible>($"NewSquare_{i}");
                 var drawGem = CreateCollectible<DrawGemCollectible>($"DrawGem_{i}");
                 var heartPiece = CreateCollectible<HeartPieceCollectible>($"HeartPiece_{i}");
                 var pristinePaint = CreateCollectible<PristinePaintCollectible>($"PristinePaint_{i}");
-                var lenientPaint = CreateCollectible<LenientPaintCollectible>($"LenientPaint_{i}");
                 var spark = CreateCollectible<SparkCollectible>($"Spark_{i}");
                 var ghostSpark = CreateCollectible<GhostSparkCollectible>($"GhostSpark_{i}");
                 var jumpingSpark = CreateCollectible<JumpingSparkCollectible>($"JumpingSpark_{i}");
                 var flame = CreateCollectible<FlameCollectible>($"Flame_{i}");
                 
-                // Select 3 random bonuses and 2 random dangers
-                var allBonuses = new List<ICollectible> { newSquare, drawGem, heartPiece, pristinePaint, lenientPaint };
+                // Select 3 random bonuses and 2 random dangers (same as InitializeCollectibles)
+                var allBonuses = new List<ICollectible> { newSquare, drawGem, heartPiece, pristinePaint };
                 var allDangers = new List<ICollectible> { spark, ghostSpark, jumpingSpark, flame };
                 
                 var selectedBonuses = allBonuses.OrderBy(x => Random.value).Take(3).ToList();
@@ -777,6 +777,12 @@ namespace Patchwork.Gameplay
             // Select initial collectibles
             SelectNextBonus();
             SelectNextDanger();
+        }
+
+        public void StartGameWithCompany(Data.CompanyData company)
+        {
+            SetSelectedCompany(company);
+            StartNewGame();
         }
         #endregion
 

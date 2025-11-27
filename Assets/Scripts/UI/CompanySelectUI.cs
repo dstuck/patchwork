@@ -174,8 +174,7 @@ namespace Patchwork.UI
                 
                 if (GameManager.Instance != null)
                 {
-                    GameManager.Instance.SetSelectedCompany(selectedCompany);
-                    GameManager.Instance.StartNewGame();
+                    GameManager.Instance.StartGameWithCompany(selectedCompany);
                 }
                 else
                 {
