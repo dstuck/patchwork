@@ -365,27 +365,42 @@ namespace Patchwork.Gameplay
 
         private void InitializeCollectibles()
         {
-            // Create prototype collectibles
-            var newSquare = CreateCollectible<NewSquareCollectible>("NewSquarePrototype");
-            var drawGem = CreateCollectible<DrawGemCollectible>("DrawGemPrototype");
-            var heartPiece = CreateCollectible<HeartPieceCollectible>("HeartPiecePrototype");
-            var pristinePaint = CreateCollectible<PristinePaintCollectible>("PristineUpgradePrototype");
-            var lenientPaint = CreateCollectible<LenientPaintCollectible>("LenientUpgradePrototype");
-            var spark = CreateCollectible<SparkCollectible>("SparkPrototype");
-            var ghostSpark = CreateCollectible<GhostSparkCollectible>("GhostSparkPrototype");
-            var jumpingSpark = CreateCollectible<JumpingSparkCollectible>("JumpingSparkPrototype");
-            var flame = CreateCollectible<FlameCollectible>("FlamePrototype");
-
-            // Select 3 random bonuses and 2 random dangers for this run
-            var allBonuses = new List<ICollectible> { newSquare, drawGem, heartPiece, pristinePaint };
-            var allDangers = new List<ICollectible> { spark, ghostSpark, jumpingSpark, flame };
-
-            m_ActiveBonuses = allBonuses.OrderBy(x => Random.value).Take(3).ToList();
-            m_ActiveDangers = allDangers.OrderBy(x => Random.value).Take(2).ToList();
+            // Generate random collectible selection for a single company
+            var (bonuses, dangers) = GenerateRandomCollectibles("Prototype");
+            m_ActiveBonuses = bonuses;
+            m_ActiveDangers = dangers;
 
             // Select initial collectibles
             SelectNextBonus();
             SelectNextDanger();
+        }
+
+        /// <summary>
+        /// Generates a random selection of bonuses and dangers for a company.
+        /// Creates 3 random bonuses from a pool of 4, and 2 random dangers from a pool of 4.
+        /// </summary>
+        /// <param name="namePrefix">Prefix for the created GameObject names</param>
+        /// <returns>Tuple of (bonuses, dangers) lists</returns>
+        private (List<ICollectible> bonuses, List<ICollectible> dangers) GenerateRandomCollectibles(string namePrefix)
+        {
+            // Create prototype collectibles
+            var newSquare = CreateCollectible<NewSquareCollectible>($"{namePrefix}_NewSquare");
+            var drawGem = CreateCollectible<DrawGemCollectible>($"{namePrefix}_DrawGem");
+            var heartPiece = CreateCollectible<HeartPieceCollectible>($"{namePrefix}_HeartPiece");
+            var pristinePaint = CreateCollectible<PristinePaintCollectible>($"{namePrefix}_PristinePaint");
+            var spark = CreateCollectible<SparkCollectible>($"{namePrefix}_Spark");
+            var ghostSpark = CreateCollectible<GhostSparkCollectible>($"{namePrefix}_GhostSpark");
+            var jumpingSpark = CreateCollectible<JumpingSparkCollectible>($"{namePrefix}_JumpingSpark");
+            var flame = CreateCollectible<FlameCollectible>($"{namePrefix}_Flame");
+
+            // Select 3 random bonuses and 2 random dangers
+            var allBonuses = new List<ICollectible> { newSquare, drawGem, heartPiece, pristinePaint };
+            var allDangers = new List<ICollectible> { spark, ghostSpark, jumpingSpark, flame };
+
+            var selectedBonuses = allBonuses.OrderBy(x => Random.value).Take(3).ToList();
+            var selectedDangers = allDangers.OrderBy(x => Random.value).Take(2).ToList();
+
+            return (selectedBonuses, selectedDangers);
         }
 
         private ICollectible CreateCollectible<T>(string name) where T : BaseCollectible
@@ -740,29 +755,15 @@ namespace Patchwork.Gameplay
         {
             var companies = new List<Data.CompanyData>();
             
+            // Generate 3 unique company names using v0.11 API
+            var companyNames = Data.CompanyNameGenerator.GenerateCompanyNames(3);
+            
             for (int i = 0; i < 3; i++)
             {
-                string companyName = Data.CompanyNameGenerator.GenerateCompanyName();
+                // Generate random collectibles for this company using the shared logic
+                var (bonuses, dangers) = GenerateRandomCollectibles($"Company{i}");
                 
-                // Create prototype collectibles for this company
-                // Using the same collectibles as InitializeCollectibles
-                var newSquare = CreateCollectible<NewSquareCollectible>($"NewSquare_{i}");
-                var drawGem = CreateCollectible<DrawGemCollectible>($"DrawGem_{i}");
-                var heartPiece = CreateCollectible<HeartPieceCollectible>($"HeartPiece_{i}");
-                var pristinePaint = CreateCollectible<PristinePaintCollectible>($"PristinePaint_{i}");
-                var spark = CreateCollectible<SparkCollectible>($"Spark_{i}");
-                var ghostSpark = CreateCollectible<GhostSparkCollectible>($"GhostSpark_{i}");
-                var jumpingSpark = CreateCollectible<JumpingSparkCollectible>($"JumpingSpark_{i}");
-                var flame = CreateCollectible<FlameCollectible>($"Flame_{i}");
-                
-                // Select 3 random bonuses and 2 random dangers (same as InitializeCollectibles)
-                var allBonuses = new List<ICollectible> { newSquare, drawGem, heartPiece, pristinePaint };
-                var allDangers = new List<ICollectible> { spark, ghostSpark, jumpingSpark, flame };
-                
-                var selectedBonuses = allBonuses.OrderBy(x => Random.value).Take(3).ToList();
-                var selectedDangers = allDangers.OrderBy(x => Random.value).Take(2).ToList();
-                
-                companies.Add(new Data.CompanyData(companyName, selectedBonuses, selectedDangers));
+                companies.Add(new Data.CompanyData(companyNames[i], bonuses, dangers));
             }
             
             return companies;
