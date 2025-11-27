@@ -83,6 +83,18 @@ namespace Patchwork.UI
 
         private void CreateCompanySlots()
         {
+            if (m_CompanySlotsContainer == null)
+            {
+                Debug.LogError("[CompanySelectUI] CompanySlotsContainer is not assigned!");
+                return;
+            }
+
+            if (m_CompanySlotPrefab == null)
+            {
+                Debug.LogError("[CompanySelectUI] CompanySlotPrefab is not assigned!");
+                return;
+            }
+
             // Clear existing slots
             foreach (Transform child in m_CompanySlotsContainer)
             {
@@ -100,6 +112,10 @@ namespace Patchwork.UI
                 {
                     slot.Initialize(company, m_CollectiblePreviewPrefab);
                     m_CompanySlots.Add(slot);
+                }
+                else
+                {
+                    Debug.LogError("[CompanySelectUI] CompanySlot component not found on prefab!");
                 }
             }
         }

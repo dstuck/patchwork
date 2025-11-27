@@ -487,11 +487,17 @@ namespace Patchwork.Gameplay
                 return;
             }
             
-            // Reset collectibles deck by clearing and reinitializing
+            // Reset collectibles deck by clearing
             if (m_CollectiblesDeck != null)
             {
                 m_CollectiblesDeck.ClearDeck();
-                InitializeCollectibles();
+                // Note: Don't call InitializeCollectibles here if company was selected
+                // SetSelectedCompany should have already set up bonuses/dangers
+                // Only initialize if no company was selected (for backward compatibility)
+                if (m_ActiveBonuses.Count == 0 || m_ActiveDangers.Count == 0)
+                {
+                    InitializeCollectibles();
+                }
             }
             else
             {
