@@ -80,6 +80,9 @@ namespace Patchwork.Gameplay
         private ICollectible m_CurrentDanger;
         private int m_BonusCounter;
         private int m_DangerCounter;
+        
+        // Company info
+        private string m_CompanyName;
         #endregion
 
         #region Game State
@@ -110,6 +113,7 @@ namespace Patchwork.Gameplay
         public int SparkCount => m_BaseSparkCount + ((m_CurrentStage - 1) / m_StagesPerSpark);
         public int FlameCount => m_BaseFlameCount + ((m_CurrentStage - 1) / m_StagesPerFlame);
         public CollectiblesDeck CollectiblesDeck => m_CollectiblesDeck;
+        public string CompanyName => m_CompanyName;
         public bool IsPaused => m_IsPaused;
         #endregion
 
@@ -724,6 +728,49 @@ namespace Patchwork.Gameplay
             {
                 Debug.LogWarning("CraftingUI not found in scene!");
             }
+        }
+
+        public List<Data.CompanyData> GenerateCompanyOptions()
+        {
+            var companies = new List<Data.CompanyData>();
+            
+            for (int i = 0; i < 3; i++)
+            {
+                string companyName = Data.CompanyNameGenerator.GenerateCompanyName();
+                
+                // Create prototype collectibles for this company
+                var newSquare = CreateCollectible<NewSquareCollectible>($"NewSquare_{i}");
+                var drawGem = CreateCollectible<DrawGemCollectible>($"DrawGem_{i}");
+                var heartPiece = CreateCollectible<HeartPieceCollectible>($"HeartPiece_{i}");
+                var pristinePaint = CreateCollectible<PristinePaintCollectible>($"PristinePaint_{i}");
+                var lenientPaint = CreateCollectible<LenientPaintCollectible>($"LenientPaint_{i}");
+                var spark = CreateCollectible<SparkCollectible>($"Spark_{i}");
+                var ghostSpark = CreateCollectible<GhostSparkCollectible>($"GhostSpark_{i}");
+                var jumpingSpark = CreateCollectible<JumpingSparkCollectible>($"JumpingSpark_{i}");
+                var flame = CreateCollectible<FlameCollectible>($"Flame_{i}");
+                
+                // Select 3 random bonuses and 2 random dangers
+                var allBonuses = new List<ICollectible> { newSquare, drawGem, heartPiece, pristinePaint, lenientPaint };
+                var allDangers = new List<ICollectible> { spark, ghostSpark, jumpingSpark, flame };
+                
+                var selectedBonuses = allBonuses.OrderBy(x => Random.value).Take(3).ToList();
+                var selectedDangers = allDangers.OrderBy(x => Random.value).Take(2).ToList();
+                
+                companies.Add(new Data.CompanyData(companyName, selectedBonuses, selectedDangers));
+            }
+            
+            return companies;
+        }
+
+        public void SetSelectedCompany(Data.CompanyData company)
+        {
+            m_CompanyName = company.Name;
+            m_ActiveBonuses = company.Bonuses;
+            m_ActiveDangers = company.Dangers;
+            
+            // Select initial collectibles
+            SelectNextBonus();
+            SelectNextDanger();
         }
         #endregion
 
