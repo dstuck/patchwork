@@ -456,6 +456,14 @@ namespace Patchwork.Gameplay
         #region Public Methods
         public void StartNewGame()
         {
+            // Generate and log company names
+            var companyNames = CompanyNameGenerator.GenerateCompanyNames(3);
+            Debug.Log($"[GameManager] Generated Company Names:");
+            for (int i = 0; i < companyNames.Count; i++)
+            {
+                Debug.Log($"[GameManager]   Company {i + 1}: {companyNames[i]}");
+            }
+
             // Reset game state
             m_CurrentStage = 1;
             m_CumulativeScore = 0;
