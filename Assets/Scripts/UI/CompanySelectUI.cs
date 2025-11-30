@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using TMPro;
 using System.Collections.Generic;
 using Patchwork.Gameplay;
@@ -10,24 +9,28 @@ namespace Patchwork.UI
 {
     public class CompanySelectUI : MonoBehaviour
     {
+        #region UI References
         [Header("UI References")]
         [SerializeField] private TextMeshProUGUI m_TitleText;
         [SerializeField] private RectTransform m_CompanySlotsContainer;
         [SerializeField] private GameObject m_CompanySlotPrefab;
         [SerializeField] private GameObject m_CollectiblePreviewPrefab;
-        
-        [Header("Scene Names")]
-        [SerializeField] private string m_GameplaySceneName = "GameplayScene";
-        
-        [Header("Input")]
-        [SerializeField] private float m_InputCooldown = 0.15f;
-        private float m_LastInputTime;
+        #endregion
 
+        #region Input
+        [Header("Input")]
+        [SerializeField, Range(0f, 1f)] private float m_InputCooldown = 0.15f;
+        private float m_LastInputTime;
+        #endregion
+
+        #region Private Fields
         private List<CompanySlot> m_CompanySlots = new List<CompanySlot>();
         private List<CompanyData> m_CompanyOptions = new List<CompanyData>();
         private int m_SelectedIndex = 0;
         private GameControls m_Controls;
+        #endregion
 
+        #region Unity Lifecycle
         private void Awake()
         {
             m_Controls = new GameControls();
@@ -68,7 +71,9 @@ namespace Patchwork.UI
             // Select first company by default
             UpdateSelection();
         }
+        #endregion
 
+        #region Private Methods
         private void GenerateCompanyOptions()
         {
             if (GameManager.Instance != null)
@@ -106,9 +111,7 @@ namespace Patchwork.UI
             foreach (var company in m_CompanyOptions)
             {
                 GameObject slotObj = Instantiate(m_CompanySlotPrefab, m_CompanySlotsContainer);
-                CompanySlot slot = slotObj.GetComponent<CompanySlot>();
-                
-                if (slot != null)
+                if (slotObj.TryGetComponent<CompanySlot>(out var slot))
                 {
                     slot.Initialize(company, m_CollectiblePreviewPrefab);
                     m_CompanySlots.Add(slot);
@@ -182,5 +185,6 @@ namespace Patchwork.UI
                 }
             }
         }
+        #endregion
     }
 }

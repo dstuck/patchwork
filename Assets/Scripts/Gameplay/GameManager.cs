@@ -49,6 +49,7 @@ namespace Patchwork.Gameplay
         
         private static GameManager s_Instance;
         private bool m_IsInitialized;
+        private bool m_IsStartingNewGame;
         
         private Timer m_Timer;
 
@@ -130,17 +131,7 @@ namespace Patchwork.Gameplay
             s_Instance = this;
             DontDestroyOnLoad(gameObject);
 
-            // Try to find CollectiblesDeck if not assigned
-            if (m_CollectiblesDeck == null)
-            {
-                m_CollectiblesDeck = FindFirstObjectByType<CollectiblesDeck>();
-                if (m_CollectiblesDeck == null)
-                {
-                    Debug.LogError("[GameManager] CollectiblesDeck not found in scene!");
-                    return;
-                }
-            }
-
+            // Initialize basic state - references will be found when gameplay scene loads
             Initialize();
 
             m_Controls = new GameControls();
@@ -152,7 +143,10 @@ namespace Patchwork.Gameplay
         private void OnEnable()
         {
             SceneManager.sceneLoaded += OnSceneLoaded;
-            m_Controls.Enable();
+            if (m_Controls != null)
+            {
+                m_Controls.Enable();
+            }
         }
 
         private void OnDisable()
@@ -172,12 +166,6 @@ namespace Patchwork.Gameplay
         private void Start()
         {
             m_CurrentLives = m_MaxLives;
-            m_ResourceUI = FindFirstObjectByType<PlayerResourceUI>();
-            if (m_ResourceUI != null)
-            {
-                m_ResourceUI.Initialize(m_MaxLives);
-                m_ResourceUI.UpdateLives(m_CurrentLives);
-            }
         }
         #endregion
 
@@ -189,28 +177,84 @@ namespace Patchwork.Gameplay
             m_CurrentStage = 1;
             m_CumulativeScore = 0;
             m_CurrentLives = m_MaxLives;
-            
-            if (m_Deck != null)
+
+            m_IsInitialized = true;
+        }
+
+        /// <summary>
+        /// Finds and initializes all required references when the gameplay scene loads.
+        /// This is called from OnSceneLoaded when entering the gameplay scene.
+        /// </summary>
+        private void InitializeGameplaySceneReferences()
+        {
+            // Find Deck if not assigned
+            if (m_Deck == null)
+            {
+                m_Deck = FindFirstObjectByType<Deck>();
+                if (m_Deck == null)
+                {
+                    Debug.LogError("[GameManager] Deck not found in gameplay scene!");
+                    return;
+                }
+            }
+
+            // Find CollectiblesDeck if not assigned
+            if (m_CollectiblesDeck == null)
+            {
+                m_CollectiblesDeck = FindFirstObjectByType<CollectiblesDeck>();
+                if (m_CollectiblesDeck == null)
+                {
+                    Debug.LogError("[GameManager] CollectiblesDeck not found in gameplay scene!");
+                    return;
+                }
+            }
+
+            // Initialize Deck
+            if (!m_Deck.IsInitialized)
             {
                 m_Deck.Initialize();
             }
-
-            if (m_CollectiblesDeck == null)
-            {
-                Debug.LogError("[GameManager] CollectiblesDeck reference is missing!");
-                return;
-            }
-
-            m_CurrentStage = 1;
-            m_CumulativeScore = 0;
-            InitializeCollectibles();
 
             if (!m_CollectiblesDeck.IsInitialized)
             {
                 m_CollectiblesDeck.Initialize();
             }
 
-            m_IsInitialized = true;
+            // Clear decks if starting a new game
+            if (m_IsStartingNewGame)
+            {
+                m_CollectiblesDeck.ClearDeck();
+                // Force deck to reinitialize by resetting initialized flag
+                m_Deck.IsInitialized = false;
+                m_Deck.Initialize();
+                m_IsStartingNewGame = false;
+            }
+
+            // Initialize collectibles if we have active bonuses/dangers from company selection
+            // Otherwise, generate random ones
+            if (m_ActiveBonuses.Count == 0 && m_ActiveDangers.Count == 0)
+            {
+                InitializeCollectibles();
+            }
+
+            // Find PlayerResourceUI
+            m_ResourceUI = FindFirstObjectByType<PlayerResourceUI>();
+            if (m_ResourceUI != null)
+            {
+                m_ResourceUI.Initialize(m_MaxLives);
+                m_ResourceUI.UpdateLives(m_CurrentLives);
+            }
+            else
+            {
+                Debug.LogWarning("[GameManager] PlayerResourceUI not found in gameplay scene!");
+            }
+
+            // Find Timer (will be used when stage starts)
+            m_Timer = FindFirstObjectByType<Timer>();
+            if (m_Timer == null)
+            {
+                Debug.LogWarning("[GameManager] Timer not found in gameplay scene!");
+            }
         }
 
         private bool IsBossStage(int stageNumber)
@@ -290,20 +334,15 @@ namespace Patchwork.Gameplay
         {
             if (_scene.name == m_GameplaySceneName)
             {
+                // Initialize all required references for gameplay scene
+                InitializeGameplaySceneReferences();
+
                 // Reset stage-specific bonuses
                 m_StageScoreBonus = 0;
                 
                 if (m_CollectiblesDeck != null)
                 {
                     m_CollectiblesDeck.ResetForNewStage();
-                }
-                
-                // Initialize UI
-                m_ResourceUI = FindFirstObjectByType<PlayerResourceUI>();
-                if (m_ResourceUI != null)
-                {
-                    m_ResourceUI.Initialize(m_MaxLives);
-                    m_ResourceUI.UpdateLives(m_CurrentLives);
                 }
 
                 if (IsBossStage(m_CurrentStage))
@@ -317,7 +356,6 @@ namespace Patchwork.Gameplay
                     int totalDrawValue = CalculateTotalDrawValueForTimer();
                     float totalTime = m_BaseTimerDuration + (totalDrawValue * m_TimePerGem);
                     
-                    m_Timer = FindFirstObjectByType<Timer>();
                     if (m_Timer != null)
                     {
                         // Always start at 1 and decay from the current max multiplier
@@ -430,6 +468,12 @@ namespace Patchwork.Gameplay
 
         private void UpdateCollectibles()
         {
+            if (m_CollectiblesDeck == null)
+            {
+                Debug.LogError("[GameManager] Cannot update collectibles - CollectiblesDeck is null!");
+                return;
+            }
+
             // Update bonus counter
             if (m_CurrentBonus != null)
             {
@@ -475,14 +519,6 @@ namespace Patchwork.Gameplay
         #region Public Methods
         public void StartNewGame()
         {
-            // Generate and log company names
-            var companyNames = CompanyNameGenerator.GenerateCompanyNames(3);
-            Debug.Log($"[GameManager] Generated Company Names:");
-            for (int i = 0; i < companyNames.Count; i++)
-            {
-                Debug.Log($"[GameManager]   Company {i + 1}: {companyNames[i]}");
-            }
-
             // Reset game state
             m_CurrentStage = 1;
             m_CumulativeScore = 0;
@@ -490,41 +526,19 @@ namespace Patchwork.Gameplay
             m_CurrentLives = m_MaxLives;
             m_StageScoreBonus = 0;
             
-            // Force deck to reinitialize by resetting initialized flag
-            if (m_Deck != null)
-            {
-                m_Deck.IsInitialized = false;  // Need to make this property settable
-                m_Deck.Initialize();
-            }
-            else
-            {
-                Debug.LogError("[GameManager] Cannot start game - Deck is null");
-                return;
-            }
+            // Set flag to clear decks when gameplay scene loads
+            m_IsStartingNewGame = true;
             
-            // Reset collectibles deck by clearing
+            // Clear decks now if they exist (they might not exist yet if instantiated in CompanySelect scene)
             if (m_CollectiblesDeck != null)
             {
                 m_CollectiblesDeck.ClearDeck();
-                // Note: Don't call InitializeCollectibles here if company was selected
-                // SetSelectedCompany should have already set up bonuses/dangers
-                // Only initialize if no company was selected (for backward compatibility)
-                if (m_ActiveBonuses.Count == 0 && m_ActiveDangers.Count == 0)
-                {
-                    InitializeCollectibles();
-                }
             }
-            else
+            
+            if (m_Deck != null)
             {
-                Debug.LogError("[GameManager] Cannot start game - CollectiblesDeck is null");
-                return;
-            }
-
-            // Reset UI if it exists
-            if (m_ResourceUI != null)
-            {
-                m_ResourceUI.Initialize(m_MaxLives);
-                m_ResourceUI.UpdateLives(m_CurrentLives);
+                m_Deck.IsInitialized = false;
+                m_Deck.Initialize();
             }
 
             SceneManager.LoadScene(m_GameplaySceneName);
@@ -669,6 +683,12 @@ namespace Patchwork.Gameplay
 
         public List<ICollectible> GetCollectiblesForStage()
         {
+            if (m_CollectiblesDeck == null)
+            {
+                Debug.LogError("[GameManager] Cannot get collectibles for stage - CollectiblesDeck is null!");
+                return new List<ICollectible>();
+            }
+
             // Reset the deck for the new stage
             m_CollectiblesDeck.ResetForNewStage();
             return m_CollectiblesDeck.GetCollectibles();

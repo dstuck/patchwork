@@ -9,19 +9,22 @@ namespace Patchwork.UI
 {
     public class CompanySlot : MonoBehaviour
     {
+        #region UI References
         [Header("UI References")]
         [SerializeField] private TextMeshProUGUI m_CompanyNameText;
         [SerializeField] private RectTransform m_BonusesContainer;
         [SerializeField] private RectTransform m_DangersContainer;
-        [SerializeField] private GameObject m_CollectiblePreviewPrefab;
         [SerializeField] private Image m_SelectionHighlight;
-        [SerializeField] private TextMeshProUGUI m_BonusesLabel;
-        [SerializeField] private TextMeshProUGUI m_DangersLabel;
+        #endregion
 
+        #region Private Fields
+        private GameObject m_CollectiblePreviewPrefab;
         private CompanyData m_CompanyData;
         private List<CollectiblePreview> m_BonusPreviews = new List<CollectiblePreview>();
         private List<CollectiblePreview> m_DangerPreviews = new List<CollectiblePreview>();
+        #endregion
 
+        #region Public Methods
         public void Initialize(CompanyData companyData, GameObject collectiblePreviewPrefab)
         {
             m_CompanyData = companyData;
@@ -42,12 +45,31 @@ namespace Patchwork.UI
             // Initially not selected
             SetSelected(false);
         }
+        #endregion
 
+        #region Private Methods
         private void CreateCollectiblePreviews(List<ICollectible> collectibles, RectTransform container, List<CollectiblePreview> previews)
         {
-            if (container == null || m_CollectiblePreviewPrefab == null)
+            if (container == null)
             {
-                Debug.LogError("Container or preview prefab is null!");
+                Debug.LogError("[CompanySlot] Container is null! Please assign m_BonusesContainer or m_DangersContainer in the prefab.", this);
+                return;
+            }
+            
+            if (m_CollectiblePreviewPrefab == null)
+            {
+                Debug.LogError("[CompanySlot] CollectiblePreviewPrefab is null! Please assign it in CompanySelectUI or pass it to Initialize().", this);
+                return;
+            }
+
+            if (collectibles == null || collectibles.Count == 0)
+            {
+                // Nothing to display
+                foreach (Transform child in container)
+                {
+                    Destroy(child.gameObject);
+                }
+                previews.Clear();
                 return;
             }
 
@@ -62,16 +84,20 @@ namespace Patchwork.UI
             foreach (var collectible in collectibles)
             {
                 GameObject previewObj = Instantiate(m_CollectiblePreviewPrefab, container);
-                CollectiblePreview preview = previewObj.GetComponent<CollectiblePreview>();
-                
-                if (preview != null)
+                if (previewObj.TryGetComponent<CollectiblePreview>(out var preview))
                 {
                     preview.Initialize(collectible);
                     previews.Add(preview);
                 }
+                else
+                {
+                    Debug.LogError("[CompanySlot] CollectiblePreview component not found on preview prefab instance.");
+                }
             }
         }
+        #endregion
 
+        #region Public API
         public void SetSelected(bool selected)
         {
             if (m_SelectionHighlight != null)
@@ -84,5 +110,6 @@ namespace Patchwork.UI
         {
             return m_CompanyData;
         }
+        #endregion
     }
 }
