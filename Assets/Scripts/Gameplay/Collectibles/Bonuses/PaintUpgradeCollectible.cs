@@ -29,6 +29,12 @@ namespace Patchwork.Gameplay
 
         public override Sprite GetDisplaySprite()
         {
+            // Lazy-load upgrade if not initialized (e.g., when created programmatically without Awake)
+            if (m_Upgrade == null)
+            {
+                m_Upgrade = GetUpgrade();
+            }
+            
             Sprite mainSprite = GetSpriteForLevel(m_Level);
             
             // Get the color from the upgrade
