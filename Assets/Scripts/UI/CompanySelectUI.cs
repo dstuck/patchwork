@@ -40,18 +40,27 @@ namespace Patchwork.UI
 
         private void OnEnable()
         {
-            m_Controls.Enable();
+            if (m_Controls != null)
+            {
+                m_Controls.Enable();
+            }
         }
 
         private void OnDisable()
         {
-            m_Controls.Disable();
+            if (m_Controls != null)
+            {
+                m_Controls.Disable();
+            }
         }
 
         private void OnDestroy()
         {
-            m_Controls.UI.Navigate.performed -= OnNavigate;
-            m_Controls.UI.Submit.performed -= OnSubmit;
+            if (m_Controls != null)
+            {
+                m_Controls.UI.Navigate.performed -= OnNavigate;
+                m_Controls.UI.Submit.performed -= OnSubmit;
+            }
         }
 
         private void Start()
