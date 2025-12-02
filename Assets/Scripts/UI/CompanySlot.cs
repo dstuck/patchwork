@@ -36,6 +36,12 @@ namespace Patchwork.UI
                 m_CompanyNameText.text = companyData.Name;
             }
 
+            // Ensure selection highlight doesn't block raycasts (for tooltips)
+            if (m_SelectionHighlight != null)
+            {
+                m_SelectionHighlight.raycastTarget = false;
+            }
+
             // Create bonus previews
             CreateCollectiblePreviews(companyData.Bonuses, m_BonusesContainer, m_BonusPreviews);
             
@@ -103,6 +109,8 @@ namespace Patchwork.UI
             if (m_SelectionHighlight != null)
             {
                 m_SelectionHighlight.enabled = selected;
+                // Disable raycast target so it doesn't block tooltips on collectible previews
+                m_SelectionHighlight.raycastTarget = false;
             }
         }
 
