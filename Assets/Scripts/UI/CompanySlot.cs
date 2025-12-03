@@ -20,8 +20,8 @@ namespace Patchwork.UI
         #region Private Fields
         private GameObject m_CollectiblePreviewPrefab;
         private CompanyData m_CompanyData;
-        private List<CollectiblePreview> m_BonusPreviews = new List<CollectiblePreview>();
-        private List<CollectiblePreview> m_DangerPreviews = new List<CollectiblePreview>();
+        private readonly List<CollectiblePreview> m_BonusPreviews = new List<CollectiblePreview>();
+        private readonly List<CollectiblePreview> m_DangerPreviews = new List<CollectiblePreview>();
         #endregion
 
         #region Public Methods

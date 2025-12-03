@@ -438,6 +438,15 @@ namespace Patchwork.Gameplay
             var selectedBonuses = allBonuses.OrderBy(x => Random.value).Take(3).ToList();
             var selectedDangers = allDangers.OrderBy(x => Random.value).Take(2).ToList();
 
+            // Destroy unselected collectibles to prevent memory leaks
+            foreach (var bonus in allBonuses.Except(selectedBonuses))
+            {
+                Destroy((bonus as MonoBehaviour)?.gameObject);
+            }
+            foreach (var danger in allDangers.Except(selectedDangers))
+            {
+                Destroy((danger as MonoBehaviour)?.gameObject);
+            }
             return (selectedBonuses, selectedDangers);
         }
 

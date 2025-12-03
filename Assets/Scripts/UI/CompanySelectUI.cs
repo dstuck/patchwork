@@ -24,7 +24,7 @@ namespace Patchwork.UI
         #endregion
 
         #region Private Fields
-        private List<CompanySlot> m_CompanySlots = new List<CompanySlot>();
+        private readonly List<CompanySlot> m_CompanySlots = new List<CompanySlot>();
         private List<CompanyData> m_CompanyOptions = new List<CompanyData>();
         private int m_SelectedIndex = 0;
         private GameControls m_Controls;
