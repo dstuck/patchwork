@@ -155,10 +155,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 496148056}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.5}
-  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0.25, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 500, y: 100}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &225635576
 MonoBehaviour:
@@ -498,10 +498,10 @@ RectTransform:
   - {fileID: 225635575}
   m_Father: {fileID: 2122457416}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMin: {x: 0, y: 0.85}
+  m_AnchorMax: {x: 0.5, y: 0.98}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 500, y: 125}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &496148057
 MonoBehaviour:
@@ -991,10 +991,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_TileHand: {fileID: 1468285571}
   m_Board: {fileID: 1863798603}
-  m_PlaceTileSoundFX:
-  - {fileID: 8300000, guid: 11b95b504c9ec46cfb1d0afa3a241b9a, type: 3}
-  - {fileID: 8300000, guid: 82699b1aae1d14cd5af5d205e1f7201e, type: 3}
-  - {fileID: 8300000, guid: aa70b660eb66c4a1cb6b392384874a68, type: 3}
 --- !u!212 &785381263
 SpriteRenderer:
   m_ObjectHideFlags: 0

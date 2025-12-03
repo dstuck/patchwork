@@ -49,6 +49,7 @@ namespace Patchwork.Gameplay
         
         private static GameManager s_Instance;
         private bool m_IsInitialized;
+        private bool m_IsStartingNewGame;
         
         private Timer m_Timer;
 
@@ -80,6 +81,9 @@ namespace Patchwork.Gameplay
         private ICollectible m_CurrentDanger;
         private int m_BonusCounter;
         private int m_DangerCounter;
+        
+        // Company info
+        private string m_CompanyName;
         #endregion
 
         #region Game State
@@ -110,6 +114,7 @@ namespace Patchwork.Gameplay
         public int SparkCount => m_BaseSparkCount + ((m_CurrentStage - 1) / m_StagesPerSpark);
         public int FlameCount => m_BaseFlameCount + ((m_CurrentStage - 1) / m_StagesPerFlame);
         public CollectiblesDeck CollectiblesDeck => m_CollectiblesDeck;
+        public string CompanyName => m_CompanyName;
         public bool IsPaused => m_IsPaused;
         #endregion
 
@@ -126,17 +131,7 @@ namespace Patchwork.Gameplay
             s_Instance = this;
             DontDestroyOnLoad(gameObject);
 
-            // Try to find CollectiblesDeck if not assigned
-            if (m_CollectiblesDeck == null)
-            {
-                m_CollectiblesDeck = FindFirstObjectByType<CollectiblesDeck>();
-                if (m_CollectiblesDeck == null)
-                {
-                    Debug.LogError("[GameManager] CollectiblesDeck not found in scene!");
-                    return;
-                }
-            }
-
+            // Initialize basic state - references will be found when gameplay scene loads
             Initialize();
 
             m_Controls = new GameControls();
@@ -148,7 +143,10 @@ namespace Patchwork.Gameplay
         private void OnEnable()
         {
             SceneManager.sceneLoaded += OnSceneLoaded;
-            m_Controls.Enable();
+            if (m_Controls != null)
+            {
+                m_Controls.Enable();
+            }
         }
 
         private void OnDisable()
@@ -168,12 +166,6 @@ namespace Patchwork.Gameplay
         private void Start()
         {
             m_CurrentLives = m_MaxLives;
-            m_ResourceUI = FindFirstObjectByType<PlayerResourceUI>();
-            if (m_ResourceUI != null)
-            {
-                m_ResourceUI.Initialize(m_MaxLives);
-                m_ResourceUI.UpdateLives(m_CurrentLives);
-            }
         }
         #endregion
 
@@ -185,28 +177,84 @@ namespace Patchwork.Gameplay
             m_CurrentStage = 1;
             m_CumulativeScore = 0;
             m_CurrentLives = m_MaxLives;
-            
-            if (m_Deck != null)
+
+            m_IsInitialized = true;
+        }
+
+        /// <summary>
+        /// Finds and initializes all required references when the gameplay scene loads.
+        /// This is called from OnSceneLoaded when entering the gameplay scene.
+        /// </summary>
+        private void InitializeGameplaySceneReferences()
+        {
+            // Find Deck if not assigned
+            if (m_Deck == null)
+            {
+                m_Deck = FindFirstObjectByType<Deck>();
+                if (m_Deck == null)
+                {
+                    Debug.LogError("[GameManager] Deck not found in gameplay scene!");
+                    return;
+                }
+            }
+
+            // Find CollectiblesDeck if not assigned
+            if (m_CollectiblesDeck == null)
+            {
+                m_CollectiblesDeck = FindFirstObjectByType<CollectiblesDeck>();
+                if (m_CollectiblesDeck == null)
+                {
+                    Debug.LogError("[GameManager] CollectiblesDeck not found in gameplay scene!");
+                    return;
+                }
+            }
+
+            // Initialize Deck
+            if (!m_Deck.IsInitialized)
             {
                 m_Deck.Initialize();
             }
-
-            if (m_CollectiblesDeck == null)
-            {
-                Debug.LogError("[GameManager] CollectiblesDeck reference is missing!");
-                return;
-            }
-
-            m_CurrentStage = 1;
-            m_CumulativeScore = 0;
-            InitializeCollectibles();
 
             if (!m_CollectiblesDeck.IsInitialized)
             {
                 m_CollectiblesDeck.Initialize();
             }
 
-            m_IsInitialized = true;
+            // Clear decks if starting a new game
+            if (m_IsStartingNewGame)
+            {
+                m_CollectiblesDeck.ClearDeck();
+                // Force deck to reinitialize by resetting initialized flag
+                m_Deck.IsInitialized = false;
+                m_Deck.Initialize();
+                m_IsStartingNewGame = false;
+            }
+
+            // Initialize collectibles if we have active bonuses/dangers from company selection
+            // Otherwise, generate random ones
+            if (m_ActiveBonuses.Count == 0 && m_ActiveDangers.Count == 0)
+            {
+                InitializeCollectibles();
+            }
+
+            // Find PlayerResourceUI
+            m_ResourceUI = FindFirstObjectByType<PlayerResourceUI>();
+            if (m_ResourceUI != null)
+            {
+                m_ResourceUI.Initialize(m_MaxLives);
+                m_ResourceUI.UpdateLives(m_CurrentLives);
+            }
+            else
+            {
+                Debug.LogWarning("[GameManager] PlayerResourceUI not found in gameplay scene!");
+            }
+
+            // Find Timer (will be used when stage starts)
+            m_Timer = FindFirstObjectByType<Timer>();
+            if (m_Timer == null)
+            {
+                Debug.LogWarning("[GameManager] Timer not found in gameplay scene!");
+            }
         }
 
         private bool IsBossStage(int stageNumber)
@@ -286,20 +334,15 @@ namespace Patchwork.Gameplay
         {
             if (_scene.name == m_GameplaySceneName)
             {
+                // Initialize all required references for gameplay scene
+                InitializeGameplaySceneReferences();
+
                 // Reset stage-specific bonuses
                 m_StageScoreBonus = 0;
                 
                 if (m_CollectiblesDeck != null)
                 {
                     m_CollectiblesDeck.ResetForNewStage();
-                }
-                
-                // Initialize UI
-                m_ResourceUI = FindFirstObjectByType<PlayerResourceUI>();
-                if (m_ResourceUI != null)
-                {
-                    m_ResourceUI.Initialize(m_MaxLives);
-                    m_ResourceUI.UpdateLives(m_CurrentLives);
                 }
 
                 if (IsBossStage(m_CurrentStage))
@@ -313,7 +356,6 @@ namespace Patchwork.Gameplay
                     int totalDrawValue = CalculateTotalDrawValueForTimer();
                     float totalTime = m_BaseTimerDuration + (totalDrawValue * m_TimePerGem);
                     
-                    m_Timer = FindFirstObjectByType<Timer>();
                     if (m_Timer != null)
                     {
                         // Always start at 1 and decay from the current max multiplier
@@ -361,27 +403,51 @@ namespace Patchwork.Gameplay
 
         private void InitializeCollectibles()
         {
-            // Create prototype collectibles
-            var newSquare = CreateCollectible<NewSquareCollectible>("NewSquarePrototype");
-            var drawGem = CreateCollectible<DrawGemCollectible>("DrawGemPrototype");
-            var heartPiece = CreateCollectible<HeartPieceCollectible>("HeartPiecePrototype");
-            var pristinePaint = CreateCollectible<PristinePaintCollectible>("PristineUpgradePrototype");
-            var lenientPaint = CreateCollectible<LenientPaintCollectible>("LenientUpgradePrototype");
-            var spark = CreateCollectible<SparkCollectible>("SparkPrototype");
-            var ghostSpark = CreateCollectible<GhostSparkCollectible>("GhostSparkPrototype");
-            var jumpingSpark = CreateCollectible<JumpingSparkCollectible>("JumpingSparkPrototype");
-            var flame = CreateCollectible<FlameCollectible>("FlamePrototype");
-
-            // Select 3 random bonuses and 2 random dangers for this run
-            var allBonuses = new List<ICollectible> { newSquare, drawGem, heartPiece, pristinePaint };
-            var allDangers = new List<ICollectible> { spark, ghostSpark, jumpingSpark, flame };
-
-            m_ActiveBonuses = allBonuses.OrderBy(x => Random.value).Take(3).ToList();
-            m_ActiveDangers = allDangers.OrderBy(x => Random.value).Take(2).ToList();
+            // Generate random collectible selection for a single company
+            var (bonuses, dangers) = GenerateRandomCollectibles("Prototype");
+            m_ActiveBonuses = bonuses;
+            m_ActiveDangers = dangers;
 
             // Select initial collectibles
             SelectNextBonus();
             SelectNextDanger();
+        }
+
+        /// <summary>
+        /// Generates a random selection of bonuses and dangers for a company.
+        /// Creates 3 random bonuses from a pool of 4, and 2 random dangers from a pool of 4.
+        /// </summary>
+        /// <param name="namePrefix">Prefix for the created GameObject names</param>
+        /// <returns>Tuple of (bonuses, dangers) lists</returns>
+        private (List<ICollectible> bonuses, List<ICollectible> dangers) GenerateRandomCollectibles(string namePrefix)
+        {
+            // Create prototype collectibles
+            var newSquare = CreateCollectible<NewSquareCollectible>($"{namePrefix}_NewSquare");
+            var drawGem = CreateCollectible<DrawGemCollectible>($"{namePrefix}_DrawGem");
+            var heartPiece = CreateCollectible<HeartPieceCollectible>($"{namePrefix}_HeartPiece");
+            var pristinePaint = CreateCollectible<PristinePaintCollectible>($"{namePrefix}_PristinePaint");
+            var spark = CreateCollectible<SparkCollectible>($"{namePrefix}_Spark");
+            var ghostSpark = CreateCollectible<GhostSparkCollectible>($"{namePrefix}_GhostSpark");
+            var jumpingSpark = CreateCollectible<JumpingSparkCollectible>($"{namePrefix}_JumpingSpark");
+            var flame = CreateCollectible<FlameCollectible>($"{namePrefix}_Flame");
+
+            // Select 3 random bonuses and 2 random dangers
+            var allBonuses = new List<ICollectible> { newSquare, drawGem, heartPiece, pristinePaint };
+            var allDangers = new List<ICollectible> { spark, ghostSpark, jumpingSpark, flame };
+
+            var selectedBonuses = allBonuses.OrderBy(x => Random.value).Take(3).ToList();
+            var selectedDangers = allDangers.OrderBy(x => Random.value).Take(2).ToList();
+
+            // Destroy unselected collectibles to prevent memory leaks
+            foreach (var bonus in allBonuses.Except(selectedBonuses))
+            {
+                Destroy((bonus as MonoBehaviour)?.gameObject);
+            }
+            foreach (var danger in allDangers.Except(selectedDangers))
+            {
+                Destroy((danger as MonoBehaviour)?.gameObject);
+            }
+            return (selectedBonuses, selectedDangers);
         }
 
         private ICollectible CreateCollectible<T>(string name) where T : BaseCollectible
@@ -411,6 +477,12 @@ namespace Patchwork.Gameplay
 
         private void UpdateCollectibles()
         {
+            if (m_CollectiblesDeck == null)
+            {
+                Debug.LogError("[GameManager] Cannot update collectibles - CollectiblesDeck is null!");
+                return;
+            }
+
             // Update bonus counter
             if (m_CurrentBonus != null)
             {
@@ -463,35 +535,19 @@ namespace Patchwork.Gameplay
             m_CurrentLives = m_MaxLives;
             m_StageScoreBonus = 0;
             
-            // Force deck to reinitialize by resetting initialized flag
-            if (m_Deck != null)
-            {
-                m_Deck.IsInitialized = false;  // Need to make this property settable
-                m_Deck.Initialize();
-            }
-            else
-            {
-                Debug.LogError("[GameManager] Cannot start game - Deck is null");
-                return;
-            }
+            // Set flag to clear decks when gameplay scene loads
+            m_IsStartingNewGame = true;
             
-            // Reset collectibles deck by clearing and reinitializing
+            // Clear decks now if they exist (they might not exist yet if instantiated in CompanySelect scene)
             if (m_CollectiblesDeck != null)
             {
                 m_CollectiblesDeck.ClearDeck();
-                InitializeCollectibles();
             }
-            else
+            
+            if (m_Deck != null)
             {
-                Debug.LogError("[GameManager] Cannot start game - CollectiblesDeck is null");
-                return;
-            }
-
-            // Reset UI if it exists
-            if (m_ResourceUI != null)
-            {
-                m_ResourceUI.Initialize(m_MaxLives);
-                m_ResourceUI.UpdateLives(m_CurrentLives);
+                m_Deck.IsInitialized = false;
+                m_Deck.Initialize();
             }
 
             SceneManager.LoadScene(m_GameplaySceneName);
@@ -636,6 +692,12 @@ namespace Patchwork.Gameplay
 
         public List<ICollectible> GetCollectiblesForStage()
         {
+            if (m_CollectiblesDeck == null)
+            {
+                Debug.LogError("[GameManager] Cannot get collectibles for stage - CollectiblesDeck is null!");
+                return new List<ICollectible>();
+            }
+
             // Reset the deck for the new stage
             m_CollectiblesDeck.ResetForNewStage();
             return m_CollectiblesDeck.GetCollectibles();
@@ -716,6 +778,41 @@ namespace Patchwork.Gameplay
             {
                 Debug.LogWarning("CraftingUI not found in scene!");
             }
+        }
+
+        public List<Data.CompanyData> GenerateCompanyOptions()
+        {
+            var companies = new List<Data.CompanyData>();
+            
+            // Generate 3 unique company names using v0.11 API
+            var companyNames = Data.CompanyNameGenerator.GenerateCompanyNames(3);
+            
+            for (int i = 0; i < 3; i++)
+            {
+                // Generate random collectibles for this company using the shared logic
+                var (bonuses, dangers) = GenerateRandomCollectibles($"Company{i}");
+                
+                companies.Add(new Data.CompanyData(companyNames[i], bonuses, dangers));
+            }
+            
+            return companies;
+        }
+
+        public void SetSelectedCompany(Data.CompanyData company)
+        {
+            m_CompanyName = company.Name;
+            m_ActiveBonuses = company.Bonuses;
+            m_ActiveDangers = company.Dangers;
+            
+            // Select initial collectibles
+            SelectNextBonus();
+            SelectNextDanger();
+        }
+
+        public void StartGameWithCompany(Data.CompanyData company)
+        {
+            SetSelectedCompany(company);
+            StartNewGame();
         }
         #endregion
 
