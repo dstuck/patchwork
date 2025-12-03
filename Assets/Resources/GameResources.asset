@@ -34,3 +34,15 @@ MonoBehaviour:
   m_NewSquareSprite: {fileID: -4924963606109359830, guid: 8e2c2efab23db4d9ea34a7b3f58014b3, type: 3}
   m_NewSquareScale: 0.8
   m_UpgradeTooltipPrefab: {fileID: 0}
+  m_PickupSoundFX: {fileID: 8300000, guid: e27df48d44b6d4d21ae28f540840fdb2, type: 3}
+  m_DamageSoundFX: {fileID: 8300000, guid: 62d7243f84af349a9a00296158123e63, type: 3}
+  m_LoseSoundFX: {fileID: 8300000, guid: 8df64cabc57d74376ab7a115204b5195, type: 3}
+  m_PlaceTileSoundFX:
+  - {fileID: 8300000, guid: 11b95b504c9ec46cfb1d0afa3a241b9a, type: 3}
+  - {fileID: 8300000, guid: 82699b1aae1d14cd5af5d205e1f7201e, type: 3}
+  - {fileID: 8300000, guid: aa70b660eb66c4a1cb6b392384874a68, type: 3}
+  m_MoveSoundFX:
+  - {fileID: 8300000, guid: 769bd0fb011174ee6beb752cbf1560b3, type: 3}
+  - {fileID: 8300000, guid: 59e81c28492c04c5fbf1a8d135339643, type: 3}
+  m_RotateLeftSoundFX: {fileID: 8300000, guid: 96c5a6529309f4ea19eab552d3606e52, type: 3}
+  m_RotateRightSoundFX: {fileID: 8300000, guid: 803e7c312517f41579aff70233745a2b, type: 3}

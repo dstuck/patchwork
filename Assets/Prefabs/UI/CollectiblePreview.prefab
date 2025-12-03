@@ -130,6 +130,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1300430323887744162}
   - component: {fileID: 9169199158071762657}
+  - component: {fileID: 303576781194235825}
   m_Layer: 5
   m_Name: CollectiblePreview
   m_TagString: Untagged
@@ -154,8 +155,8 @@ RectTransform:
   - {fileID: 2858942245994659501}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.1, y: 0.1}
-  m_AnchorMax: {x: 0.9, y: 0.9}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -174,6 +175,20 @@ MonoBehaviour:
   m_Icon: {fileID: 6934042515037335472}
   m_SelectionOutline: {fileID: 9029215593024128153}
   m_Button: {fileID: 2470571018364264243}
+--- !u!114 &303576781194235825
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1870703772805088574}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86710e43de46f6f4bac7c8e50813a599, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AspectMode: 2
+  m_AspectRatio: 1
 --- !u!1 &3184530587526955963
 GameObject:
   m_ObjectHideFlags: 0

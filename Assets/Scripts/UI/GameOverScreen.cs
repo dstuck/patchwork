@@ -38,7 +38,7 @@ namespace Patchwork.UI
 
         private void OnAnyInput(InputAction.CallbackContext context)
         {
-            GameManager.Instance.StartNewGame();
+            SceneManager.LoadScene("CompanySelect");
         }
     }
 } 
