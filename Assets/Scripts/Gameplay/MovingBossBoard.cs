@@ -56,48 +56,101 @@ namespace Patchwork.Gameplay
 
         private void MoveAllElements()
         {
-            // Pick a random direction
-            Vector2Int direction = s_Directions[Random.Range(0, s_Directions.Length)];
+            // Find a valid direction that won't push anything off the edge
+            Vector2Int direction = FindValidDirection();
             
-            // Move all holes
+            // If no valid direction found, skip this move
+            if (direction == Vector2Int.zero)
+            {
+                return;
+            }
+            
+            // Move all elements in the chosen direction
             MoveHoles(direction);
-            
-            // Move all collectibles
             MoveCollectibles(direction);
+            MovePlacedTiles(direction);
+        }
+
+        private Vector2Int FindValidDirection()
+        {
+            // Shuffle directions for randomness
+            List<Vector2Int> shuffledDirections = new List<Vector2Int>(s_Directions);
+            for (int i = shuffledDirections.Count - 1; i > 0; i--)
+            {
+                int j = Random.Range(0, i + 1);
+                var temp = shuffledDirections[i];
+                shuffledDirections[i] = shuffledDirections[j];
+                shuffledDirections[j] = temp;
+            }
+            
+            // Try each direction until we find one that works
+            foreach (var direction in shuffledDirections)
+            {
+                if (CanMoveInDirection(direction))
+                {
+                    return direction;
+                }
+            }
+            
+            // No valid direction found
+            return Vector2Int.zero;
+        }
+
+        private bool CanMoveInDirection(Vector2Int _direction)
+        {
+            // Check all holes
+            foreach (var kvp in m_Holes)
+            {
+                Vector2Int newPos = kvp.Key + _direction;
+                if (!IsWithinBounds(newPos))
+                {
+                    return false;
+                }
+            }
+            
+            // Check all collectibles
+            foreach (var collectible in m_Collectibles)
+            {
+                Vector2Int newPos = collectible.GridPosition + _direction;
+                if (!IsWithinBounds(newPos))
+                {
+                    return false;
+                }
+            }
+            
+            // Check all placed tiles
+            foreach (var tile in m_PlacedTiles)
+            {
+                // Check all squares occupied by the tile
+                foreach (var localPos in tile.GetOccupiedPositions())
+                {
+                    Vector2Int newPos = localPos + _direction;
+                    if (!IsWithinBounds(newPos))
+                    {
+                        return false;
+                    }
+                }
+            }
+            
+            return true;
         }
 
         private void MoveHoles(Vector2Int _direction)
         {
             Dictionary<Vector2Int, GameObject> newHoles = new Dictionary<Vector2Int, GameObject>();
-            List<GameObject> holesToDestroy = new List<GameObject>();
             
             foreach (var kvp in m_Holes)
             {
                 Vector2Int newPos = kvp.Key + _direction;
                 
-                // Check if new position is within bounds
-                if (IsWithinBounds(newPos))
-                {
-                    // Update hole position
-                    kvp.Value.transform.position = new Vector3(
-                        (newPos.x + 0.5f) * m_GridSettings.CellSize,
-                        (newPos.y + 0.5f) * m_GridSettings.CellSize,
-                        0f
-                    );
-                    kvp.Value.name = $"Hole_{newPos.x}_{newPos.y}";
-                    newHoles[newPos] = kvp.Value;
-                }
-                else
-                {
-                    // Hole moved out of bounds, destroy it
-                    holesToDestroy.Add(kvp.Value);
-                }
-            }
-            
-            // Destroy out-of-bounds holes
-            foreach (var hole in holesToDestroy)
-            {
-                Destroy(hole);
+                // Update hole position
+                kvp.Value.transform.position = new Vector3(
+                    (newPos.x + 0.5f) * m_GridSettings.CellSize,
+                    (newPos.y + 0.5f) * m_GridSettings.CellSize,
+                    0f
+                );
+                kvp.Value.name = $"Hole_{newPos.x}_{newPos.y}";
+                newHoles[newPos] = kvp.Value;
             }
             
             m_Holes = newHoles;
@@ -105,30 +158,19 @@ namespace Patchwork.Gameplay
 
         private void MoveCollectibles(Vector2Int _direction)
         {
-            List<ICollectible> collectiblesToRemove = new List<ICollectible>();
-            
             foreach (var collectible in m_Collectibles)
             {
                 Vector2Int newPos = collectible.GridPosition + _direction;
-                
-                // Check if new position is within bounds
-                if (IsWithinBounds(newPos))
-                {
-                    collectible.UpdatePosition(newPos);
-                }
-                else
-                {
-                    // Collectible moved out of bounds, mark for removal and trigger end effect
-                    collectiblesToRemove.Add(collectible);
-                    collectible.OnLevelEnd();
-                    Object.Destroy(((MonoBehaviour)collectible).gameObject);
-                }
+                collectible.UpdatePosition(newPos);
             }
-            
-            // Remove destroyed collectibles from list
-            foreach (var collectible in collectiblesToRemove)
+        }
+
+        private void MovePlacedTiles(Vector2Int _direction)
+        {
+            foreach (var tile in m_PlacedTiles)
             {
-                m_Collectibles.Remove(collectible);
+                Vector2Int newPos = tile.GridPosition + _direction;
+                tile.UpdatePosition(newPos);
             }
         }
 
