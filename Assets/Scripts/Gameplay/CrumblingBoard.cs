@@ -16,7 +16,7 @@ namespace Patchwork.Gameplay
 
         #region Private Fields
         private float m_NextCrackTime;
-        private CrackingHole m_CurrentCrackingHole;
+        private List<CrackingHole> m_CrackingHoles = new List<CrackingHole>();
         #endregion
 
         #region Nested Types
@@ -44,14 +44,11 @@ namespace Patchwork.Gameplay
         #region Public Methods
         public override void OnUpdate()
         {
-            // Check if current cracking hole should be destroyed
-            if (m_CurrentCrackingHole != null)
-            {
-                UpdateCrackingHole();
-            }
+            // Update all cracking holes
+            UpdateCrackingHoles();
             
             // Check if it's time to start cracking a new hole
-            if (Time.time >= m_NextCrackTime && m_CurrentCrackingHole == null)
+            if (Time.time >= m_NextCrackTime)
             {
                 StartCrackingRandomHole();
                 m_NextCrackTime = Time.time + c_TimeBetweenCracks;
@@ -62,13 +59,13 @@ namespace Patchwork.Gameplay
         #region Private Methods
         private void StartCrackingRandomHole()
         {
-            // Get list of available holes (not covered by tiles)
+            // Get list of available holes (not covered by tiles and not already cracking)
             List<Vector2Int> availableHoles = new List<Vector2Int>();
             
             foreach (var kvp in m_Holes)
             {
-                // Check if hole is not covered by a placed tile
-                if (!IsHoleCoveredByTile(kvp.Key) && kvp.Value.activeSelf)
+                // Check if hole is not covered by a placed tile and not already cracking
+                if (!IsHoleCoveredByTile(kvp.Key) && kvp.Value.activeSelf && !IsAlreadyCracking(kvp.Key))
                 {
                     availableHoles.Add(kvp.Key);
                 }
@@ -89,8 +86,8 @@ namespace Patchwork.Gameplay
                 return;
             }
             
-            // Create cracking hole data
-            m_CurrentCrackingHole = new CrackingHole
+            // Create cracking hole data and add to list
+            CrackingHole newCrack = new CrackingHole
             {
                 Position = selectedPosition,
                 HoleObject = holeObject,
@@ -99,36 +96,59 @@ namespace Patchwork.Gameplay
                 OriginalColor = renderer.color
             };
             
+            m_CrackingHoles.Add(newCrack);
+            
             // Apply red tint to indicate cracking
             renderer.color = new Color(1f, 0.3f, 0.3f, 1f);
         }
 
-        private void UpdateCrackingHole()
+        private bool IsAlreadyCracking(Vector2Int _position)
         {
-            if (m_CurrentCrackingHole == null) return;
-            
-            // Check if hole is now covered by a tile
-            if (IsHoleCoveredByTile(m_CurrentCrackingHole.Position))
+            foreach (var crack in m_CrackingHoles)
             {
-                // Tile was placed! Restore hole color and cancel cracking
-                m_CurrentCrackingHole.Renderer.color = m_CurrentCrackingHole.OriginalColor;
-                m_CurrentCrackingHole = null;
-                return;
+                if (crack.Position == _position)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void UpdateCrackingHoles()
+        {
+            List<CrackingHole> toRemove = new List<CrackingHole>();
+            
+            foreach (var crack in m_CrackingHoles)
+            {
+                // Check if hole is now covered by a tile
+                if (IsHoleCoveredByTile(crack.Position))
+                {
+                    // Tile was placed! Restore hole color and cancel cracking
+                    crack.Renderer.color = crack.OriginalColor;
+                    toRemove.Add(crack);
+                    continue;
+                }
+                
+                // Check if crack time has expired
+                if (Time.time >= crack.CrackEndTime)
+                {
+                    // Destroy the hole
+                    DestroyHole(crack.Position);
+                    toRemove.Add(crack);
+                }
+                else
+                {
+                    // Pulse the red color to show urgency
+                    float timeRemaining = crack.CrackEndTime - Time.time;
+                    float pulse = 0.5f + 0.5f * Mathf.Sin(timeRemaining * 8f); // Faster pulse as time runs out
+                    crack.Renderer.color = new Color(1f, 0.3f * pulse, 0.3f * pulse, 1f);
+                }
             }
             
-            // Check if crack time has expired
-            if (Time.time >= m_CurrentCrackingHole.CrackEndTime)
+            // Remove processed cracks
+            foreach (var crack in toRemove)
             {
-                // Destroy the hole
-                DestroyHole(m_CurrentCrackingHole.Position);
-                m_CurrentCrackingHole = null;
-            }
-            else
-            {
-                // Pulse the red color to show urgency
-                float timeRemaining = m_CurrentCrackingHole.CrackEndTime - Time.time;
-                float pulse = 0.5f + 0.5f * Mathf.Sin(timeRemaining * 8f); // Faster pulse as time runs out
-                m_CurrentCrackingHole.Renderer.color = new Color(1f, 0.3f * pulse, 0.3f * pulse, 1f);
+                m_CrackingHoles.Remove(crack);
             }
         }
 
