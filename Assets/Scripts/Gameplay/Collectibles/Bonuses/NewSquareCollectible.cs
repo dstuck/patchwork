@@ -42,9 +42,8 @@ namespace Patchwork.Gameplay
 
         public override int AdditionalHoleCount()
         {
-            // Use the same level multiplier pattern as DrawGem: 1, 2, 4
-            int multiplier = m_Level switch { 1 => 1, 2 => 2, _ => 4 };
-            return 3 * multiplier;
+            // Use the standard level multiplier pattern: 1, 2, 4
+            return 3 * GetLevelMultiplier();
         }
         #endregion
     }
