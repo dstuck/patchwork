@@ -35,7 +35,7 @@ namespace Patchwork.Gameplay
 
         public override int AdditionalHoleCount()
         {
-            return 6 * GetDrawCount();
+            return 6 * GetLevelMultiplier();
         }
         #endregion
     }
