@@ -326,16 +326,19 @@ namespace Patchwork.Gameplay
             
             // Select boss type based on which boss number this is (cycles through available types)
             int bossNumber = m_CurrentStage / m_BossStageInterval;
-            int bossTypeCount = 2; // Number of boss board types available
+            int bossTypeCount = 3; // Number of boss board types available
             int bossTypeIndex = (bossNumber - 1) % bossTypeCount;
             
             switch (bossTypeIndex)
             {
                 case 0:
-                    boardObject.AddComponent<MysterySpriteBoard>();
+                    boardObject.AddComponent<CrumblingBoard>();
                     break;
                 case 1:
                     boardObject.AddComponent<MovingBossBoard>();
+                    break;
+                case 2:
+                    boardObject.AddComponent<MysterySpriteBoard>();
                     break;
                 default:
                     boardObject.AddComponent<MovingBossBoard>();
