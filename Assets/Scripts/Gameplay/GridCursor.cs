@@ -291,13 +291,11 @@ namespace Patchwork.Gameplay
             {
                 m_Board.OnLevelComplete();
             }
-
-            int finalScore = m_Board.CalculateTotalScore();
             
-            // Transition to next stage via GameManager
+            // Transition to next stage via GameManager (GameManager calculates the score)
             if (GameManager.Instance != null)
             {
-                GameManager.Instance.CompleteStage(finalScore);
+                GameManager.Instance.CompleteStage();
             }
         }
 
