@@ -324,9 +324,23 @@ namespace Patchwork.Gameplay
             // Destroy the existing Board component (before Start runs)
             DestroyImmediate(existingBoard);
             
-            // Add the MovingBossBoard component
-            // Future: Select boss type based on stage number or other criteria
-            boardObject.AddComponent<MovingBossBoard>();
+            // Select boss type based on which boss number this is (cycles through available types)
+            int bossNumber = m_CurrentStage / m_BossStageInterval;
+            int bossTypeCount = 2; // Number of boss board types available
+            int bossTypeIndex = (bossNumber - 1) % bossTypeCount;
+            
+            switch (bossTypeIndex)
+            {
+                case 0:
+                    boardObject.AddComponent<MysterySpriteBoard>();
+                    break;
+                case 1:
+                    boardObject.AddComponent<MovingBossBoard>();
+                    break;
+                default:
+                    boardObject.AddComponent<MovingBossBoard>();
+                    break;
+            }
         }
 
         private static void InitializeInstance()
