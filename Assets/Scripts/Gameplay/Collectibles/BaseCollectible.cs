@@ -454,6 +454,11 @@ namespace Patchwork.Gameplay
             OnLevelChanged();
             UpdateVisualLevel();  // Ensure visuals update even if OnLevelChanged is overridden
         }
+
+        public virtual int AdditionalHoleCount()
+        {
+            return 0;
+        }
         #endregion
     }
 } 

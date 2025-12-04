@@ -39,6 +39,11 @@ namespace Patchwork.Gameplay
             }
             return false;
         }
+
+        public override int AdditionalHoleCount()
+        {
+            return 3 * GetSquareCount();
+        }
         #endregion
     }
 }

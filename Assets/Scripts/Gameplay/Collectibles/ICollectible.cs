@@ -15,5 +15,6 @@ namespace Patchwork.Gameplay
         void UpdatePosition(Vector2Int newPosition);  // For moving boards
         Sprite GetDisplaySprite();
         void SetLevel(int level);
+        int AdditionalHoleCount();
     }
 } 
