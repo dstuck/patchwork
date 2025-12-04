@@ -33,16 +33,6 @@ namespace Patchwork.Gameplay
         
         [Header("Boss Battle Settings")]
         [SerializeField] private int m_BossStageInterval = 4; // Every X stages is a boss
-
-        [Header("Moving Boss Settings")]
-        [SerializeField] private int m_MovingBossBoardWidth = 5; // Number of standard board widths
-        [SerializeField] private float m_MovingBossColumnDelay = 0.5f; // Seconds between column moves
-
-        private bool m_IsMovingBossStage;
-        private int m_MovingBossCurrentColumn;
-        private float m_MovingBossNextMoveTime;
-        private int m_MovingBossTotalColumns;
-        private bool m_MovingBossComplete;
         
         [Header("Gem Settings")]
         [SerializeField] private float m_TimePerGem = 8f;  // Time bonus per gem draw value
@@ -265,68 +255,15 @@ namespace Patchwork.Gameplay
             return stageNumber % m_BossStageInterval == 0;
         }
 
-        private void SetupMovingBossStage()
+        private void Update()
         {
-            m_IsMovingBossStage = true;
-            m_MovingBossCurrentColumn = 0;
-            m_MovingBossComplete = false;
-            m_MovingBossNextMoveTime = Time.time + m_MovingBossColumnDelay;
+            if (m_IsPaused) return;
             
+            // Let the board handle its own update logic (e.g., for boss boards)
             Board board = FindFirstObjectByType<Board>();
             if (board != null)
             {
-                m_MovingBossTotalColumns = board.GridSettings.GridSize.x * m_MovingBossBoardWidth;
-                board.SetupMovingBossBoard(m_MovingBossTotalColumns);
-                
-                // Place gems evenly across the full width
-                int gemsToPlace = m_MovingBossBoardWidth;
-                float gemSpacing = m_MovingBossTotalColumns / (float)(gemsToPlace + 1);
-                for (int i = 0; i < gemsToPlace; i++)
-                {
-                    int gemColumn = Mathf.RoundToInt(gemSpacing * (i + 1));
-                    board.PlaceDrawGemInColumn(gemColumn);
-                }
-            }
-            
-            // Setup timer based on exactly how long it will take to scroll the entire board
-            m_Timer = FindFirstObjectByType<Timer>();
-            if (m_Timer != null)
-            {
-                float totalTime = m_MovingBossTotalColumns * m_MovingBossColumnDelay;
-                m_Timer.StartTimer(totalTime, m_TimerStartDelay, 1f, 1f);
-            }
-        }
-
-        private void UpdateMovingBoss()
-        {
-            if (m_MovingBossComplete || m_IsPaused) return;
-
-            if (Time.time >= m_MovingBossNextMoveTime)
-            {
-                m_MovingBossCurrentColumn++;
-                m_MovingBossNextMoveTime = Time.time + m_MovingBossColumnDelay;
-
-                Board board = FindFirstObjectByType<Board>();
-                if (board != null)
-                {
-                    board.ScrollOneColumn(m_MovingBossCurrentColumn);
-                }
-                
-                // Check if time ran out
-                if (m_Timer != null && m_Timer.GetTimeRemaining() <= 0)
-                {
-                    m_MovingBossComplete = true;
-                    int finalScore = board.CalculateTotalScore();
-                    CompleteStage(finalScore);
-                }
-            }
-        }
-
-        private void Update()
-        {
-            if (m_IsMovingBossStage)
-            {
-                UpdateMovingBoss();
+                board.OnUpdate();
             }
         }
 
@@ -334,6 +271,12 @@ namespace Patchwork.Gameplay
         {
             if (_scene.name == m_GameplaySceneName)
             {
+                // Setup boss board if this is a boss stage
+                if (IsBossStage(m_CurrentStage))
+                {
+                    SetupBossBoard();
+                }
+
                 // Initialize all required references for gameplay scene
                 InitializeGameplaySceneReferences();
 
@@ -345,22 +288,14 @@ namespace Patchwork.Gameplay
                     m_CollectiblesDeck.ResetForNewStage();
                 }
 
-                if (IsBossStage(m_CurrentStage))
+                // Calculate total draw value for timer (gems contribute time based on their draw value)
+                int totalDrawValue = CalculateTotalDrawValueForTimer();
+                float totalTime = m_BaseTimerDuration + (totalDrawValue * m_TimePerGem);
+                
+                if (m_Timer != null)
                 {
-                    SetupMovingBossStage();
-                }
-                else
-                {
-                    // Existing normal stage setup code
-                    // Calculate total draw value for timer (gems contribute time based on their draw value)
-                    int totalDrawValue = CalculateTotalDrawValueForTimer();
-                    float totalTime = m_BaseTimerDuration + (totalDrawValue * m_TimePerGem);
-                    
-                    if (m_Timer != null)
-                    {
-                        // Always start at 1 and decay from the current max multiplier
-                        m_Timer.StartTimer(totalTime, m_TimerStartDelay, 1f, m_BaseMultiplier);
-                    }
+                    // Always start at 1 and decay from the current max multiplier
+                    m_Timer.StartTimer(totalTime, m_TimerStartDelay, 1f, m_BaseMultiplier);
                 }
                 
                 // Reset deck for both normal and boss stages
@@ -369,6 +304,29 @@ namespace Patchwork.Gameplay
                     m_Deck.ResetForNewStage();
                 }
             }
+        }
+
+        /// <summary>
+        /// Replaces the standard Board with the appropriate boss board variant.
+        /// </summary>
+        private void SetupBossBoard()
+        {
+            Board existingBoard = FindFirstObjectByType<Board>();
+            if (existingBoard == null)
+            {
+                Debug.LogError("[GameManager] No Board found in scene to replace for boss stage!");
+                return;
+            }
+
+            // Get the board GameObject
+            GameObject boardObject = existingBoard.gameObject;
+            
+            // Destroy the existing Board component (before Start runs)
+            DestroyImmediate(existingBoard);
+            
+            // Add the MovingBossBoard component
+            // Future: Select boss type based on stage number or other criteria
+            boardObject.AddComponent<MovingBossBoard>();
         }
 
         private static void InitializeInstance()
@@ -597,11 +555,8 @@ namespace Patchwork.Gameplay
             // Reset the bonus for next stage
             m_StageScoreBonus = 0;
 
-            // Only update collectibles on non-boss stages
-            if (!IsBossStage(m_CurrentStage))
-            {
-                UpdateCollectibles();
-            }
+            // Update collectibles for next stage
+            UpdateCollectibles();
         }
 
         private int GetTotalTilesPlaced()

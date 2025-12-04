@@ -1,0 +1,1 @@
+- [ ] Paint upgrade sprite offset in UI

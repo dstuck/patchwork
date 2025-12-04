@@ -990,7 +990,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_TileHand: {fileID: 1468285571}
-  m_Board: {fileID: 1863798603}
+  m_BoardObject: {fileID: 1863798601}
 --- !u!212 &785381263
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2153,9 +2153,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 305acb8ab22f242ffac1b428d2fd8ccf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_HoleColor: {r: 0.3301887, g: 0.30994126, b: 0.30994126, a: 1}
+  m_HoleColor: {r: 0.32941177, g: 0.30980393, b: 0.30980393, a: 1}
   m_ShowGridLines: 1
-  m_GridLineColor: {r: 0.5, g: 0.5, b: 0.5, a: 0.3}
+  m_GridLineColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.3}
 --- !u!1 &1924725544
 GameObject:
   m_ObjectHideFlags: 0
