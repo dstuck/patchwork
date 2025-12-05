@@ -5,7 +5,7 @@ namespace Patchwork.Gameplay
 {
     public class FlameCollectible : BaseDangerCollectible
     {
-        private int GetSpreadCountPerPlacement() => m_Level switch { 1 => 1, 2 => 2, _ => 4 };
+        private int GetSpreadCountPerPlacement() => GetLevelMultiplier();
         protected override int GetDamage() => 1;
         
         public override string DisplayName => "Flame";
