@@ -335,10 +335,9 @@ namespace Patchwork.Gameplay
             // Destroy the existing Board component (before Start runs)
             DestroyImmediate(existingBoard);
             
-            // Select boss type based on which boss number this is (cycles through available types)
-            int bossNumber = m_CurrentStage / m_BossStageInterval;
+            // Select a random boss type
             int bossTypeCount = 3; // Number of boss board types available
-            int bossTypeIndex = (bossNumber - 1) % bossTypeCount;
+            int bossTypeIndex = Random.Range(0, bossTypeCount);
             
             switch (bossTypeIndex)
             {
