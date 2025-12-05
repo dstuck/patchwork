@@ -59,15 +59,14 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 - [x] Add SFX for collectible pickup
 
 ### 0.11: Inter-level persistence
-- [ ] Create start screen where you select a CEO (options for collectibles for now)
-- [ ] Restart on start screen on game over
-- [ ] Add company name generator
-
+- [x] Create start screen where you select a CEO (options for collectibles for now)
+- [x] Restart on start screen on game over
+- [x] Add company name generator
 
 ### 0.12: Game Goals
-- [ ] Add score-based gameover condition
-- [ ] Make clearer score UI
-- [ ] Figure out what to do with boss levels
+- [x] Add score-based gameover condition
+- [x] Make clearer score UI
+- [x] Figure out what to do with boss levels
 
 <!-- ### 0.9: CEOs
 - [ ] Add boss stage upgrades that come with costs

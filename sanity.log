@@ -1,0 +1,59 @@
+Unity Editor version:    6000.0.28f1 (f336aca0cab5)
+Branch:                  6000.0/staging
+Build type:              Release
+Batch mode:              YES
+macOS version:           Version 15.6.1 (Build 24G90)
+Darwin version:          24.6.0
+Architecture:            arm64
+Running under Rosetta:   NO
+Available memory:        16384 MB
+[Licensing::Module] Trying to connect to existing licensing client channel...
+[Licensing::IpcConnector] Connection attempt to the License Client on channel: "LicenseClient-dstuck" failed because channel doesn't exist; code: "0x80000002"
+Launching external process: /Applications/Unity/Hub/Editor/6000.0.28f1/Unity.app/Contents/Frameworks/UnityLicensingClient.app/Contents/MacOS/Unity.Licensing.Client
+[Licensing::Module] Successfully launched the LicensingClient (PId: 23046)
+[Licensing::IpcConnector] Successfully connected to the License Client on channel: "LicenseClient-dstuck" at "2025-12-04T19:29:20.930445Z"
+[Licensing::Client] Error: Code 1 while verifying Licensing Client signature (process Id: 23046, path: "/Applications/Unity/Hub/Editor/6000.0.28f1/Unity.app/Contents/Frameworks/UnityLicensingClient.app/Contents/MacOS/Unity.Licensing.Client")
+[Licensing::Module] Error: LicensingClient has failed validation; ignoring
+[Licensing::Client] Handshaking with LicensingClient:
+  Version:                 1.16.0+1c867a9
+  Session Id:              61e2766ed241408a876f5ca634163337
+  Correlation Id:          206630a210d47b0f7644fbf618ee57e6
+  External correlation Id: 2240939007397308791
+  Machine Id:              i36Be8YTABWhMx5QEl/Am81xsoY=
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-dstuck" (connect: 0.59s, validation: 0.04s, handshake: 0.13s)
+[Licensing::IpcConnector] Successfully connected to the License Notification on channel: "LicenseClient-dstuck-notifications" at "2025-12-04T19:29:21.09845Z"
+[Licensing::Module] Connected to LicensingClient (PId: 23046, launch time: 0.01, total connection time: 0.76s)
+[Licensing::Module] Error: Access token is unavailable; failed to update
+[Licensing::Client] Successfully updated license
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] Serial number assigned to: "F4-56BM-EWDW-P7NH-5N7C-XXXX"
+[Licensing::Module] Serial number assigned to: "2474309917146-UnityPersXXXX"
+Pro License: NO
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] Serial number assigned to: "F4-56BM-EWDW-P7NH-5N7C-XXXX"
+[Licensing::Module] Serial number assigned to: "2474309917146-UnityPersXXXX"
+Launching external process: /Applications/Unity/Hub/Editor/6000.0.28f1/Unity.app/Contents/Resources/PackageManager/Server/UnityPackageManager
+
+COMMAND LINE ARGUMENTS:
+/Applications/Unity/Hub/Editor/6000.0.28f1/Unity.app/Contents/MacOS/Unity
+-batchmode
+-projectPath
+.
+-executeMethod
+SanityCheck.RunSanityCheck
+-logFile
+sanity.log
+-quit
+Successfully changed project path to: /Users/dstuck/projects/games/unity/patchwork
+/Users/dstuck/projects/games/unity/patchwork
+It looks like another Unity instance is running with this project open.
+
+Multiple Unity instances cannot open the same project.
+
+Project: /Users/dstuck/projects/games/unity/patchwork
+Fatal Error! It looks like another Unity instance is running with this project open.
+
+Multiple Unity instances cannot open the same project.
+
+Project: /Users/dstuck/projects/games/unity/patchwork
+[Package Manager] Server process was shutdown

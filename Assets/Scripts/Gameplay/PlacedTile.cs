@@ -186,6 +186,14 @@ namespace Patchwork.Gameplay
             return GetRotatedSquares();
         }
 
+        /// <summary>
+        /// Returns the world-space grid positions this tile occupies.
+        /// </summary>
+        public Vector2Int[] GetOccupiedPositions()
+        {
+            return m_OccupiedSquares;
+        }
+
         public void OnPointerEnter(PointerEventData eventData)
         {
             if (m_TooltipTrigger != null)

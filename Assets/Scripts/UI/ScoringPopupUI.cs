@@ -16,6 +16,7 @@ namespace Patchwork.UI
         [SerializeField] private TextMeshProUGUI m_MultiplierText;
         [SerializeField] private TextMeshProUGUI m_StageScoreText;
         [SerializeField] private TextMeshProUGUI m_TotalScoreText;
+        [SerializeField] private TextMeshProUGUI m_RequiredScoreText;
         [SerializeField] private CanvasGroup m_CanvasGroup;
         [SerializeField] private Button m_BackgroundButton;
         
@@ -76,12 +77,17 @@ namespace Patchwork.UI
             }
         }
 
-        public void ShowScoring(int baseScore, float multiplier, int stageScore, int totalScore)
+        public void ShowScoring(int baseScore, float multiplier, int stageScore, int totalScore, int requiredScore)
         {
             m_BaseScoreText.text = $"Base Score:{baseScore,6}";
             m_MultiplierText.text = $"Time Multiplier:  x{multiplier:0.#}";
             m_StageScoreText.text = $"Stage Score:{stageScore,6}";
             m_TotalScoreText.text = $"Total Score:{totalScore,6}";
+            
+            if (m_RequiredScoreText != null)
+            {
+                m_RequiredScoreText.text = $"Required Score:{requiredScore,6}";
+            }
             
             StartCoroutine(FadeIn());
         }
