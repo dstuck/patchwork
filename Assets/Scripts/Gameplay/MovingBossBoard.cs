@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Patchwork.Gameplay
 {
@@ -83,56 +84,25 @@ namespace Patchwork.Gameplay
                 shuffledDirections[j] = temp;
             }
             
-            // Try each direction until we find one that works
-            foreach (var direction in shuffledDirections)
-            {
-                if (CanMoveInDirection(direction))
-                {
-                    return direction;
-                }
-            }
-            
-            // No valid direction found
-            return Vector2Int.zero;
+            // Find first valid direction, or return zero if none found
+            return shuffledDirections.FirstOrDefault(dir => CanMoveInDirection(dir));
         }
 
         private bool CanMoveInDirection(Vector2Int _direction)
         {
-            // Check all holes
-            foreach (var kvp in m_Holes)
-            {
-                Vector2Int newPos = kvp.Key + _direction;
-                if (!IsWithinBounds(newPos))
-                {
-                    return false;
-                }
-            }
+            // Check all holes can move within bounds
+            bool holesValid = m_Holes.All(kvp => IsWithinBounds(kvp.Key + _direction));
+            if (!holesValid) return false;
             
-            // Check all collectibles
-            foreach (var collectible in m_Collectibles)
-            {
-                Vector2Int newPos = collectible.GridPosition + _direction;
-                if (!IsWithinBounds(newPos))
-                {
-                    return false;
-                }
-            }
+            // Check all collectibles can move within bounds
+            bool collectiblesValid = m_Collectibles.All(c => IsWithinBounds(c.GridPosition + _direction));
+            if (!collectiblesValid) return false;
             
-            // Check all placed tiles
-            foreach (var tile in m_PlacedTiles)
-            {
-                // Check all squares occupied by the tile
-                foreach (var localPos in tile.GetOccupiedPositions())
-                {
-                    Vector2Int newPos = localPos + _direction;
-                    if (!IsWithinBounds(newPos))
-                    {
-                        return false;
-                    }
-                }
-            }
+            // Check all placed tile positions can move within bounds
+            bool tilesValid = m_PlacedTiles.All(tile => 
+                tile.GetOccupiedPositions().All(pos => IsWithinBounds(pos + _direction)));
             
-            return true;
+            return tilesValid;
         }
 
         private void MoveHoles(Vector2Int _direction)

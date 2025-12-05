@@ -76,18 +76,11 @@ namespace Patchwork.Gameplay
         #region Private Methods
         private int CalculateTotalDrawValueFromCollectibles()
         {
-            int totalDrawValue = 0;
             var collectibles = GameManager.Instance.GetCollectiblesForStage();
             
-            foreach (var collectible in collectibles)
-            {
-                if (collectible is DrawGemCollectible drawGem)
-                {
-                    totalDrawValue += drawGem.GetDrawCount();
-                }
-            }
-            
-            return totalDrawValue;
+            return collectibles
+                .OfType<DrawGemCollectible>()
+                .Sum(drawGem => drawGem.GetDrawCount());
         }
 
         private Vector2Int[] GetHolePattern(int totalDrawValue)
@@ -135,25 +128,11 @@ namespace Patchwork.Gameplay
                 Vector2Int.left
             };
 
-            foreach (Vector2Int pos in _holes)
-            {
-                int neighborCount = 0;
-                foreach (Vector2Int dir in directions)
-                {
-                    if (_holes.Contains(pos + dir))
-                    {
-                        neighborCount++;
-                    }
-                }
+            int CountNeighbors(Vector2Int pos) => directions.Count(dir => _holes.Contains(pos + dir));
 
-                if (neighborCount == 2)
-                {
-                    return pos;
-                }
-            }
-
-            // Fallback to first position if no suitable spot found
-            return _holes.First();
+            // Find first position with exactly 2 neighbors, or fallback to first position
+            var match = _holes.Where(pos => CountNeighbors(pos) == 2).Take(1).ToList();
+            return match.Count > 0 ? match[0] : _holes.First();
         }
 
         private Vector2Int GetNextPosition(Vector2Int currentPos)
@@ -267,7 +246,6 @@ namespace Patchwork.Gameplay
 
         private List<Vector2Int> FindAllPositionsWithTwoNeighbors(HashSet<Vector2Int> _holes)
         {
-            List<Vector2Int> validPositions = new List<Vector2Int>();
             Vector2Int[] directions = new Vector2Int[]
             {
                 Vector2Int.up,
@@ -276,24 +254,9 @@ namespace Patchwork.Gameplay
                 Vector2Int.left
             };
 
-            foreach (Vector2Int pos in _holes)
-            {
-                int neighborCount = 0;
-                foreach (Vector2Int dir in directions)
-                {
-                    if (_holes.Contains(pos + dir))
-                    {
-                        neighborCount++;
-                    }
-                }
+            int CountNeighbors(Vector2Int pos) => directions.Count(dir => _holes.Contains(pos + dir));
 
-                if (neighborCount == 2)
-                {
-                    validPositions.Add(pos);
-                }
-            }
-
-            return validPositions;
+            return _holes.Where(pos => CountNeighbors(pos) == 2).ToList();
         }
 
         #endregion
@@ -371,7 +334,7 @@ namespace Patchwork.Gameplay
         }
 
         //  Required to allow the collectible to add new collectibles when it spreads
-        public void AddFlameCollectible(Vector2Int position, int level)
+        public virtual void AddFlameCollectible(Vector2Int position, int level)
         {
             GameObject collectibleObj = new GameObject("Flame");
             collectibleObj.transform.SetParent(transform);

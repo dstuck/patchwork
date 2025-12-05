@@ -20,10 +20,6 @@ namespace Patchwork.UI
             UpdateWarning();
         }
 
-        private void Update()
-        {
-            UpdateWarning();
-        }
         #endregion
 
         #region Private Methods

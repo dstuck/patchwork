@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Linq;
 
 namespace Patchwork.Gameplay
 {
@@ -14,7 +15,8 @@ namespace Patchwork.Gameplay
         #endregion
 
         #region Private Fields
-        private static Sprite s_MysterySprite;
+        private Sprite m_MysterySprite;
+        private Texture2D m_MysteryTexture;
         #endregion
 
         #region Unity Lifecycle
@@ -25,6 +27,22 @@ namespace Patchwork.Gameplay
             
             // Add mystery overlays to all collectibles
             AddMysteryOverlays();
+        }
+
+        private void OnDestroy()
+        {
+            // Clean up dynamically created assets to prevent memory leaks
+            if (m_MysterySprite != null)
+            {
+                Destroy(m_MysterySprite);
+                m_MysterySprite = null;
+            }
+            
+            if (m_MysteryTexture != null)
+            {
+                Destroy(m_MysteryTexture);
+                m_MysteryTexture = null;
+            }
         }
         #endregion
 
@@ -45,25 +63,36 @@ namespace Patchwork.Gameplay
             // Do nothing - tooltips are disabled on mystery board
             return false;
         }
+
+        /// <summary>
+        /// Override to add mystery overlay to dynamically spawned flames.
+        /// </summary>
+        public override void AddFlameCollectible(Vector2Int position, int level)
+        {
+            base.AddFlameCollectible(position, level);
+            
+            // Add mystery overlay to the newly created flame
+            if (m_Collectibles.Count > 0)
+            {
+                var newFlame = m_Collectibles[m_Collectibles.Count - 1] as MonoBehaviour;
+                if (newFlame != null)
+                {
+                    AddOverlayToCollectible(newFlame.gameObject);
+                }
+            }
+        }
         #endregion
 
         #region Private Methods
         private void AddMysteryOverlays()
         {
-            // Ensure mystery sprite is created
-            if (s_MysterySprite == null)
-            {
-                s_MysterySprite = CreateMysterySprite();
-            }
+            // Create mystery sprite for this instance
+            m_MysterySprite = CreateMysterySprite();
 
             // Add overlay to each collectible
-            foreach (var collectible in m_Collectibles)
+            foreach (var collectibleMono in m_Collectibles.OfType<MonoBehaviour>())
             {
-                MonoBehaviour collectibleMono = collectible as MonoBehaviour;
-                if (collectibleMono != null)
-                {
-                    AddOverlayToCollectible(collectibleMono.gameObject);
-                }
+                AddOverlayToCollectible(collectibleMono.gameObject);
             }
         }
 
@@ -84,7 +113,7 @@ namespace Patchwork.Gameplay
 
             // Add sprite renderer above the collectible's sprite
             SpriteRenderer overlayRenderer = overlay.AddComponent<SpriteRenderer>();
-            overlayRenderer.sprite = s_MysterySprite;
+            overlayRenderer.sprite = m_MysterySprite;
             overlayRenderer.sortingOrder = 2; // Above collectible sprites (which are at 1)
             overlayRenderer.color = Color.white;
         }
@@ -92,7 +121,7 @@ namespace Patchwork.Gameplay
         private Sprite CreateMysterySprite()
         {
             int size = c_MysteryTextureSize;
-            Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            m_MysteryTexture = new Texture2D(size, size, TextureFormat.RGBA32, false);
             
             Color[] pixels = new Color[size * size];
             
@@ -109,11 +138,11 @@ namespace Patchwork.Gameplay
             // Draw a "?" symbol
             DrawQuestionMark(pixels, size, fgColor);
             
-            texture.SetPixels(pixels);
-            texture.filterMode = FilterMode.Point;
-            texture.Apply();
+            m_MysteryTexture.SetPixels(pixels);
+            m_MysteryTexture.filterMode = FilterMode.Point;
+            m_MysteryTexture.Apply();
             
-            return Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f);
+            return Sprite.Create(m_MysteryTexture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f);
         }
 
         private void DrawQuestionMark(Color[] _pixels, int _size, Color _color)

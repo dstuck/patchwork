@@ -64,8 +64,8 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 - [x] Add company name generator
 
 ### 0.12: Game Goals
-- [ ] Add score-based gameover condition
-- [ ] Make clearer score UI
+- [x] Add score-based gameover condition
+- [x] Make clearer score UI
 - [x] Figure out what to do with boss levels
 
 <!-- ### 0.9: CEOs

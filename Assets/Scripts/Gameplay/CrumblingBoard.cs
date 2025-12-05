@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Patchwork.Gameplay
 {
@@ -60,16 +61,10 @@ namespace Patchwork.Gameplay
         private void StartCrackingRandomHole()
         {
             // Get list of available holes (not covered by tiles and not already cracking)
-            List<Vector2Int> availableHoles = new List<Vector2Int>();
-            
-            foreach (var kvp in m_Holes)
-            {
-                // Check if hole is not covered by a placed tile and not already cracking
-                if (!IsHoleCoveredByTile(kvp.Key) && kvp.Value.activeSelf && !IsAlreadyCracking(kvp.Key))
-                {
-                    availableHoles.Add(kvp.Key);
-                }
-            }
+            List<Vector2Int> availableHoles = m_Holes
+                .Where(kvp => !IsHoleCoveredByTile(kvp.Key) && kvp.Value.activeSelf && !IsAlreadyCracking(kvp.Key))
+                .Select(kvp => kvp.Key)
+                .ToList();
             
             if (availableHoles.Count == 0)
             {
@@ -104,14 +99,7 @@ namespace Patchwork.Gameplay
 
         private bool IsAlreadyCracking(Vector2Int _position)
         {
-            foreach (var crack in m_CrackingHoles)
-            {
-                if (crack.Position == _position)
-                {
-                    return true;
-                }
-            }
-            return false;
+            return m_CrackingHoles.Any(crack => crack.Position == _position);
         }
 
         private void UpdateCrackingHoles()
@@ -154,14 +142,7 @@ namespace Patchwork.Gameplay
 
         private bool IsHoleCoveredByTile(Vector2Int _position)
         {
-            foreach (var tile in m_PlacedTiles)
-            {
-                if (tile.OccupiesPosition(_position))
-                {
-                    return true;
-                }
-            }
-            return false;
+            return m_PlacedTiles.Any(tile => tile.OccupiesPosition(_position));
         }
 
         private void DestroyHole(Vector2Int _position)
@@ -179,21 +160,15 @@ namespace Patchwork.Gameplay
 
         private void DestroyCollectiblesAtPosition(Vector2Int _position)
         {
-            List<ICollectible> toRemove = new List<ICollectible>();
-            
-            foreach (var collectible in m_Collectibles)
-            {
-                if (collectible.GridPosition == _position)
-                {
-                    toRemove.Add(collectible);
-                    // Trigger end effect (dangers will still apply their penalty)
-                    collectible.OnLevelEnd();
-                    Object.Destroy(((MonoBehaviour)collectible).gameObject);
-                }
-            }
+            List<ICollectible> toRemove = m_Collectibles
+                .Where(c => c.GridPosition == _position)
+                .ToList();
             
             foreach (var collectible in toRemove)
             {
+                // Trigger end effect (dangers will still apply their penalty)
+                collectible.OnLevelEnd();
+                Object.Destroy(((MonoBehaviour)collectible).gameObject);
                 m_Collectibles.Remove(collectible);
             }
         }
