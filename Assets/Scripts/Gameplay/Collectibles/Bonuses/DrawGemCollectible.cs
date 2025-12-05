@@ -5,7 +5,7 @@ namespace Patchwork.Gameplay
 {
     public class DrawGemCollectible : BaseCollectible
     {
-        public int GetDrawCount() => m_Level switch { 1 => 1, 2 => 2, _ => 4 };
+        public int GetDrawCount() => GetLevelMultiplier();
         
         public override string DisplayName => "Draw Gem";
         public override string Description => $"Draw {GetDrawCount()} additional tile{(GetDrawCount() > 1 ? "s" : "")}";
@@ -31,6 +31,11 @@ namespace Patchwork.Gameplay
                 return true;
             }
             return false;
+        }
+
+        public override int AdditionalHoleCount()
+        {
+            return 6 * GetLevelMultiplier();
         }
         #endregion
     }

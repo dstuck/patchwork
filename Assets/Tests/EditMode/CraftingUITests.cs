@@ -171,6 +171,7 @@ namespace Tests
             public void UpdatePosition(Vector2Int newPosition) { }
             public Sprite GetDisplaySprite() { return null; }
             public void SetLevel(int level) { TestLevel = level; }
+            public int AdditionalHoleCount() { return 0; }
         }
     }
 }

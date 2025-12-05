@@ -27,6 +27,16 @@ namespace Patchwork.Gameplay
         public virtual int Level => m_Level;
         #endregion
 
+        #region Protected Methods
+        /// <summary>
+        /// Gets the level multiplier using the standard pattern: Level 1 = 1, Level 2 = 2, Level 3 = 4
+        /// </summary>
+        protected int GetLevelMultiplier()
+        {
+            return m_Level switch { 1 => 1, 2 => 2, _ => 4 };
+        }
+        #endregion
+
         #region Protected Abstract Methods
         protected abstract Sprite GetSprite();
         protected virtual float GetScale() => 1f;  // Default scale of 1, override if needed
@@ -453,6 +463,11 @@ namespace Patchwork.Gameplay
             m_Level = clamped;
             OnLevelChanged();
             UpdateVisualLevel();  // Ensure visuals update even if OnLevelChanged is overridden
+        }
+
+        public virtual int AdditionalHoleCount()
+        {
+            return 0;
         }
         #endregion
     }

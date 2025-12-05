@@ -6,7 +6,7 @@ namespace Patchwork.Gameplay
 {
     public class JumpingSparkCollectible : BaseDangerCollectible
     {
-        private int GetJumpDistance() => m_Level switch { 1 => 1, 2 => 2, _ => 4 };
+        private int GetJumpDistance() => GetLevelMultiplier();
         protected override int GetDamage() => m_Level switch { 1 => 1, 2 => 2, _ => 3 };
 
         public override string DisplayName => "Jumping Spark";

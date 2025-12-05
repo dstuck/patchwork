@@ -24,7 +24,7 @@ namespace Patchwork.Gameplay
 
         private float GetHeartAmount()
         {
-            return m_Level switch { 1 => 0.25f, 2 => 0.5f, _ => 1.0f };
+            return GetLevelMultiplier() * 0.25f;
         }
     }
 } 

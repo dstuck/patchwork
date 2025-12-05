@@ -39,6 +39,12 @@ namespace Patchwork.Gameplay
             }
             return false;
         }
+
+        public override int AdditionalHoleCount()
+        {
+            // Use the standard level multiplier pattern: 1, 2, 4
+            return 3 * GetLevelMultiplier();
+        }
         #endregion
     }
 }

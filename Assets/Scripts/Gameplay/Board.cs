@@ -19,7 +19,6 @@ namespace Patchwork.Gameplay
         protected List<PlacedTile> m_PlacedTiles = new List<PlacedTile>();
         protected List<ICollectible> m_Collectibles = new List<ICollectible>();
         private const int c_BaseHoleCount = 28;     // Base number of holes
-        private const int c_HolesPerGem = 6;        // Additional holes per draw gem draw value
         public const int NonHolePenalty = -2;       // Made public for upgrade reference
 
         private int m_CurrentTooltipIndex = -1;
@@ -74,19 +73,23 @@ namespace Patchwork.Gameplay
         #endregion
 
         #region Private Methods
-        private int CalculateTotalDrawValueFromCollectibles()
+        private int CalculateAdditionalHolesFromCollectibles()
         {
+            int additionalHoles = 0;
             var collectibles = GameManager.Instance.GetCollectiblesForStage();
             
-            return collectibles
-                .OfType<DrawGemCollectible>()
-                .Sum(drawGem => drawGem.GetDrawCount());
+            foreach (var collectible in collectibles)
+            {
+                additionalHoles += collectible.AdditionalHoleCount();
+            }
+            
+            return additionalHoles;
         }
 
-        private Vector2Int[] GetHolePattern(int totalDrawValue)
+        private Vector2Int[] GetHolePattern(int additionalHoles)
         {
-            // Calculate total holes based on total draw value from gems
-            int totalHoles = c_BaseHoleCount + (c_HolesPerGem * totalDrawValue);
+            // Calculate total holes based on additional holes from collectibles
+            int totalHoles = c_BaseHoleCount + additionalHoles;
             return GenerateRandomWalkPattern(totalHoles);
         }
 
@@ -173,15 +176,15 @@ namespace Patchwork.Gameplay
 
         protected virtual void InitializeBoard()
         {
-            // Calculate total draw value from collectibles that will be placed
-            int totalDrawValue = CalculateTotalDrawValueFromCollectibles();
+            // Calculate additional holes from collectibles that will be placed
+            int additionalHoles = CalculateAdditionalHolesFromCollectibles();
             
             // Create parent object for holes
             GameObject holesParent = new GameObject("Holes");
             holesParent.transform.SetParent(transform);
 
-            // Get hole pattern based on total draw value
-            Vector2Int[] holePattern = GetHolePattern(totalDrawValue);
+            // Get hole pattern based on additional holes from collectibles
+            Vector2Int[] holePattern = GetHolePattern(additionalHoles);
             
             // Create holes
             foreach (Vector2Int pos in holePattern)
