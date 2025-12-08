@@ -75,6 +75,9 @@ namespace Patchwork.Gameplay
         private List<ICollectible> m_ActiveDangers = new List<ICollectible>();
         private ICollectible m_CurrentBonus;
         private ICollectible m_CurrentDanger;
+        
+        // Active upgrades for this run
+        private List<ITileUpgrade> m_ActiveUpgrades = new List<ITileUpgrade>();
         private int m_BonusCounter;
         private int m_DangerCounter;
         
@@ -113,6 +116,7 @@ namespace Patchwork.Gameplay
         public CollectiblesDeck CollectiblesDeck => m_CollectiblesDeck;
         public string CompanyName => m_CompanyName;
         public bool IsPaused => m_IsPaused;
+        public IReadOnlyList<ITileUpgrade> ActiveUpgrades => m_ActiveUpgrades;
         #endregion
 
         #region Unity Lifecycle
@@ -392,6 +396,9 @@ namespace Patchwork.Gameplay
             var (bonuses, dangers) = GenerateRandomCollectibles("Prototype");
             m_ActiveBonuses = bonuses;
             m_ActiveDangers = dangers;
+            
+            // Generate random upgrades for fallback initialization
+            m_ActiveUpgrades = GenerateRandomUpgrades();
 
             // Select initial collectibles
             SelectNextBonus();
@@ -433,6 +440,28 @@ namespace Patchwork.Gameplay
                 Destroy((danger as MonoBehaviour)?.gameObject);
             }
             return (selectedBonuses, selectedDangers);
+        }
+
+        /// <summary>
+        /// Generates a random selection of upgrades for a company.
+        /// Creates a random selection from all available upgrades.
+        /// </summary>
+        /// <returns>List of randomly selected upgrades</returns>
+        private List<ITileUpgrade> GenerateRandomUpgrades()
+        {
+            // Create all available upgrades
+            var allUpgrades = new List<ITileUpgrade>
+            {
+                new PristineBonus(),
+                new LenientBonus(),
+                new CollectorsBonus()
+            };
+
+            // Select a random subset (similar to how we select 3 bonuses from 4)
+            // For now, we'll select all available upgrades, but this can be adjusted
+            var selectedUpgrades = allUpgrades.OrderBy(x => Random.value).ToList();
+            
+            return selectedUpgrades;
         }
 
         private ICollectible CreateCollectible<T>(string name) where T : BaseCollectible
@@ -836,7 +865,10 @@ namespace Patchwork.Gameplay
                 // Generate random collectibles for this company using the shared logic
                 var (bonuses, dangers) = GenerateRandomCollectibles($"Company{i}");
                 
-                companies.Add(new Data.CompanyData(companyNames[i], bonuses, dangers));
+                // Generate random upgrades for this company
+                var upgrades = GenerateRandomUpgrades();
+                
+                companies.Add(new Data.CompanyData(companyNames[i], bonuses, dangers, upgrades));
             }
             
             return companies;
@@ -847,6 +879,7 @@ namespace Patchwork.Gameplay
             m_CompanyName = company.Name;
             m_ActiveBonuses = company.Bonuses;
             m_ActiveDangers = company.Dangers;
+            m_ActiveUpgrades = company.Upgrades;
             
             // Select initial collectibles
             SelectNextBonus();

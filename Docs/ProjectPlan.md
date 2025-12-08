@@ -68,6 +68,11 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 - [x] Make clearer score UI
 - [x] Figure out what to do with boss levels
 
+
+### 0.13: Tile Upgrades
+- [ ] Add new tile upgrade types
+- [ ] Figure out the paint bonus
+- [ ] Hand tile-reward generation
 <!-- ### 0.9: CEOs
 - [ ] Add boss stage upgrades that come with costs
 - [ ] Generate these bonuses randomly
