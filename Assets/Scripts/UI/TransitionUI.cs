@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using Patchwork.Gameplay;
 using Patchwork.Data;
 using System.Collections.Generic;
+using System.Linq;
 using Patchwork.Input;
 
 namespace Patchwork.UI
@@ -178,8 +179,8 @@ namespace Patchwork.UI
                 // Randomly assign an upgrade from the active upgrades list, or no upgrade
                 if (activeUpgrades != null && activeUpgrades.Count > 0)
                 {
-                    // 50% chance of no upgrade, 50% chance of random upgrade from active list
-                    if (Random.value < 0.3f)
+                    // 70% chance of upgrade, 30% chance of no upgrade
+                    if (Random.value < 0.7f)
                     {
                         int randomIndex = Random.Range(0, activeUpgrades.Count);
                         rewardTile.AddUpgrade(activeUpgrades[randomIndex]);

@@ -14,21 +14,25 @@ namespace Patchwork.UI
         [SerializeField] private TextMeshProUGUI m_CompanyNameText;
         [SerializeField] private RectTransform m_BonusesContainer;
         [SerializeField] private RectTransform m_DangersContainer;
+        [SerializeField] private RectTransform m_TilesContainer;
         [SerializeField] private Image m_SelectionHighlight;
         #endregion
 
         #region Private Fields
         private GameObject m_CollectiblePreviewPrefab;
+        private GameObject m_TilePreviewPrefab;
         private CompanyData m_CompanyData;
         private readonly List<CollectiblePreview> m_BonusPreviews = new List<CollectiblePreview>();
         private readonly List<CollectiblePreview> m_DangerPreviews = new List<CollectiblePreview>();
+        private readonly List<TilePreview> m_TilePreviews = new List<TilePreview>();
         #endregion
 
         #region Public Methods
-        public void Initialize(CompanyData companyData, GameObject collectiblePreviewPrefab)
+        public void Initialize(CompanyData companyData, GameObject collectiblePreviewPrefab, GameObject tilePreviewPrefab)
         {
             m_CompanyData = companyData;
             m_CollectiblePreviewPrefab = collectiblePreviewPrefab;
+            m_TilePreviewPrefab = tilePreviewPrefab;
             
             // Set company name
             if (m_CompanyNameText != null)
@@ -47,6 +51,9 @@ namespace Patchwork.UI
             
             // Create danger previews
             CreateCollectiblePreviews(companyData.Dangers, m_DangersContainer, m_DangerPreviews);
+            
+            // Create upgrade previews
+            CreateUpgradePreviews(companyData.Upgrades);
             
             // Initially not selected
             SetSelected(false);
@@ -98,6 +105,62 @@ namespace Patchwork.UI
                 else
                 {
                     Debug.LogError("[CompanySlot] CollectiblePreview component not found on preview prefab instance.");
+                }
+            }
+        }
+
+        private void CreateUpgradePreviews(List<ITileUpgrade> upgrades)
+        {
+            if (m_TilesContainer == null)
+            {
+                Debug.LogWarning("[CompanySlot] TilesContainer is null! Upgrades will not be displayed.", this);
+                return;
+            }
+
+            if (m_TilePreviewPrefab == null)
+            {
+                Debug.LogWarning("[CompanySlot] TilePreviewPrefab is null! Upgrades will not be displayed.", this);
+                return;
+            }
+
+            if (upgrades == null || upgrades.Count == 0)
+            {
+                // Nothing to display
+                foreach (Transform child in m_TilesContainer)
+                {
+                    Destroy(child.gameObject);
+                }
+                m_TilePreviews.Clear();
+                return;
+            }
+
+            // Clear existing previews
+            foreach (Transform child in m_TilesContainer)
+            {
+                Destroy(child.gameObject);
+            }
+            m_TilePreviews.Clear();
+
+            // Create new previews - create a simple single-square tile for each upgrade
+            foreach (var upgrade in upgrades)
+            {
+                // Create a simple single-square tile data with the upgrade applied
+                TileData upgradeTile = new TileData("Upgrade", new Vector2Int[] { Vector2Int.zero });
+                upgradeTile.AddUpgrade(upgrade);
+
+                GameObject previewObj = Instantiate(m_TilePreviewPrefab, m_TilesContainer);
+                if (previewObj.TryGetComponent<TilePreview>(out var preview))
+                {
+                    preview.Initialize(upgradeTile);
+                    m_TilePreviews.Add(preview);
+
+                    // Add tooltip trigger for the upgrade
+                    var tooltipTrigger = previewObj.AddComponent<TooltipTrigger>();
+                    tooltipTrigger.Initialize(upgrade);
+                }
+                else
+                {
+                    Debug.LogError("[CompanySlot] TilePreview component not found on preview prefab instance.");
                 }
             }
         }

@@ -444,7 +444,7 @@ namespace Patchwork.Gameplay
 
         /// <summary>
         /// Generates a random selection of upgrades for a company.
-        /// Creates a random selection from all available upgrades.
+        /// Selects 2 random upgrades from all available upgrades.
         /// </summary>
         /// <returns>List of randomly selected upgrades</returns>
         private List<ITileUpgrade> GenerateRandomUpgrades()
@@ -452,16 +452,29 @@ namespace Patchwork.Gameplay
             // Create all available upgrades
             var allUpgrades = new List<ITileUpgrade>
             {
-                // new PristineBonus(),
-                // new LenientBonus(),
-                // new CollectorsBonus(),
+                new PristineBonus(),
+                new LenientBonus(),
+                new CollectorsBonus(),
                 new TimeBonus(),
                 new RigidBonus()
             };
 
-            // Select a random subset (similar to how we select 3 bonuses from 4)
-            // For now, we'll select all available upgrades, but this can be adjusted
-            var selectedUpgrades = allUpgrades.OrderBy(x => Random.value).ToList();
+            // Select 2 random upgrades using Fisher-Yates shuffle approach
+            var selectedUpgrades = new List<ITileUpgrade>();
+            var availableIndices = new List<int>();
+            for (int i = 0; i < allUpgrades.Count; i++)
+            {
+                availableIndices.Add(i);
+            }
+
+            int countToSelect = Mathf.Min(2, allUpgrades.Count);
+            for (int i = 0; i < countToSelect; i++)
+            {
+                int randomIndex = Random.Range(0, availableIndices.Count);
+                int selectedIndex = availableIndices[randomIndex];
+                selectedUpgrades.Add(allUpgrades[selectedIndex]);
+                availableIndices.RemoveAt(randomIndex);
+            }
             
             return selectedUpgrades;
         }
@@ -881,7 +894,8 @@ namespace Patchwork.Gameplay
             m_CompanyName = company.Name;
             m_ActiveBonuses = company.Bonuses;
             m_ActiveDangers = company.Dangers;
-            m_ActiveUpgrades = company.Upgrades;
+            // Create defensive copy of upgrades list
+            m_ActiveUpgrades = company.Upgrades != null ? new List<ITileUpgrade>(company.Upgrades) : new List<ITileUpgrade>();
             
             // Select initial collectibles
             SelectNextBonus();

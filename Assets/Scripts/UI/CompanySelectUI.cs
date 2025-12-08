@@ -15,6 +15,7 @@ namespace Patchwork.UI
         [SerializeField] private RectTransform m_CompanySlotsContainer;
         [SerializeField] private GameObject m_CompanySlotPrefab;
         [SerializeField] private GameObject m_CollectiblePreviewPrefab;
+        [SerializeField] private GameObject m_TilePreviewPrefab;
         #endregion
 
         #region Input
@@ -122,7 +123,7 @@ namespace Patchwork.UI
                 GameObject slotObj = Instantiate(m_CompanySlotPrefab, m_CompanySlotsContainer);
                 if (slotObj.TryGetComponent<CompanySlot>(out var slot))
                 {
-                    slot.Initialize(company, m_CollectiblePreviewPrefab);
+                    slot.Initialize(company, m_CollectiblePreviewPrefab, m_TilePreviewPrefab);
                     m_CompanySlots.Add(slot);
                 }
                 else
