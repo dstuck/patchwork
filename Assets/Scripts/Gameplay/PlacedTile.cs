@@ -21,6 +21,7 @@ namespace Patchwork.Gameplay
         private TextMeshPro m_ScoreText;
         private int m_CurrentScore;
         private TooltipTrigger m_TooltipTrigger;
+        private int m_CollectedCollectibleCount;
 
         // Fields from TileRenderer
         private SpriteRenderer[] m_SquareRenderers;
@@ -63,6 +64,7 @@ namespace Patchwork.Gameplay
         public Patchwork.Data.TileData TileData => m_TileData;
         public Vector2Int GridPosition => m_GridPosition;
         public int Rotation => m_Rotation;
+        public int CollectedCollectibleCount => m_CollectedCollectibleCount;
         #endregion
 
         #region Public Methods
@@ -110,11 +112,12 @@ namespace Patchwork.Gameplay
             CreateVisuals(m_TileData.TileColor);
 
             // Check for collectibles under each square
+            m_CollectedCollectibleCount = 0;
             foreach (Vector2Int square in m_OccupiedSquares)
             {
                 if (m_Board != null)
                 {
-                    m_Board.CheckCollectibles(square, this);
+                    m_CollectedCollectibleCount += m_Board.CheckCollectibles(square, this);
                 }
             }
 

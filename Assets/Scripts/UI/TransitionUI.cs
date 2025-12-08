@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using Patchwork.Gameplay;
 using Patchwork.Data;
 using System.Collections.Generic;
+using System.Linq;
 using Patchwork.Input;
 
 namespace Patchwork.UI
@@ -163,19 +164,27 @@ namespace Patchwork.UI
         {
             m_TileRewardOptions.Clear();
             
+            // Get active upgrades from GameManager
+            var activeUpgrades = GameManager.Instance?.ActiveUpgrades;
+            if (activeUpgrades == null || activeUpgrades.Count == 0)
+            {
+                Debug.LogWarning("No active upgrades available from GameManager");
+            }
+            
             // Get three random tiles using TileFactory
             for (int i = 0; i < 3; i++)
             {
                 TileData rewardTile = TileFactory.CreateRandomTile();
                 
-                // Apply appropriate upgrade based on index
-                if (i == 0)
+                // Randomly assign an upgrade from the active upgrades list, or no upgrade
+                if (activeUpgrades != null && activeUpgrades.Count > 0)
                 {
-                    rewardTile.AddUpgrade(new PristineBonus());
-                }
-                else if (i == 1)
-                {
-                    rewardTile.AddUpgrade(new LenientBonus());
+                    // 70% chance of upgrade, 30% chance of no upgrade
+                    if (Random.value < 0.7f)
+                    {
+                        int randomIndex = Random.Range(0, activeUpgrades.Count);
+                        rewardTile.AddUpgrade(activeUpgrades[randomIndex]);
+                    }
                 }
                 
                 m_TileRewardOptions.Add(rewardTile);

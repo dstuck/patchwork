@@ -268,9 +268,14 @@ namespace Patchwork.Gameplay
         {
             if (base.TryCollect(collectingTile))
             {
-                if (collectingTile != null && m_Upgrade != null)
+                if (collectingTile != null)
                 {
-                    collectingTile.TileData.AddUpgrade(m_Upgrade);
+                    // Get fresh upgrade based on current level (in case level changed after Awake)
+                    ITileUpgrade upgrade = GetUpgrade();
+                    if (upgrade != null)
+                    {
+                        collectingTile.TileData.AddUpgrade(upgrade);
+                    }
                 }
                 return true;
             }

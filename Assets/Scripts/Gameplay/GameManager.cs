@@ -75,6 +75,9 @@ namespace Patchwork.Gameplay
         private List<ICollectible> m_ActiveDangers = new List<ICollectible>();
         private ICollectible m_CurrentBonus;
         private ICollectible m_CurrentDanger;
+        
+        // Active upgrades for this run
+        private List<ITileUpgrade> m_ActiveUpgrades = new List<ITileUpgrade>();
         private int m_BonusCounter;
         private int m_DangerCounter;
         
@@ -113,6 +116,7 @@ namespace Patchwork.Gameplay
         public CollectiblesDeck CollectiblesDeck => m_CollectiblesDeck;
         public string CompanyName => m_CompanyName;
         public bool IsPaused => m_IsPaused;
+        public IReadOnlyList<ITileUpgrade> ActiveUpgrades => m_ActiveUpgrades;
         #endregion
 
         #region Unity Lifecycle
@@ -392,6 +396,9 @@ namespace Patchwork.Gameplay
             var (bonuses, dangers) = GenerateRandomCollectibles("Prototype");
             m_ActiveBonuses = bonuses;
             m_ActiveDangers = dangers;
+            
+            // Generate random upgrades for fallback initialization
+            m_ActiveUpgrades = GenerateRandomUpgrades();
 
             // Select initial collectibles
             SelectNextBonus();
@@ -400,7 +407,7 @@ namespace Patchwork.Gameplay
 
         /// <summary>
         /// Generates a random selection of bonuses and dangers for a company.
-        /// Creates 3 random bonuses from a pool of 4, and 2 random dangers from a pool of 4.
+        /// Creates 3 random bonuses from a pool of 5, and 2 random dangers from a pool of 4.
         /// </summary>
         /// <param name="namePrefix">Prefix for the created GameObject names</param>
         /// <returns>Tuple of (bonuses, dangers) lists</returns>
@@ -411,13 +418,14 @@ namespace Patchwork.Gameplay
             var drawGem = CreateCollectible<DrawGemCollectible>($"{namePrefix}_DrawGem");
             var heartPiece = CreateCollectible<HeartPieceCollectible>($"{namePrefix}_HeartPiece");
             var pristinePaint = CreateCollectible<PristinePaintCollectible>($"{namePrefix}_PristinePaint");
+            var collectorsPaint = CreateCollectible<CollectorsPaintCollectible>($"{namePrefix}_CollectorsPaint");
             var spark = CreateCollectible<SparkCollectible>($"{namePrefix}_Spark");
             var ghostSpark = CreateCollectible<GhostSparkCollectible>($"{namePrefix}_GhostSpark");
             var jumpingSpark = CreateCollectible<JumpingSparkCollectible>($"{namePrefix}_JumpingSpark");
             var flame = CreateCollectible<FlameCollectible>($"{namePrefix}_Flame");
 
             // Select 3 random bonuses and 2 random dangers
-            var allBonuses = new List<ICollectible> { newSquare, drawGem, heartPiece, pristinePaint };
+            var allBonuses = new List<ICollectible> { newSquare, drawGem, heartPiece, pristinePaint, collectorsPaint };
             var allDangers = new List<ICollectible> { spark, ghostSpark, jumpingSpark, flame };
 
             var selectedBonuses = allBonuses.OrderBy(x => Random.value).Take(3).ToList();
@@ -433,6 +441,43 @@ namespace Patchwork.Gameplay
                 Destroy((danger as MonoBehaviour)?.gameObject);
             }
             return (selectedBonuses, selectedDangers);
+        }
+
+        /// <summary>
+        /// Generates a random selection of upgrades for a company.
+        /// Selects 2 random upgrades from all available upgrades.
+        /// </summary>
+        /// <returns>List of randomly selected upgrades</returns>
+        private List<ITileUpgrade> GenerateRandomUpgrades()
+        {
+            // Create all available upgrades
+            var allUpgrades = new List<ITileUpgrade>
+            {
+                new PristineBonus(),
+                new LenientBonus(),
+                new CollectorsBonus(),
+                new TimeBonus(),
+                new RigidBonus()
+            };
+
+            // Select 2 random upgrades using Fisher-Yates shuffle approach
+            var selectedUpgrades = new List<ITileUpgrade>();
+            var availableIndices = new List<int>();
+            for (int i = 0; i < allUpgrades.Count; i++)
+            {
+                availableIndices.Add(i);
+            }
+
+            int countToSelect = Mathf.Min(2, allUpgrades.Count);
+            for (int i = 0; i < countToSelect; i++)
+            {
+                int randomIndex = Random.Range(0, availableIndices.Count);
+                int selectedIndex = availableIndices[randomIndex];
+                selectedUpgrades.Add(allUpgrades[selectedIndex]);
+                availableIndices.RemoveAt(randomIndex);
+            }
+            
+            return selectedUpgrades;
         }
 
         private ICollectible CreateCollectible<T>(string name) where T : BaseCollectible
@@ -836,7 +881,10 @@ namespace Patchwork.Gameplay
                 // Generate random collectibles for this company using the shared logic
                 var (bonuses, dangers) = GenerateRandomCollectibles($"Company{i}");
                 
-                companies.Add(new Data.CompanyData(companyNames[i], bonuses, dangers));
+                // Generate random upgrades for this company
+                var upgrades = GenerateRandomUpgrades();
+                
+                companies.Add(new Data.CompanyData(companyNames[i], bonuses, dangers, upgrades));
             }
             
             return companies;
@@ -847,6 +895,8 @@ namespace Patchwork.Gameplay
             m_CompanyName = company.Name;
             m_ActiveBonuses = company.Bonuses;
             m_ActiveDangers = company.Dangers;
+            // Create defensive copy of upgrades list
+            m_ActiveUpgrades = company.Upgrades != null ? new List<ITileUpgrade>(company.Upgrades) : new List<ITileUpgrade>();
             
             // Select initial collectibles
             SelectNextBonus();

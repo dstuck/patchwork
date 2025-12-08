@@ -348,8 +348,9 @@ namespace Patchwork.Gameplay
             m_Collectibles.Add(flame);
         }
 
-        public void CheckCollectibles(Vector2Int position, PlacedTile collectingTile)
+        public int CheckCollectibles(Vector2Int position, PlacedTile collectingTile)
         {
+            int collectedCount = 0;
             var collectiblesAtPosition = m_Collectibles
                 .Where(c => c.GridPosition == position)
                 .ToList();
@@ -360,8 +361,11 @@ namespace Patchwork.Gameplay
                 {
                     m_Collectibles.Remove(collectible);
                     SoundFXManager.instance.PlaySoundFXClip(GameResources.Instance.PickupSoundFX, transform);
+                    collectedCount++;
                 }
             }
+            
+            return collectedCount;
         }
 
         public void OnLevelComplete()
@@ -380,6 +384,15 @@ namespace Patchwork.Gameplay
             foreach (var collectible in collectiblesCopy)
             {
                 collectible.OnTilePlaced(this, tile);
+            }
+            
+            // Notify upgrades on the placed tile
+            if (tile.TileData != null && tile.TileData.Upgrades != null)
+            {
+                foreach (var upgrade in tile.TileData.Upgrades)
+                {
+                    upgrade.OnTilePlaced(tile, this);
+                }
             }
         }
 
