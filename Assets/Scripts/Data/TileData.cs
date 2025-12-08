@@ -41,9 +41,29 @@ namespace Patchwork.Data
 
         public void AddUpgrade(ITileUpgrade _upgrade)
         {
-            m_Upgrades.Clear();  // Remove any existing upgrades
-            m_Upgrades.Add(_upgrade);  // Add the new upgrade
-            OnDataChanged?.Invoke();
+            if (_upgrade == null) return;
+
+            // Check if there's an existing upgrade of the same type
+            ITileUpgrade existingUpgrade = m_Upgrades.FirstOrDefault(u => u.GetType() == _upgrade.GetType());
+            
+            if (existingUpgrade != null)
+            {
+                // Only replace if the new upgrade has a higher level
+                if (_upgrade.Level > existingUpgrade.Level)
+                {
+                    m_Upgrades.Remove(existingUpgrade);
+                    m_Upgrades.Add(_upgrade);
+                    OnDataChanged?.Invoke();
+                }
+                // Otherwise, keep the existing higher-level upgrade
+            }
+            else
+            {
+                // No existing upgrade of this type, add the new one
+                m_Upgrades.Clear();  // Remove any existing upgrades (only one upgrade per tile)
+                m_Upgrades.Add(_upgrade);
+                OnDataChanged?.Invoke();
+            }
         }
 
         public void RemoveUpgrade(ITileUpgrade _upgrade)

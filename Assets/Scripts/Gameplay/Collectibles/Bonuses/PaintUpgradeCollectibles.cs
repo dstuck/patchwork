@@ -7,13 +7,15 @@ namespace Patchwork.Gameplay
     {
         protected override ITileUpgrade GetUpgrade()
         {
-            int amount = m_Level switch { 1 => 5, 2 => 10, _ => 20 };
-            return new PristineBonus(amount);
+            return new PristineBonus(m_Level);
         }
     }
 
-    public class LenientPaintCollectible : PaintUpgradeCollectible
+    public class CollectorsPaintCollectible : PaintUpgradeCollectible
     {
-        protected override ITileUpgrade GetUpgrade() => new LenientBonus();
+        protected override ITileUpgrade GetUpgrade()
+        {
+            return new CollectorsBonus(m_Level);
+        }
     }
 }

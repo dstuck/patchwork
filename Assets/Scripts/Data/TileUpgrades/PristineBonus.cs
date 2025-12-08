@@ -4,21 +4,21 @@ using System.Collections.Generic;
 
 namespace Patchwork.Data
 {
-    public class PristineBonus : ITileUpgrade
+    public class PristineBonus : BaseTileUpgrade
     {
-        private readonly int m_BonusAmount;
+        private readonly int m_BaseBonusAmount = 5;
 
-        public PristineBonus() : this(5) {}
-        public PristineBonus(int bonusAmount)
-        {
-            m_BonusAmount = Mathf.Max(0, bonusAmount);
-        }
+        public PristineBonus() : base(1) {}
+        public PristineBonus(int level) : base(level) {}
+        
+        private int m_BonusAmount => m_Level switch { 1 => m_BaseBonusAmount, 2 => m_BaseBonusAmount * 2, _ => m_BaseBonusAmount * 4 };
 
-        public string DisplayName => "Pristine Placement";
-        public string Description => $"+{m_BonusAmount} points if perfectly placed";
-        public Color DisplayColor => new Color(1f, 0.8f, 0.2f);  // Golden yellow
+        public override string DisplayName => "Pristine Placement";
+        public override string Description => $"+{m_BonusAmount} points if perfectly placed";
+        
+        protected override Color BaseDisplayColor => new Color(1f, 0.8f, 0.2f);  // Golden yellow
 
-        public int ModifyScore(int _baseScore, PlacedTile _tile, Board _board, List<PlacedTile> _otherTiles)
+        public override int ModifyScore(int _baseScore, PlacedTile _tile, Board _board, List<PlacedTile> _otherTiles)
         {
             bool allOverHoles = true;
             bool anyOverlap = false;

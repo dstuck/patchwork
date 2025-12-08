@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
+using System.Linq;
 using Patchwork.Gameplay;
 using Patchwork.Data;
 
@@ -125,6 +126,7 @@ namespace Patchwork.UI
 
             if (upgrades == null || upgrades.Count == 0)
             {
+                Debug.LogWarning($"[CompanySlot] No upgrades to display. Upgrades is null: {upgrades == null}, Count: {upgrades?.Count ?? 0}");
                 // Nothing to display
                 foreach (Transform child in m_TilesContainer)
                 {
@@ -134,6 +136,8 @@ namespace Patchwork.UI
                 return;
             }
 
+            Debug.Log($"[CompanySlot] Creating {upgrades.Count} upgrade previews");
+
             // Clear existing previews
             foreach (Transform child in m_TilesContainer)
             {
@@ -141,8 +145,11 @@ namespace Patchwork.UI
             }
             m_TilePreviews.Clear();
 
+            // Sort upgrades by name for easier reading
+            var sortedUpgrades = upgrades.OrderBy(u => u.DisplayName).ToList();
+
             // Create new previews - create a simple single-square tile for each upgrade
-            foreach (var upgrade in upgrades)
+            foreach (var upgrade in sortedUpgrades)
             {
                 // Create a simple single-square tile data with the upgrade applied
                 TileData upgradeTile = new TileData("Upgrade", new Vector2Int[] { Vector2Int.zero });

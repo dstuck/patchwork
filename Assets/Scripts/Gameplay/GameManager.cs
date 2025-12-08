@@ -407,7 +407,7 @@ namespace Patchwork.Gameplay
 
         /// <summary>
         /// Generates a random selection of bonuses and dangers for a company.
-        /// Creates 3 random bonuses from a pool of 4, and 2 random dangers from a pool of 4.
+        /// Creates 3 random bonuses from a pool of 5, and 2 random dangers from a pool of 4.
         /// </summary>
         /// <param name="namePrefix">Prefix for the created GameObject names</param>
         /// <returns>Tuple of (bonuses, dangers) lists</returns>
@@ -418,13 +418,14 @@ namespace Patchwork.Gameplay
             var drawGem = CreateCollectible<DrawGemCollectible>($"{namePrefix}_DrawGem");
             var heartPiece = CreateCollectible<HeartPieceCollectible>($"{namePrefix}_HeartPiece");
             var pristinePaint = CreateCollectible<PristinePaintCollectible>($"{namePrefix}_PristinePaint");
+            var collectorsPaint = CreateCollectible<CollectorsPaintCollectible>($"{namePrefix}_CollectorsPaint");
             var spark = CreateCollectible<SparkCollectible>($"{namePrefix}_Spark");
             var ghostSpark = CreateCollectible<GhostSparkCollectible>($"{namePrefix}_GhostSpark");
             var jumpingSpark = CreateCollectible<JumpingSparkCollectible>($"{namePrefix}_JumpingSpark");
             var flame = CreateCollectible<FlameCollectible>($"{namePrefix}_Flame");
 
             // Select 3 random bonuses and 2 random dangers
-            var allBonuses = new List<ICollectible> { newSquare, drawGem, heartPiece, pristinePaint };
+            var allBonuses = new List<ICollectible> { newSquare, drawGem, heartPiece, pristinePaint, collectorsPaint };
             var allDangers = new List<ICollectible> { spark, ghostSpark, jumpingSpark, flame };
 
             var selectedBonuses = allBonuses.OrderBy(x => Random.value).Take(3).ToList();
