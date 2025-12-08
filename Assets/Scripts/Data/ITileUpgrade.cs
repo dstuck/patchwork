@@ -10,5 +10,16 @@ namespace Patchwork.Data
         string Description { get; }
         Color DisplayColor { get; }
         int ModifyScore(int _baseScore, PlacedTile _tile, Board _board, List<PlacedTile> _otherTiles);
+        
+        /// <summary>
+        /// Called when a tile with this upgrade is placed on the board.
+        /// Default implementation does nothing.
+        /// </summary>
+        /// <param name="_tile">The tile that was placed</param>
+        /// <param name="_board">The board the tile was placed on</param>
+        void OnTilePlaced(PlacedTile _tile, Board _board)
+        {
+            // Default implementation does nothing
+        }
     }
 } 

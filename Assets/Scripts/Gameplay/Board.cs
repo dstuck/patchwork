@@ -385,6 +385,15 @@ namespace Patchwork.Gameplay
             {
                 collectible.OnTilePlaced(this, tile);
             }
+            
+            // Notify upgrades on the placed tile
+            if (tile.TileData != null && tile.TileData.Upgrades != null)
+            {
+                foreach (var upgrade in tile.TileData.Upgrades)
+                {
+                    upgrade.OnTilePlaced(tile, this);
+                }
+            }
         }
 
         public bool IsCollectibleAtPosition(Vector2Int _position)

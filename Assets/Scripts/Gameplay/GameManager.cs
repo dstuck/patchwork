@@ -454,7 +454,8 @@ namespace Patchwork.Gameplay
             {
                 new PristineBonus(),
                 new LenientBonus(),
-                new CollectorsBonus()
+                new CollectorsBonus(),
+                new TimeBonus()
             };
 
             // Select a random subset (similar to how we select 3 bonuses from 4)

@@ -69,6 +69,20 @@ namespace Patchwork.Gameplay
             m_MaxMultiplier += amount;
             OnMultiplierChanged?.Invoke(GetCurrentMultiplier());
         }
+
+        /// <summary>
+        /// Adds time to the current timer. Only works if the timer is running and not in delay phase.
+        /// </summary>
+        /// <param name="amount">Amount of time to add in seconds</param>
+        public void AddTime(float amount)
+        {
+            if (m_IsRunning && !m_IsDelaying)
+            {
+                m_CurrentTime += amount;
+                // Clamp to duration to prevent going over max time
+                m_CurrentTime = Mathf.Min(m_CurrentTime, m_Duration);
+            }
+        }
         #endregion
 
         #region Unity Lifecycle
