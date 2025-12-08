@@ -518,6 +518,7 @@ MonoBehaviour:
   m_CompanySlotsContainer: {fileID: 65937029}
   m_CompanySlotPrefab: {fileID: 4291795134818060377, guid: ccbf87e9639d54adb9d83ea06a163766, type: 3}
   m_CollectiblePreviewPrefab: {fileID: 1870703772805088574, guid: 81daf6369363c4e57a3cc73cfc995a42, type: 3}
+  m_TilePreviewPrefab: {fileID: 791384425085974895, guid: 90d90d114eceb4142a3cf2a2478b85db, type: 3}
   m_InputCooldown: 0.15
 --- !u!222 &579113822
 CanvasRenderer:
