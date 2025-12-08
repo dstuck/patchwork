@@ -21,5 +21,15 @@ namespace Patchwork.Data
         {
             // Default implementation does nothing
         }
+        
+        /// <summary>
+        /// Returns whether a tile with this upgrade can be rotated.
+        /// Default implementation returns true.
+        /// </summary>
+        /// <returns>True if the tile can be rotated, false otherwise</returns>
+        bool CanRotate()
+        {
+            return true;
+        }
     }
 } 

@@ -452,10 +452,11 @@ namespace Patchwork.Gameplay
             // Create all available upgrades
             var allUpgrades = new List<ITileUpgrade>
             {
-                new PristineBonus(),
-                new LenientBonus(),
-                new CollectorsBonus(),
-                new TimeBonus()
+                // new PristineBonus(),
+                // new LenientBonus(),
+                // new CollectorsBonus(),
+                new TimeBonus(),
+                new RigidBonus()
             };
 
             // Select a random subset (similar to how we select 3 bonuses from 4)

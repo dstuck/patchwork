@@ -239,6 +239,18 @@ namespace Patchwork.Gameplay
             // Additional safety check
             if (m_TileHand.CurrentTile == null || m_PreviewTile == null) return;
 
+            // Check if tile can be rotated (e.g., Rigid Bonus prevents rotation)
+            if (m_TileHand.CurrentTile.Upgrades != null)
+            {
+                foreach (var upgrade in m_TileHand.CurrentTile.Upgrades)
+                {
+                    if (!upgrade.CanRotate())
+                    {
+                        return; // Cannot rotate this tile
+                    }
+                }
+            }
+
             m_CurrentRotation += _clockwise ? 90 : -90;
             
             // Keep rotation between 0 and 359
