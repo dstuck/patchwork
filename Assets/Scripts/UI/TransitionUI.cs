@@ -119,18 +119,34 @@ namespace Patchwork.UI
             
             Vector2 navigation = context.ReadValue<Vector2>();
             int maxIndex = m_IsBossReward ? m_CollectibleRewardOptions.Count - 1 : m_TileRewardOptions.Count - 1;
+            bool didNavigate = false;
             
             if (navigation.x > 0)
             {
                 m_SelectedRewardIndex = Mathf.Min(maxIndex, m_SelectedRewardIndex + 1);
                 UpdateRewardSelection();
-                m_LastInputTime = Time.time;
+                didNavigate = true;
             }
             else if (navigation.x < 0)
             {
                 m_SelectedRewardIndex = Mathf.Max(0, m_SelectedRewardIndex - 1);
                 UpdateRewardSelection();
+                didNavigate = true;
+            }
+            
+            if (didNavigate)
+            {
+                PlayMoveUISound();
                 m_LastInputTime = Time.time;
+            }
+        }
+        
+        private void PlayMoveUISound()
+        {
+            if (SoundFXManager.instance != null && GameResources.Instance != null && 
+                GameResources.Instance.MoveUISoundFX != null && GameResources.Instance.MoveUISoundFX.Length > 0)
+            {
+                SoundFXManager.instance.PlayRandomSoundFXClip(GameResources.Instance.MoveUISoundFX, transform);
             }
         }
 

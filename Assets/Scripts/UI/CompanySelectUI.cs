@@ -138,6 +138,7 @@ namespace Patchwork.UI
             if (Time.time - m_LastInputTime < m_InputCooldown) return;
 
             Vector2 navigation = context.ReadValue<Vector2>();
+            bool didNavigate = false;
             
             if (navigation.y > 0)
             {
@@ -148,7 +149,7 @@ namespace Patchwork.UI
                     m_SelectedIndex = m_CompanySlots.Count - 1;
                 }
                 UpdateSelection();
-                m_LastInputTime = Time.time;
+                didNavigate = true;
             }
             else if (navigation.y < 0)
             {
@@ -159,7 +160,29 @@ namespace Patchwork.UI
                     m_SelectedIndex = 0;
                 }
                 UpdateSelection();
+                didNavigate = true;
+            }
+            
+            if (didNavigate)
+            {
+                PlayMoveUISound();
                 m_LastInputTime = Time.time;
+            }
+        }
+        
+        private void PlayMoveUISound()
+        {
+            // Try to find SoundFXManager if instance is null (might not be in this scene)
+            SoundFXManager soundManager = SoundFXManager.instance;
+            if (soundManager == null)
+            {
+                soundManager = FindFirstObjectByType<SoundFXManager>();
+            }
+            
+            if (soundManager != null && GameResources.Instance != null && 
+                GameResources.Instance.MoveUISoundFX != null && GameResources.Instance.MoveUISoundFX.Length > 0)
+            {
+                soundManager.PlayRandomSoundFXClip(GameResources.Instance.MoveUISoundFX, transform);
             }
         }
 

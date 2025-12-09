@@ -50,16 +50,15 @@ namespace Patchwork.Data
         [SerializeField, Range(0.01f, 5f)] private float m_PaintScale = 0.1f;
         [SerializeField] private Sprite m_NewSquareSprite;
         [SerializeField, Range(0.01f, 5f)] private float m_NewSquareScale = 0.8f;
-
-        [Header("UI Elements")]
-        [SerializeField] private GameObject m_UpgradeTooltipPrefab;
         
         [Header("Sound Effects")]
         [SerializeField] private AudioClip m_PickupSoundFX;
         [SerializeField] private AudioClip m_DamageSoundFX;
         [SerializeField] private AudioClip m_LoseSoundFX;
+        [SerializeField] private AudioClip m_WinSoundFX;
         [SerializeField] private AudioClip[] m_PlaceTileSoundFX;
         [SerializeField] private AudioClip[] m_MoveSoundFX;
+        [SerializeField] private AudioClip[] m_MoveUISoundFX;
         [SerializeField] private AudioClip m_RotateLeftSoundFX;
         [SerializeField] private AudioClip m_RotateRightSoundFX;
         #endregion
@@ -82,7 +81,6 @@ namespace Patchwork.Data
         public float MultiplierBonusScale => m_MultiplierBonusScale;
         public Sprite HeartPieceSprite => m_HeartPieceSprite;
         public float HeartPieceScale => m_HeartPieceScale;
-        public GameObject UpgradeTooltipPrefab => m_UpgradeTooltipPrefab;
         public Sprite PaintSprite => m_PaintSprite;
         public float PaintScale => m_PaintScale;
         public Sprite NewSquareSprite => m_NewSquareSprite;
@@ -90,8 +88,10 @@ namespace Patchwork.Data
         public AudioClip PickupSoundFX => m_PickupSoundFX;
         public AudioClip DamageSoundFX => m_DamageSoundFX;
         public AudioClip LoseSoundFX => m_LoseSoundFX;
+        public AudioClip WinSoundFX => m_WinSoundFX;
         public AudioClip[] PlaceTileSoundFX => m_PlaceTileSoundFX;
         public AudioClip[] MoveSoundFX => m_MoveSoundFX;
+        public AudioClip[] MoveUISoundFX => m_MoveUISoundFX;
         public AudioClip RotateLeftSoundFX => m_RotateLeftSoundFX;
         public AudioClip RotateRightSoundFX => m_RotateRightSoundFX;
         #endregion

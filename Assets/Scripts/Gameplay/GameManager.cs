@@ -33,6 +33,7 @@ namespace Patchwork.Gameplay
         
         [Header("Boss Battle Settings")]
         [SerializeField] private int m_BossStageInterval = 4; // Every X stages is a boss
+        [SerializeField] private int m_FinalBossStage = 15; // Stage number for the final boss
         
         [Header("Gem Settings")]
         [SerializeField] private float m_TimePerGem = 8f;  // Time bonus per gem draw value
@@ -88,6 +89,7 @@ namespace Patchwork.Gameplay
         #region Game State
         private int m_CurrentStage;
         private int m_CumulativeScore;
+        private bool m_IsVictory;
         #endregion
 
         #region Public Properties
@@ -109,6 +111,7 @@ namespace Patchwork.Gameplay
         public Deck Deck => m_Deck;
         public float BaseMultiplier => m_BaseMultiplier;
         public int BossStageInterval => m_BossStageInterval;
+        public int FinalBossStage => m_FinalBossStage;
         public bool IsPostBossStage => IsBossStage(m_CurrentStage - 1);
         public int MaxLives => c_MaxLives;
         public int SparkCount => m_BaseSparkCount + ((m_CurrentStage - 1) / m_StagesPerSpark);
@@ -263,7 +266,9 @@ namespace Patchwork.Gameplay
             // // Temporary: Make first stage a boss stage for testing
             // return stageNumber == 1;
             
-            return stageNumber % m_BossStageInterval == 0;
+            // Check if it's a regular boss stage (every m_BossStageInterval stages)
+            // OR if it's the final boss stage or beyond
+            return stageNumber % m_BossStageInterval == 0 || stageNumber >= m_FinalBossStage;
         }
 
         private void Update()
@@ -339,7 +344,14 @@ namespace Patchwork.Gameplay
             // Destroy the existing Board component (before Start runs)
             DestroyImmediate(existingBoard);
             
-            // Select a random boss type
+            // Final boss stage uses all mechanics combined
+            if (m_CurrentStage >= m_FinalBossStage)
+            {
+                boardObject.AddComponent<FinalBossBoard>();
+                return;
+            }
+            
+            // Select a random boss type for other boss stages
             int bossTypeCount = 4; // Number of boss board types available
             int bossTypeIndex = Random.Range(0, bossTypeCount);
             
@@ -607,9 +619,25 @@ namespace Patchwork.Gameplay
         /// </summary>
         private void TriggerGameOver()
         {
+            m_IsVictory = false;
             SoundFXManager.instance.PlaySoundFXClip(GameResources.Instance.LoseSoundFX, transform);
             SceneManager.LoadScene("GameOver");
         }
+
+        /// <summary>
+        /// Triggers the victory state - plays win sound and loads the GameOver scene with victory message.
+        /// </summary>
+        private void TriggerVictory()
+        {
+            m_IsVictory = true;
+            SoundFXManager.instance.PlaySoundFXClip(GameResources.Instance.WinSoundFX, transform);
+            SceneManager.LoadScene("GameOver");
+        }
+
+        /// <summary>
+        /// Returns whether the player achieved victory (completed final boss).
+        /// </summary>
+        public bool IsVictory => m_IsVictory;
         #endregion
 
         #region Public Methods
@@ -617,6 +645,7 @@ namespace Patchwork.Gameplay
         {
             // Reset game state
             m_CurrentStage = 1;
+            m_IsVictory = false;
             m_CumulativeScore = 0;
             m_MaxLives = c_MaxLives;  // Reset max lives to constant value
             m_CurrentLives = m_MaxLives;
@@ -683,7 +712,16 @@ namespace Patchwork.Gameplay
                 int completedStage = m_CurrentStage;
                 scoringPopup.OnPopupComplete.AddListener(() => {
                     m_CurrentStage++;
-                    CheckScoreRequirement(completedStage);
+                    
+                    // Check if this was the final boss stage
+                    if (completedStage >= m_FinalBossStage)
+                    {
+                        TriggerVictory();
+                    }
+                    else
+                    {
+                        CheckScoreRequirement(completedStage);
+                    }
                 });
                 
                 int requiredScore = CalculateRequiredScore(completedStage);
