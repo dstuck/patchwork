@@ -38,8 +38,8 @@ namespace Patchwork.Gameplay
         [SerializeField] private float m_TimePerGem = 8f;  // Time bonus per gem draw value
         
         [Header("Score Requirements")]
-        [SerializeField] private int m_BaseRequiredScore = 35;  // Base for required score calculation
-        [SerializeField] private int m_RequiredScoreIncrement = 5;  // Increment per level (level 1: 40, level 2: 45, etc.)
+        [SerializeField] private int m_BaseRequiredScore = 20;  // Base for required score calculation
+        [SerializeField] private int m_RequiredScoreIncrement = 10;  // Increment per level (level 1: 40, level 2: 45, etc.)
         
         private static GameManager s_Instance;
         private bool m_IsInitialized;
@@ -340,7 +340,7 @@ namespace Patchwork.Gameplay
             DestroyImmediate(existingBoard);
             
             // Select a random boss type
-            int bossTypeCount = 3; // Number of boss board types available
+            int bossTypeCount = 4; // Number of boss board types available
             int bossTypeIndex = Random.Range(0, bossTypeCount);
             
             switch (bossTypeIndex)
@@ -353,6 +353,9 @@ namespace Patchwork.Gameplay
                     break;
                 case 2:
                     boardObject.AddComponent<MysterySpriteBoard>();
+                    break;
+                case 3:
+                    boardObject.AddComponent<FireBossBoard>();
                     break;
                 default:
                     boardObject.AddComponent<MovingBossBoard>();
