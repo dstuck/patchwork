@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using System.Collections;
 using Patchwork.Input;
 using UnityEngine.SceneManagement;
+using Patchwork.Gameplay;
 
 namespace Patchwork.UI
 {
@@ -33,6 +34,25 @@ namespace Patchwork.UI
 
         private void Start()
         {
+            // Find text component if not assigned
+            if (m_AnnouncementText == null)
+            {
+                m_AnnouncementText = GetComponentInChildren<TextMeshProUGUI>();
+            }
+            
+            // Update announcement text based on current stage
+            if (m_AnnouncementText != null && GameManager.Instance != null)
+            {
+                int currentStage = GameManager.Instance.CurrentStage;
+                int finalBossStage = GameManager.Instance.FinalBossStage;
+                
+                m_AnnouncementText.text = (currentStage >= finalBossStage) ? "Final Boss!" : "Boss Stage";
+            }
+            else
+            {
+                Debug.LogWarning("[BossStageAnnouncement] Missing text component or GameManager instance!");
+            }
+            
             // Start visible and begin the announcement sequence
             gameObject.SetActive(true);
             m_CanvasGroup.alpha = 1f;

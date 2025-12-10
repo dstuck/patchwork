@@ -377,7 +377,7 @@ namespace Patchwork.Gameplay
             m_Collectibles.Clear();
         }
 
-        public void OnTilePlaced(PlacedTile tile)
+        public virtual void OnTilePlaced(PlacedTile tile)
         {
             // Create a temporary copy of the collectibles list to avoid modification during iteration
             var collectiblesCopy = m_Collectibles.ToList();

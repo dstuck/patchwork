@@ -136,8 +136,6 @@ namespace Patchwork.UI
                 return;
             }
 
-            Debug.Log($"[CompanySlot] Creating {upgrades.Count} upgrade previews");
-
             // Clear existing previews
             foreach (Transform child in m_TilesContainer)
             {

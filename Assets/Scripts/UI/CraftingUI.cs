@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using Patchwork.Gameplay;
+using Patchwork.Data;
 using UnityEngine.InputSystem;
 using Patchwork.Input;
 
@@ -593,6 +594,7 @@ namespace Patchwork.UI
             if (Time.time - m_LastNavigationTime < m_NavigationCooldown) return;
             
             Vector2 input = context.ReadValue<Vector2>();
+            bool didNavigate = false;
             
             // Determine navigation direction
             if (Mathf.Abs(input.x) > Mathf.Abs(input.y))
@@ -601,10 +603,12 @@ namespace Patchwork.UI
                 if (input.x > 0.5f)
                 {
                     NavigateRight();
+                    didNavigate = true;
                 }
                 else if (input.x < -0.5f)
                 {
                     NavigateLeft();
+                    didNavigate = true;
                 }
             }
             else
@@ -613,14 +617,30 @@ namespace Patchwork.UI
                 if (input.y > 0.5f)
                 {
                     NavigateUp();
+                    didNavigate = true;
                 }
                 else if (input.y < -0.5f)
                 {
                     NavigateDown();
+                    didNavigate = true;
                 }
             }
             
+            if (didNavigate)
+            {
+                PlayMoveUISound();
+            }
+            
             m_LastNavigationTime = Time.time;
+        }
+        
+        private void PlayMoveUISound()
+        {
+            if (SoundFXManager.instance != null && GameResources.Instance != null && 
+                GameResources.Instance.MoveUISoundFX != null && GameResources.Instance.MoveUISoundFX.Length > 0)
+            {
+                SoundFXManager.instance.PlayRandomSoundFXClip(GameResources.Instance.MoveUISoundFX, transform);
+            }
         }
         
         private void OnSubmit(InputAction.CallbackContext context)

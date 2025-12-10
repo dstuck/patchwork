@@ -30,9 +30,16 @@ namespace Patchwork.UI
 
         private void Start()
         {
-            if (m_ScoreText != null)
+            if (m_ScoreText != null && GameManager.Instance != null)
             {
-                m_ScoreText.text = $"Game Over!\nFinal Score: {GameManager.Instance.CumulativeScore}";
+                if (GameManager.Instance.IsVictory)
+                {
+                    m_ScoreText.text = $"Congratulations!\nYou Win!\n\nFinal Score: {GameManager.Instance.CumulativeScore}";
+                }
+                else
+                {
+                    m_ScoreText.text = $"Game Over!\nFinal Score: {GameManager.Instance.CumulativeScore}";
+                }
             }
         }
 
