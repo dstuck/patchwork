@@ -12,9 +12,7 @@ namespace Patchwork.Gameplay
     {
         #region Constants
         private const int c_FireLevel = 1; // Level 1 fire (can be adjusted if needed)
-        #endregion
 
-        #region Constants
         private static readonly Color c_DarkRedHoleColor = new Color(0.4f, 0.1f, 0.1f, 1f); // Dark red color for holes
         #endregion
 

@@ -46,14 +46,7 @@ namespace Patchwork.UI
                 int currentStage = GameManager.Instance.CurrentStage;
                 int finalBossStage = GameManager.Instance.FinalBossStage;
                 
-                if (currentStage >= finalBossStage)
-                {
-                    m_AnnouncementText.text = "Final Boss!";
-                }
-                else
-                {
-                    m_AnnouncementText.text = "Boss Stage";
-                }
+                m_AnnouncementText.text = (currentStage >= finalBossStage) ? "Final Boss!" : "Boss Stage";
             }
             else
             {
