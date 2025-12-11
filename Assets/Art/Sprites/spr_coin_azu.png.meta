@@ -222,7 +222,11 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      spr_coin_azu_0: 8710723752907654049
+      spr_coin_azu_1: -5065929880676911926
+      spr_coin_azu_2: 1930441562187272357
+      spr_coin_azu_3: 5258327978300046976
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

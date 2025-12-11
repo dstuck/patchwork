@@ -75,8 +75,8 @@ Patchwork will be a 2D deckbuilding game where the player will curate a deck of 
 
 ### 1.0: Add final boss
 - [x] Add fire boss level
-- [ ] Add final boss on level 15 with fire, collapse, and movement
-- [ ] Add successful ending and high score storing
+- [x] Add final boss on level 15 with fire, collapse, and movement
+- [x] Add successful ending and high score storing
 <!-- ### 0.9: CEOs
 - [ ] Add boss stage upgrades that come with costs
 - [ ] Generate these bonuses randomly

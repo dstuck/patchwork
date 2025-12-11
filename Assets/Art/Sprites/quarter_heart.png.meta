@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      quarter_heart_0: 2716719685213482973
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
